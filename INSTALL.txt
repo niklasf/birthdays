@@ -1,0 +1,22 @@
+Address/Contact Module  : Birthdays
+Original Author         : David Gildeh
+Settings                : None yet
+
+********************************************************************
+DESCRIPTION:
+
+Allows users to add their DOB and receive birthday e-cards/emails on 
+their birthday automatically, and remind the administrator of upcoming
+birthdays.
+
+Install Intructions:
+
+1. Place Birthdays module directory in Drupal's 'Module' folder
+2. Go to modules page, activate module, this will install database
+   automatically (NB: only works with MySQL presently)
+3. Download Postcard module (http://drupal.org/project/postcard) and
+   install that module to send e-cards automatically.
+
+Project Page:
+
+http://www.davidgildeh.com/projects/birthdays

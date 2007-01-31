@@ -1,0 +1,430 @@
+<?php
+
+/**
+ * @file
+ * Allows users to store their birthdays and displays block of upcoming birthdays.
+ * Sends out greating postcards if postcard module is installed or sends user e-mail on
+ * their birthday automatically as cron job. Also sends admin reminder e-mails of upcoming
+ * user's birthdays.
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+
+function birthdays_help($section = '') {
+	$output = '';
+	switch($section) {
+		case 'admin/modules#description':
+			$output = t("Displays & reminds of upcoming users birthdays");
+			break;	
+		case 'admin/help#birthdays':
+			$output  = 'Allows users to store their birthdays and displays block of upcoming birthdays. ';
+ 			$output .= 'Sends out greating postcards if postcard module is installed or sends user e-mail on ';
+ 			$output .= "their birthday automatically as cron job. Also sends admin reminder e-mails of upcoming user's birthdays.";
+			break;
+	}
+	
+	return $output;
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+
+function birthdays_menu() {
+	$items = array();
+	$items[] = array(
+		'path' => 'birthdays',
+		'title' => t('birthdays'),
+		'access' => user_access('access birthdays'),
+		'callback' => 'birthdays_page',
+		'type' => MENU_CALLBACK
+	);
+		
+	return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+
+function birthdays_perm() {
+	return array('access birthdays', 'edit DOB');
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+ 
+ function birthdays_cron() {
+ 
+ 	// Perform these actions just once per day
+	
+	if (variable_get('birthdays_last_cron', 0) < (time() - 3600*24)) {
+	    _birthdays_message();
+	    variable_set('birthdays_last_cron', time());
+  	}
+ }
+
+/**
+ * Implementation of hook_block
+ * - Block lists upcoming birthdays
+ *
+ * @param $op the operation that is being requested.  This defaults to 'list', which indicates that the method should
+ *        return which blocks are available.
+ * @param $delta the specific block to display.  This is actually the offset into an array.
+ * @return one of two possibilities.  The first is an array of available blocks.  The other is an array containing a
+ *
+ */
+
+function birthdays_block($op = 'list', $delta = 0) {
+	
+	$block = array();
+	
+	if($op == 'list') {
+		$block[0]['info'] = t('Birthdays Block');
+	}
+	elseif($op == 'configure') {
+		
+		// Configuration settings for block
+		
+		$form["birthday_past"] = array(
+		  '#type' => 'textfield',
+		  '#title' => t("List Number"),
+		  '#default_value' => variable_get("birthdays_list_number", 6),
+		  '#size' => 2,
+		  '#maxlength' => 2,
+		  '#description' => t("Number of upcoming birthdays to list in block"),);
+		return $form;
+	}
+	else {
+		// Render block content
+		
+		if (user_access('access birthdays')) {
+		
+			$birthdays = _get_upcoming_birthdays(variable_get("birthdays_list_number", 6));
+		
+			$blockContent = '<table width="100%">';
+		
+			foreach ($birthdays as $user) {
+		
+				$blockContent .= '<tr><td>' . l($user['name'], 'user/' . $user['uid']) . ' </td><td> ' . $user['day'] . ' ' . $user['month'] . '</td></tr>';
+			}
+			
+			$blockContent .= '</table>';
+			$blockContent .= '<ul><li class="leaf">' . l('More...', 'birthdays') . '</li></ul>';
+			$block['subject'] = t('Upcoming Birthdays');
+			$block['content'] = $blockContent;
+		}
+	}
+		return $block;
+}
+
+/**
+ * Implementation of hook_user().
+ */
+
+function birthdays_user($op, &$edit, &$user, $category = null) {
+		switch($op) {
+			case 'update':
+				if($category != 'My Profile') break;
+				$year = $edit['DOB']['year'];
+				$month = $edit['DOB']['month'];
+				$day = $edit['DOB']['day'];
+				
+				$query = "SELECT uid FROM {dob} WHERE uid = $user->uid";
+				$result = db_query($query);
+				if (db_num_rows($result) == 0) {
+				
+					$query = "INSERT INTO {dob} (uid, birthday) VALUES ($user->uid, '{$year}-{$month}-{$day}');";
+					db_query($query);
+				} else {
+				
+					$query = "UPDATE {dob} SET birthday = '{$year}-{$month}-{$day}' WHERE uid = $user->uid";
+					db_query($query);
+				}
+				
+				break;
+			case 'view':
+				$query = "SELECT birthday FROM {dob} WHERE uid = $user->uid";
+				$queryResult = db_query($query);
+				$birthday = db_fetch_object($queryResult);
+				
+				if ($birthday->birthday != null)
+				{
+				
+					$year = substr($birthday->birthday, 0, 4);
+					$month = substr($birthday->birthday, 5, 2);
+					$day = substr($birthday->birthday, 8, 2);
+					$DOB = $month . '/' . $day . '/' . $year;
+					$age = _birthdays_calc_age($DOB);
+				
+					$content = _get_starsign($day, $month);
+					$content .= ' ' . $day . ' ' . _get_shortmonth($month) . ' (' . $age . ')';
+						
+ 					$form['My Profile'][] = array('title' => 'Birthday','value' => $content);
+ 					return $form;
+ 				}
+			case 'form':
+				if($category != 'My Profile') break;
+				if (user_access('edit DOB') || user_access('administer users'))
+				{
+					$query = "SELECT birthday FROM {dob} WHERE uid = $user->uid";
+					$queryResult = db_query($query);
+					$birthday = db_fetch_object($queryResult);
+					$dob = array('day' => substr($birthday->birthday, 8, 2),
+					             'month' => substr($birthday->birthday, 5, 2),
+					             'year' => substr($birthday->birthday, 0, 4));
+				
+					$year = substr($birthday->birthday, 0, 4);
+					$month = substr($birthday->birthday, 5, 2);
+					$day = substr($birthday->birthday, 8, 2); 
+					$form['My Profile']['DOB'] = array('#type' => 'date',
+					          '#title' => 'DOB',
+					          '#default_value' => $dob,
+					          '#description' => 'Enter your date of birth',
+					          '#required' => false,);
+					return $form;
+				}
+		}
+}
+
+/******************************************************************************
+ * Pages
+ */
+
+/**
+ * VIEW PAGE
+ */
+function birthdays_page() {
+
+  if (user_access('access birthdays')) {
+
+	drupal_set_title(t('User Birthdays'));
+
+  	$result = db_query('SELECT u.uid, u.name, u.picture, substring(birthday,6,2) as `month`, right(birthday, 2) as `day`, year(birthday) as `year` FROM {dob} d, {users} u WHERE d.uid=u.uid ORDER BY month, day');
+
+	$content = '<p>';
+	$header = array('User', 'Birthday', 'Age', 'Starsign', '');
+	$rows = array();
+
+	while ($object = db_fetch_object($result)) {
+
+		$DOB = $object->month . '/' . $object->day . '/' . $object->year;
+		$age = _birthdays_calc_age($DOB);
+		$starsign = _get_starsign($object->day, $object->month);
+
+		$month = _get_shortmonth($object->month);
+
+		$account = user_load(array('uid' => $object->uid));
+		$picture = theme_user_picture($account);
+
+		$rows[] = array(l($object->name, 'user/'.$object->uid), $object->day . ' ' . $month, $age, $starsign, $picture);
+	}
+
+	$content .= theme("table", $header, $rows);
+  	print theme('page', $content);
+  }
+  else {
+
+	drupal_access_denied();
+  }
+}
+
+/******************************************************************************
+ * Functions
+ */
+
+/**
+ * _get_upcoming_birthdays()
+ *
+ * @param $limit Number of users to fetch from database
+ * @return Returns an array of users for displaying upcoming birthdays
+ *
+ * - Returns an array of users that have birthdays upcoming up to a limit
+ */
+ 
+function _get_upcoming_birthdays($limit = 6) {
+
+	$query = 'SELECT dob.uid, users.name, substring(birthday,6,2) as `month`, right(birthday, 2) as `day`'; 
+	$query .= 'FROM {dob}, {users} WHERE users.uid = dob.uid AND DAYOFYEAR(birthday) >= DAYOFYEAR(curdate())';
+	$query .= 'order by month, day limit 0,' . $limit;
+	
+	$result = db_query($query);
+	
+	$birthdays = array();
+	
+	while ($user = db_fetch_object($result)) {
+	        
+	        
+	        $month = _get_shortmonth($user->month);
+	        	        
+		$birthdays[] = array('name' => $user->name, 'uid' => $user->uid, 'day' => $user->day, 'month' => $month);
+	}
+	
+	if (db_num_rows($result) < $limit) {
+	
+		// If less than $limit results returned, look at next year
+		
+		$query = 'SELECT dob.uid, users.name, substring(birthday,6,2) as `month`, right(birthday, 2) as `day`'; 
+		$query .= 'FROM {dob}, {users} WHERE users.uid = dob.uid AND DAYOFYEAR(birthday) >= 0 ';
+		$query .= 'order by month, day limit 0,' . ($limit - db_num_rows($result));
+	
+		$result = db_query($query);
+		
+		while ($user = db_fetch_object($result)) {
+			        
+			$month = _get_shortmonth($user->month);
+			        
+			$birthdays[] = array('name' => $user->name, 'day' => $user->day, 'month' => $month);
+		}
+	}
+	
+	return $birthdays;
+}
+
+/**
+  * Returns starsign of user (with symbol and link to Yahoo horoscopes)
+  *
+  * @param $dob_day The day.
+  * @param $dob_month The month.
+  * @return A picture link to Yahoo horoscopes
+  */
+
+function _get_starsign($dob_day, $dob_month) {
+
+	switch($dob_month) {
+
+		case 1: if ($dob_day < 20) {$starsign = 'capricorn';} else {$starsign = 'aquarius';} break;
+		case 2: if ($dob_day < 20) {$starsign = 'aquarius';} else {$starsign = 'pisces';} break;
+		case 3: if ($dob_day < 21) {$starsign = 'pisces';} else {$starsign = 'aries';} break;
+		case 4: if ($dob_day < 20) {$starsign = 'aries';} else {$starsign = 'taurus';} break;
+		case 5: if ($dob_day < 21) {$starsign = 'taurus';} else {$starsign = 'gemini';} break;
+		case 6: if ($dob_day < 22) {$starsign = 'gemini';} else {$starsign = 'cancer';} break;
+		case 7: if ($dob_day < 23) {$starsign = 'cancer';} else {$starsign = 'leo';} break;
+		case 8: if ($dob_day < 23) {$starsign = 'leo';} else {$starsign = 'virgo';} break;
+		case 9: if ($dob_day < 23) {$starsign = 'virgo';} else {$starsign = 'libra';} break;
+		case 10: if ($dob_day < 23) {$starsign = 'libra';} else {$starsign = 'scorpio';} break;
+		case 11: if ($dob_day < 22) {$starsign = 'scorpio';} else {$starsign = 'sagittarius';} break;
+		case 12: if ($dob_day < 22) {$starsign = 'sagittarius';} else {$starsign = 'capricorn';} break;
+	}
+
+	$link = '<a href="http://astrology.yahoo.com/astrology/general/dailyoverview/' . $starsign . '" target="_blank" title="' . $starsign . '">';
+	$link .= '<img src="/' . drupal_get_path('module', 'birthdays') . '/starsigns/' . $starsign . '.gif" border=0>';
+	$link .= '</a>';
+
+	return $link;
+}
+
+/**
+  * Returns short month name based on DOB month
+  *
+  * @param $dob_month The month.
+  * @return String of short month name
+  */
+
+function _get_shortmonth($dob_month) {
+	
+	switch ($dob_month) {
+				        	
+		case 1: $month = 'Jan'; break;
+		case 2: $month = 'Feb'; break;
+		case 3: $month = 'Mar'; break;
+		case 4: $month = 'Apr'; break;
+		case 5: $month = 'May'; break;
+		case 6: $month = 'Jun'; break;
+		case 7: $month = 'Jul'; break;
+		case 8: $month = 'Aug'; break;
+		case 9: $month = 'Sep'; break;
+		case 10: $month = 'Oct'; break;
+		case 11: $month = 'Nov'; break;
+		case 12: $month = 'Dec'; break;
+	}
+
+	return $month;
+}
+
+/**
+  * Calculates current age of user from DOB in years
+  */
+
+function _birthdays_calc_age($DOB) {
+
+	$DOBtime = strtotime($DOB);
+	$today = time();
+	
+	$age = floor((($today - $DOBtime) / 31557600));
+
+	return $age;
+}
+
+/**
+  * Sends e-mail to administrator as reminder and to users on birthday and e-mail users who's birthdays it is
+  */
+
+function _birthdays_message() {
+	
+	if (variable_get('birthday_remind', true)) {
+		
+		$users = db_query("SELECT uid FROM {dob} WHERE DAYOFYEAR(birthday) = (DAYOFYEAR(curdate()) + 7)");
+		
+		while ($user = db_fetch_object($users)) {
+					
+			$account = user_load(array('uid' => $user->uid));
+			$message = "The following users birthdays are coming up in 7 days:";
+		
+			$message .= $account->name . ' ';
+		}
+		
+		if (db_num_rows($users) != 0) {
+			
+			// Get site e-mail to send reminder to and from
+				
+			$from = variable_get('site_mail', ini_get('sendmail_from'));
+			$subject = "Upcoming Birthdays";
+				
+			user_mail($from, $subject, $message, "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from");
+		}
+	}
+	
+	if (variable_get('birthdays_send_user', true)) {
+		
+		$users = db_query("SELECT uid FROM {dob} WHERE DAYOFYEAR(birthday) = DAYOFYEAR(curdate())");
+				
+		while ($user = db_fetch_object($users)) {
+			
+			$account = user_load(array('uid' => $user->uid));
+			
+			list($firstname, $lastname) = split(" ", $account->profile_fullname);
+
+			$message  = '<p>Hey ' . $firstname . '!</p>';
+			$message .= '<p align="center"><h1><font color="red"><b>Happy Birthday!!</b></font></h1></p>';
+			$message .= '<p>Hope you age as gracefully as The Hoff and you have a great day!!</p><p>Take care,</p><p>David</p>';
+
+			if (function_exists('postcard_send')) {
+		
+				// If postcard module installed, send postcard
+				
+				$postcard = array('field_sndr' => 'Drazzig',
+						  'field_from' => 'drazzig@drazzig.com',
+						  'field_nid'  => 49,
+						  'field_rcpt' => $firstname,
+						  'field_to'   => $account->mail,
+						  'field_body' => $message);
+			
+				$postid = postcard_send($postcard);
+				
+				watchdog('Birthdays', $firstname . ' sent birthday postcard', WATCHDOG_NOTICE, l('postcard', 'postcard/45/'. $postid));
+				
+			} else {
+			
+				// Send e-mail
+				
+				watchdog('Birthdays', $firstname . ' sent birthday e-mail', WATCHDOG_NOTICE, '&#160;');
+			}			
+		}
+	}
+}
+
+?>

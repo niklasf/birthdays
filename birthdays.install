@@ -1,0 +1,22 @@
+<?php
+// $Id$
+
+/**
+ * Birthdays module schema
+ */
+function birthdays_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      db_query("CREATE TABLE {dob} (
+        uid int(10) unsigned NOT NULL default 0,
+        birthday date NOT NULL default '0000-00-00',
+        PRIMARY KEY (uid)
+      );");
+      break;
+    case 'pgsql':
+      // TODO
+      break;
+  }
+}
+

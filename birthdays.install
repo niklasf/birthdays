@@ -8,7 +8,7 @@ function birthdays_install() {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      db_query("CREATE TABLE {dob} (
+      db_query("CREATE TABLE IF NOT EXISTS {dob} (
         uid int(10) unsigned NOT NULL default 0,
         birthday date NOT NULL default '0000-00-00',
         PRIMARY KEY (uid)
@@ -18,5 +18,21 @@ function birthdays_install() {
       // TODO
       break;
   }
+}
+
+function birthdays_uninstall() {
+  db_query('DROP TABLE {dob}');
+  variable_del('birthdays_last_cron');
+  variable_del('birthdays_list_number');
+  variable_del('birthdays_days_number');
+  variable_del('birthdays_remind');
+  variable_del('birthdays_send_user');
+  variable_del('birthdays_send_user_message');
+  variable_del('birthdays_send_user_subject');     
+  variable_del('birthdays_use_starsign');
+  variable_del('birthdays_starsign_link');
+  variable_del('birthdays_date_format');
+  variable_del('birthdays_required');
+  variable_del('birthdays_profile_category');
 }
 

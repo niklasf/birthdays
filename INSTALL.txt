@@ -1,6 +1,7 @@
 Address/Contact Module  : Birthdays
 Original Author         : David Gildeh
 Settings                : None yet
+5.x version by 		: Maarten van Grootel
 
 ********************************************************************
 DESCRIPTION:

@@ -1,0 +1,9 @@
+/* $Id$ */
+#birthdays-page-filter input {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.birthdays-filter {
+  text-align: right;
+}

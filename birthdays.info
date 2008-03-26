@@ -1,4 +1,4 @@
 ; $Id$
 name = Birthdays
 description = Displays and reminds of upcoming users birthdays.
-package = Other
+dependencies = profile

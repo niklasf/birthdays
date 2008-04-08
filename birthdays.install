@@ -16,7 +16,7 @@ function birthdays_install() {
 
       // fetch current weight of the profile module, decrease with 1;
       $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
-      db_query("UPDATE {system} SET weight = $weight WHERE name = 'birthdays'");
+      db_query("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
       break;
     case 'pgsql':
       // TODO
@@ -36,7 +36,7 @@ function birthdays_update_1() {
     case 'mysqli':
       // fetch current weight of the profile module, decrease with 1;
       $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
-      $ret[] = update_sql("UPDATE {system} SET weight = $weight WHERE name = 'birthdays'");
+      $ret[] = update_sql("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
       break;
     case 'pgsql':
       // TODO

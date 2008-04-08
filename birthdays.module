@@ -1,28 +1,30 @@
 <?php
 // $Id$
 /**
-* @file The Birthdays module allows users to add their birthday to their
-*       profile. It lists birthdays on a seperate page and in different
-*       blocks. Users can receive an e-mail on their birthday automatically,
-*       and the administrator can receive daily reminders of who are having
-*       their birthday. Requires Profile Module.
-*/
+ * @file The Birthdays module allows users to add their birthday to their
+ *   profile. It lists birthdays on a seperate page and in different
+ *   blocks. Users can receive an e-mail on their birthday automatically,
+ *   and the administrator can receive daily reminders of who are having
+ *   their birthday. Requires Profile Module.
+ */
 
 /**
-* @TODO - Fire events
-* @TODO - Add postcards
-* @TODO - Make visible to VIEWS module
-* @TODO - PGSQL patch
-* @TODO - Regulate visibility of birthdays, birthday blocks, etc by means of the settings of the profile field
-* @TODO - Make optional size & frequency: Once a week (on first day of week) == 7 days in advance or Every day == only today
-* @TODO - Make POT file(s)
-* @TODO - Proper DOCSYS commenting of functions
-*/
+ * @TODO - Fire events
+ * @TODO - Add postcards
+ * @TODO - Make visible to VIEWS module
+ * @TODO - PGSQL patch
+ * @TODO - Regulate visibility of birthdays, birthday blocks, etc
+ *   by means of the settings of the profile field
+ * @TODO - Make optional size & frequency:
+ *   Once a week (on first day of week) == 7 days in advance or Every day == only today
+ * @TODO - Make POT file(s)
+ * @TODO - Proper DOCSYS commenting of functions
+ */
 
 
 /**
-* Implementation of hook_help().
-*/
+ * Implementation of hook_help().
+ */
 function birthdays_help($section = '') {
   $output = '';
   switch ($section) {
@@ -36,9 +38,10 @@ function birthdays_help($section = '') {
   return $output;
 }
 
+
 /**
-* Implementation of hook_menu().
-*/
+ * Implementation of hook_menu().
+ */
 function birthdays_menu($may_cache) {
   $items = array();
   if ($may_cache) {
@@ -87,9 +90,10 @@ function birthdays_menu($may_cache) {
   return $items;
 }
 
+
 /**
-* @desc Callback for birthdays synchronisation system.
-*/
+ * Callback for birthdays synchronisation system.
+ */
 function birthdays_sync_page() {
   if (variable_get('birthdays_field_name', '')) {
     return drupal_get_form('birthdays_sync_form');
@@ -99,23 +103,43 @@ function birthdays_sync_page() {
   }
 }
 
+
 /**
-* Implementation of hook_form().
-*/
+ * Implementation of hook_form().
+ */
 function birthdays_sync_form() {
+
   $form['profile_fieldset'] = array('#type' => 'fieldset');
-  $form['profile_fieldset']['description'] = array('#type' => 'item', '#title' => 'Profile to Birthdays', '#value' => t('Fill the Birthdays module\'s table with data from the Profile module\'s table. This is needed when you (re-)installed the Birthdays module, but already collected birthdays with the Profile module (e.g. for age verification).'));
-  $form['profile_fieldset']['submit'] = array('#type' => 'submit', '#value' => t('Copy Profile data to Birthdays module'));
+
+  $form['profile_fieldset']['description'] = array(
+    '#type' => 'item',
+    '#title' => 'Profile to Birthdays',
+    '#value' => t('Fill the Birthdays module\'s table with data from the Profile module\'s table. This is needed when you (re-)installed the Birthdays module, but already collected birthdays with the Profile module (e.g. for age verification).'),
+  );
+
+  $form['profile_fieldset']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Copy Profile data to Birthdays module')
+  );
 
   $form['birthdays_fieldset'] = array('#type' => 'fieldset');
-  $form['birthdays_fieldset']['description'] = array('#type' => 'item', '#title' => 'Birthdays to Profile', '#value' => t('Fill the Profile module\'s table with data from the Birthdays module\'s table. You can use this to copy the old data collected by a previous version of the Birthdays module after an update. It is only necessary when updating from a version of the Birthdays module which didn\'t use the Profile module.'));
-  $form['birthdays_fieldset']['submit'] = array('#type' => 'submit', '#value' => t('Copy Birthdays data to Profile module'));
+
+  $form['birthdays_fieldset']['description'] = array(
+    '#type' => 'item',
+    '#title' => 'Birthdays to Profile',
+    '#value' => t('Fill the Profile module\'s table with data from the Birthdays module\'s table. You can use this to copy the old data collected by a previous version of the Birthdays module after an update. It is only necessary when updating from a version of the Birthdays module which didn\'t use the Profile module.'),
+  );
+
+  $form['birthdays_fieldset']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Copy Birthdays data to Profile module'),
+  );
   return $form;
 }
 
 /**
-* Implementation of hook_form_submit().
-*/
+ * Implementation of hook_form_submit().
+ */
 function birthdays_sync_form_submit($form_id, $values) {
   if ($values['op'] == t('Copy Profile data to Birthdays module')) {
     $field = variable_get('birthdays_field_name', '');
@@ -143,10 +167,13 @@ function birthdays_sync_form_submit($form_id, $values) {
   drupal_set_message(t('Modules have been synchronized.'));
 }
 
+
 /**
-* @desc Callback for birthdays menu item to show a page which lists all users.
-* @return Themed birthday listing of all users
-*/
+ * Show birthdays page
+ * @desc Callback for birthdays menu item to show a page which lists all users.
+ * @return string
+ *   Themed birthday listing of all users
+ */
 function birthdays_view_page() {
   // Nothing to see when the birthdays profile field hasn't been set yet.
   if (!variable_get('birthdays_field_name', '')) {
@@ -172,9 +199,9 @@ function birthdays_view_page() {
 
   while ($user = db_fetch_object($result)) {
     // load the user objects
-    $u = user_load(array('uid' => $user->uid));
-    if (empty($filter_year) || !$u->birthdays_user_hide_year) {
-      $accounts[] = $u;
+    $user = user_load(array('uid' => $user->uid));
+    if (empty($filter_year) || !$user->birthdays_user_hide_year) {
+      $accounts[] = $user;
     }
   }
 
@@ -185,6 +212,14 @@ function birthdays_view_page() {
   return $output;
 }
 
+
+/**
+ * Return a form containing a select box to filter users by month of birth
+ *
+ * @param $filter_month
+ * @param int $filter_year
+ * @return array of the form
+ */
 function birthdays_page_filter($filter_month = null, $filter_year = null) {
   $options_months[0] = '';
   for ($i = 1; $i <= 12; $i++) {
@@ -192,10 +227,10 @@ function birthdays_page_filter($filter_month = null, $filter_year = null) {
   }
 
   $options_years[0] = '';
-  $options_years = $options_years + drupal_map_assoc(range(1900,2050));
+  $options_years = $options_years + drupal_map_assoc(range(1900, 2050));
 
   $form['#prefix'] = '<div class="container-inline birthdays-filter">';
-  $form['#suffix'] = "</div>";
+  $form['#suffix'] = "</div>\n";
 
   $form['birthdays_filter_month'] = array(
     '#type' => 'select',
@@ -205,7 +240,7 @@ function birthdays_page_filter($filter_month = null, $filter_year = null) {
     '#attributes' => array('onchange' => 'submit()'),
   );
 
-  if (variable_get('birthdays_hide_year',0) != 1) {
+  if (variable_get('birthdays_hide_year', 0) != 1) {
     $form['birthdays_filter_year'] = array(
       '#type' => 'select',
       '#options' => $options_years,
@@ -216,21 +251,29 @@ function birthdays_page_filter($filter_month = null, $filter_year = null) {
   }
 
   $form['button'] = array(
-    '#type' => 'button',
-    '#value' => 'Filter',
+    '#type'   => 'button',
+    '#prefix' => '<noscript>',
+    '#value'  => t('Filter'),
+    '#suffix' => '</noscript>',
   );
 
   return $form;
 }
 
+
+/**
+ *
+ * @param $month
+ * @return unknown
+ */
 function birthdays_map_month_long($month) {
   return format_date(gmmktime(0, 0, 0, $month, 2, 1970), 'custom', 'M', 0);
 }
 
 /**
-* @desc Theme a birthdays page
-* @var $accounts array of loaded user objects
-*/
+ * @desc Theme a birthdays page
+ * @var $accounts array of loaded user objects
+ */
 function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) {
   $field = variable_get('birthdays_field_name', '');
 
@@ -274,19 +317,20 @@ function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) 
     $i++;
   }
 
+  $output = '';
   // Return a table. Everthing else (titles, and such) is handled by the page system.
   if (variable_get('birthdays_page_show_filters', 1)) {
-    $str .= drupal_get_form('birthdays_page_filter', $filter_month, $filter_year);
+    $output .= drupal_get_form('birthdays_page_filter', $filter_month, $filter_year);
   }
-  $str .= theme('table', $header, $rows);
-  $str .= theme('pager', NULL, variable_get('birthdays_page_list_number', 25), 0);
+  $output .= theme('table', $header, $rows);
+  $output .= theme('pager', NULL, variable_get('birthdays_page_list_number', 25), 0);
 
-  return $str;
+  return $output;
 }
 
 /**
-* Implementation of hook_form().
-*/
+ * Implementation of hook_form().
+ */
 function birthdays_admin_settings() {
 
   $form['birthdays_show_starsign'] = array(
@@ -300,7 +344,6 @@ function birthdays_admin_settings() {
     ),
     '#description' => t('Select whether the star signs should be enabled.'),
   );
-
 
   // Get fields from the profile.module of the type 'date'.
   $options = _birthdays_get_date_fields();
@@ -317,7 +360,6 @@ function birthdays_admin_settings() {
     '#options' => $options,
     '#required' => TRUE,
   );
-
 
   $form['birthdays_hide_year'] = array(
     '#type' => 'select',
@@ -337,6 +379,7 @@ function birthdays_admin_settings() {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
+
   $form['birthdays_page']['birthdays_page_settings'] = array(
     '#type' => 'select',
     '#title' => t('Set birthdays page settings'),
@@ -372,7 +415,10 @@ function birthdays_admin_settings() {
     '#type' => 'radios',
     '#title' => t('Send upcoming birthdays to admin'),
     '#default_value' => variable_get('birthdays_remind', 0),
-    '#options' => array(1 => t('Yes'), 0 => t('No')),
+    '#options' => array(
+      0 => t('No'),
+      1 => t('Yes'),
+    ),
     '#description' => t('Do you want a daily e-mail containing all upcoming birthdays (for the next week)?')
   );
 
@@ -412,12 +458,18 @@ Hope you have a great day!")
     '#description' => t('@name will be replaced by the username.'),
   );
 
-
   return system_settings_form($form);
 }
 
-function birthdays_admin_settings_submit($form_id, $values) {
-  $field = _birthdays_get_field($values['birthdays_field_name']);
+
+/**
+ * Submit hook for admin settings form
+ *
+ * @param string $form_id
+ * @param array $values
+ */
+function birthdays_admin_settings_submit($form_id, $form_values) {
+  $field = _birthdays_get_field($form_values['birthdays_field_name']);
   $op = isset($form_values['op']) ? $form_values['op'] : '';
   if ($op == t('Reset to defaults')) {
     variable_del('birthdays_field_id');
@@ -426,20 +478,25 @@ function birthdays_admin_settings_submit($form_id, $values) {
     variable_set('birthdays_field_id', $field->fid);
   }
 
-  return system_settings_form_submit($form_id, $values);
+  return system_settings_form_submit($form_id, $form_values);
 }
 
 
 /**
-* Implementation of hook_perm().
-*/
+ * Implementation of hook_perm().
+ * Permissions:
+ * - accesss birthday
+ * - delete birthday
+ */
 function birthdays_perm() {
   return array('access birthdays', 'delete birthday');
 }
 
+
 /**
-* Implementation of hook_cron().
-*/
+ * Implementation of hook_cron().
+ * Performed one time a day to send e-mails.
+ */
 function birthdays_cron() {
   // Either user mail or admin mail is activated and when the birthdays profile field has been set.
   if (variable_get('birthdays_field_name', '') != '' && (variable_get('birthdays_send_user', 0) || variable_get('birthdays_remind', 0))) {
@@ -453,9 +510,10 @@ function birthdays_cron() {
   }
 }
 
+
 /**
-* Implementation of hook_block
-*/
+ * Implementation of hook_block
+ */
 function birthdays_block($op = 'list', $delta = 'by_days', $edit = array()) {
   switch ($op) {
     // List the blocks on the blocks settings page
@@ -523,19 +581,24 @@ function birthdays_block($op = 'list', $delta = 'by_days', $edit = array()) {
   }
 }
 
+
 /**
-*  @desc Helper function for displaying only todays birthdays
-*  @return An array containing all user objects that have their birthday today
-*/
+ *  Helper function for displaying only todays birthdays
+ *  @return An array containing all user objects that have their birthday today
+ */
 function birthdays_get_todays_birthdays() {
   return birthdays_get_birthdays_by_days(1);
 }
 
+
 /**
-* @desc Get all birthdays of the upcomming X days
-* @var Integer stating the amount of days to look forward, including today.
-* @return An array containing user objects meeting the criteria
-*/
+ * Get all birthdays of the upcomming X days
+ *
+ * @var $amount
+ *   Integer stating the amount of days to look forward, including today.
+ * @return array
+ *   An array containing user objects meeting the criteria
+ */
 function birthdays_get_birthdays_by_days($amount) {
   $birthdays = array();
   // Current user, needed for timezone information
@@ -599,18 +662,21 @@ function birthdays_get_birthdays_by_days($amount) {
 
 
 /**
-* @desc Get the next X birthdays
-* @var Integer stating the amount of birthdays to retrieve.
-* @return An array containing user objects meeting the criteria
-*/
+ * Get the next X birthdays
+ *
+ * @var $amount
+ *   Integer stating the amount of birthdays to retrieve.
+ * @return array
+ *   An array containing user objects meeting the criteria
+ */
 function birthdays_get_birthdays($amount) {
   $birthdays = array();
 
-  // Current Logged in user
+  // Current logged in user
   global $user;
 
   // Get user time zone
-  // needed to determine what day 'today' is in the timezone of the user/website.
+  // Needed to determine what day 'today' is in the timezone of the user/website.
   if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
     $timezone = $user->timezone;
   }
@@ -663,15 +729,17 @@ function birthdays_get_birthdays($amount) {
   return $birthdays;
 }
 
+
 /**
-* @desc Theme function of the blocks
-* @returns themed content
-*/
+ * Theme function of the blocks
+ *
+ * @returns themed content
+ */
 function theme_birthdays_block($birthdays, $amount, $delta) {
-  
+
   $field = variable_get('birthdays_field_name', '');
   if (!empty( $birthdays)) {
-    $str = '<table>';
+    $output = '<table>';
     foreach ($birthdays as $b) {
       $user = user_load(array('uid' => $b));
       $age = _birthdays_show_age($user);
@@ -679,23 +747,23 @@ function theme_birthdays_block($birthdays, $amount, $delta) {
       $age = isset($age) ? '('. ($user->age + ($user->{$field}['day'] != format_date(time(), 'custom', 'd'))) .')' : '';
 
       $user->{$field}['year'] = NULL; // Don't show the year in blocks
-      $str .= '<tr><td>'. theme('username', $user) .'&nbsp;<small>'. $age .'</small></td><td>'. _birthdays_show_date($user->{$field}, $user) .'</td></tr>';
+      $output .= '<tr><td>'. theme('username', $user) .'&nbsp;<small>'. $age .'</small></td><td>'. _birthdays_show_date($user->{$field}, $user) .'</td></tr>';
     }
-    $str .= '</table>';
+    $output .= '</table>';
   }
   else {
-    $str = '<p>' . t('Nobody is having their birthday soon.') . '</p>';
+    $output = '<p>'. t('Nobody is having their birthday soon.') .'</p>';
   }
 
-  $str .= '<ul><li class="leaf">'. l(t('More...'), 'birthdays') .'</li></ul>';
+  $output .= '<ul><li class="leaf">'. l(t('More...'), 'birthdays') .'</li></ul>';
 
-  return $str;
+  return $output;
 }
 
 
 /**
-* Implementation of hook_user().
-*/
+ * Implementation of hook_user().
+ */
 function birthdays_user($op, &$edit, &$user, $category = NULL) {
   // Do nothing with user when birthdays_field_name is not yet set
   if (!variable_get('birthdays_field_name', '')) {
@@ -718,9 +786,13 @@ function birthdays_user($op, &$edit, &$user, $category = NULL) {
   }
 }
 
+
 /**
-* @desc Inject information on a user load
-*/
+ * Inject information on a user load
+ *
+ * @param object $user
+ *   User object passed by reference
+ */
 function birthdays_load_user(&$user) {
   // Pre-load birthday-information into $user
   profile_load_profile($user);
@@ -731,13 +803,14 @@ function birthdays_load_user(&$user) {
   // If it was set by the user
   if ($user->$field) {
     // Set the user's age
-    $user->age = _birthdays_calculate_age($user->$field);
+    $user->age = _birthdays_get_age($user->$field);
   }
 }
 
+
 /**
-* @desc Inject information and save birthday when editing or adding a user
-*/
+ * Inject information and save birthday when editing or adding a user
+ */
 function birthdays_save_user(&$edit, &$user, $category) {
   // Duplicate birthday-information in separate table for easy searching
 
@@ -766,9 +839,10 @@ function birthdays_save_user(&$edit, &$user, $category) {
   }
 }
 
+
 /**
-* @desc Alter the way the birthday is shown. This is fired after every module has filled the profile.
-*/
+ * Alter the way the birthday is shown. This is fired after every module has filled the profile.
+ */
 function birthdays_profile_alter(&$user, &$fields) {
   // If the birthdays_field_name hasn't been set yet, do not continue
   if (!variable_get('birthdays_field_name', '')) {
@@ -804,15 +878,15 @@ function birthdays_profile_alter(&$user, &$fields) {
   }
 }
 
+
 /**
-* @desc Adds user options to the profile form which are saved in {users}.data and
-*       are loaded during a user_load().
-* @return fields for the form
-*/
+ * Adds user options to the profile form which are saved in {users}.data and
+ * are loaded during a user_load().
+ * @return fields for the form
+ */
 function birthdays_form_user($edit, $user, $category, $register = FALSE) {
   // Get entire profile field object
   $field = _birthdays_get_field(variable_get('birthdays_field_name', ''));
-
 
   // If the called category is the category of the form field
   if ($category == $field->category || ($field->register && $register)) {
@@ -864,10 +938,12 @@ function birthdays_form_user_submit($form_id, $values) {
   user_edit_submit($form_id, $values);
 }
 
+
 /**
-* @desc Sends e-mail to administrator once a day as reminder about the upcoming 7 days
-* @todo Add frequency options (once a day, every week, monthly)
-*/
+ * Sends e-mail to administrator once a day as reminder about the upcoming 7 days
+ *
+ * @todo Add frequency options (once a day, every week, monthly)
+ */
 function _birthdays_send_admin_message() {
   // Only proceed when admin messages are enabled
   if (variable_get('birthdays_remind', 0)) {
@@ -898,10 +974,12 @@ function _birthdays_send_admin_message() {
   }
 }
 
+
 /**
-* @desc Send all birthdays on this day a message
-* @todo re-introduce the postcard module to make it fun
-*/
+ * Send all birthdays on this day a message
+ *
+ * @todo re-introduce the postcard module to make it fun
+ */
 function _birthdays_send_user_message() {
   // If messaging is enabled
   if (variable_get('birthdays_send_user', 0) > 0) {
@@ -926,17 +1004,19 @@ Hope you have a great day!"));
         // Send mail
         drupal_mail('birthdays_user_message', $account->name .'<'. $account->mail .'>', $subject, $parsed_message, $from);
         // Log actions
-        watchdog('Birthdays', t('Sent @name a birthday e-mail', array('@name'=> $account->name)), WATCHDOG_NOTICE, '&#160;');
+        watchdog('Birthdays', t('Sent @name a birthday e-mail', array('@name' => $account->name)), WATCHDOG_NOTICE, '&#160;');
       }
     }
   }
 }
 
+
 /**
-* @desc Get starsign based on date of birth
-* @var $day and $month, decribing date of birth
-* @return The name of the starsign
-*/
+ * Get starsign based on date of birth
+ *
+ * @var $day and $month, decribing date of birth
+ * @return The name of the starsign
+ */
 function _birthdays_get_starsign($day, $month) {
 
   switch ($month) {
@@ -981,10 +1061,11 @@ function _birthdays_get_starsign($day, $month) {
   return $starsign;
 }
 
+
 /**
-* @desc Retrieve all fields of type 'date' from the profile.module's tables
-* @return array with fieldnames
-*/
+ * Retrieve all fields of type 'date' from the profile.module's tables
+ * @return array with fieldnames
+ */
 function _birthdays_get_date_fields() {
   $options = array();
   $result = db_query("SELECT name FROM {profile_fields} WHERE type = 'date'");
@@ -996,11 +1077,15 @@ function _birthdays_get_date_fields() {
   return $options;
 }
 
+
 /**
-* @desc Retrieve profile field object
-* @var $field: name of field to retrieve
-* @return profile field object
-*/
+ * Retrieve profile field object
+ *
+ * @var string $field
+ *   name of field to retrieve
+ * @return object
+ *   profile field object
+ */
 function _birthdays_get_field($field) {
   if (!empty($field)) {
     $ret = db_fetch_object(db_query("SELECT * FROM {profile_fields} WHERE name = '%s'", $field));
@@ -1012,64 +1097,94 @@ function _birthdays_get_field($field) {
   return $ret;
 }
 
+
 /**
-* @desc Return the picture of a starsign, given the name. Links to Yahoo! when option is selected.
-*/
+ * Return the picture of a starsign, given the name. Links to Yahoo! when option is selected.
+ *
+ * @param string starsign
+ *   name of the starsign to show (not translated)
+ * @param int $show
+ *   Show starsigns for values > 0
+ * @return string
+ *   HTML of a picture link to Yahoo horoscopes
+ */
 function birthdays_get_starsign_image($starsign, $show = 0) {
-  $str = '';
+  $output = '';
 
   // Only show starsign when enabled
   if ($show > 0 && !empty( $starsign)) {
     // Image based on thme path.
-    $str = '<img src="'. base_path() . drupal_get_path('module', 'birthdays') .'/starsigns/'. $starsign .'.gif" alt="'. t($starsign) .'" />';
+    $output = '<img src="'. base_path() . drupal_get_path('module', 'birthdays') .'/starsigns/'. $starsign .'.gif" alt="'. t($starsign) .'" />';
 
-    // If link should be shown: update $str
+    // If link should be shown: update $output
     if ($show == 1) {
-      $str = '<a href="http://astrology.yahoo.com/astrology/general/dailyoverview/'. $starsign .'" target="_blank" title="'. t($starsign) .'">'. $str .'</a>';
+      $output = '<a href="http://astrology.yahoo.com/astrology/general/dailyoverview/'. $starsign .'" target="_blank" title="'. t($starsign) .'">'. $output .'</a>';
     }
   }
 
   // Return HTML
-  return $str;
+  return $output;
 }
 
+
+/**
+ * Implementation of hook_form_alter to change profile_field_form
+ *
+ * @param string $form_id
+ * @param array $form
+ *   passed by reference
+ */
 function birthdays_form_alter($form_id, &$form) {
   if ($form_id == 'profile_field_form') {
     $form['#submit'] = (array)$form['#submit'] + array('birthdays_profile_form_submit' => array());
   }
 }
 
+
+/**
+ * Initiated when profile_field_form is submitted
+ *
+ * @param string $form_id
+ * @param array $form_values
+ */
 function birthdays_profile_form_submit($form_id, $form_values) {
   if ($form_values['fid'] == variable_get('birthdays_field_id', 0)) {
     variable_set('birthdays_field_name', $form_values['name']);
   }
 }
 
+
 /**
-* @desc Calculate age
-* @var array containing fields 'year', 'month' and 'day'
-* @return age
-*/
-function _birthdays_calculate_age($date) {
+ * Get age from a given date of birth
+ *
+ * @var array $date
+ *   array containing fields with keys 'year', 'month' and 'day'
+ * @return int
+ *   age
+ */
+function _birthdays_get_age($date) {
   // If date is not empty
-  if (is_array( $date)) {
+  if (is_array($date)) {
     // extract date
     extract($date);
 
     // call main age function (no overloading in PHP)
-    return _birthdays_calculate_age_2($day, $month, $year);
+    return _birthdays_calculate_age($day, $month, $year);
   }
   else {
     return null;
   }
 }
 
+
 /**
-* @desc Calculate age
-* @var $year, $month, $day as expected
-* @return age
-*/
-function _birthdays_calculate_age_2($day, $month, $year) {
+ * Calculate age
+ *
+ * @var $year, $month, $day as expected
+ * @return int
+ *   age
+ */
+function _birthdays_calculate_age($day, $month, $year) {
   if ($year && $month && $day) {
     // age = (current year - birthyear) - 1 (when the birthday hasn't arrived yet).
     return format_date(time(), 'custom', 'Y') - $year - (format_date(time(), 'custom', 'nd') < $month . str_pad($day, 2, 0, STR_PAD_LEFT));
@@ -1079,6 +1194,14 @@ function _birthdays_calculate_age_2($day, $month, $year) {
   }
 }
 
+
+/**
+ * Return age if user has agreed to show it
+ *
+ * @param object $user
+ *   a user object having attribute "age" set
+ * @return int
+ */
 function _birthdays_show_age($user) {
   $age = null;
   if (isset($user->age) && (variable_get('birthdays_hide_year', 0) == 0 || (variable_get('birthdays_hide_year', 0) == 2 && $user->birthdays_user_hide_year == 0))) {
@@ -1087,9 +1210,10 @@ function _birthdays_show_age($user) {
   return $age;
 }
 
+
 /**
-* @desc Format date array
-*/
+ * Format date array
+ */
 function _birthdays_show_date($date, $user, $format = 'small') {
   if (is_array($date)) {
     // Extract date
@@ -1103,11 +1227,12 @@ function _birthdays_show_date($date, $user, $format = 'small') {
   }
 }
 
+
 /**
-* @desc Format date, optionally hide year
-*/
+ * Format date, optionally hide year
+ */
 function _birthdays_show_date_2($day, $month, $year, $user, $type = 'small') {
-  $str = '';
+  $output = '';
   // Determine format type
   switch ($type) {
     case 'medium':
@@ -1141,8 +1266,8 @@ function _birthdays_show_date_2($day, $month, $year, $user, $type = 'small') {
   );
 
   // Translate string to correct format
-  $str .= strtr($format, $replace);
-  $str = trim($str, '/ ,.:-');
+  $output .= strtr($format, $replace);
+  $output = trim($output, '/ ,.:-');
 
-  return $str;
+  return $output;
 }

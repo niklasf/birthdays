@@ -1024,7 +1024,7 @@ function _birthdays_get_starsign($day, $month) {
       $starsign = $day < 20 ? 'capricorn' : 'aquarius';
       break;
     case 2:
-      $starsign = $day < 20 ? 'aquarius' : 'pisces';
+      $starsign = $day < 19 ? 'aquarius' : 'pisces';
       break;
     case 3:
       $starsign = $day < 21 ? 'pisces' : 'aries';

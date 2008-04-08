@@ -1051,10 +1051,10 @@ function _birthdays_get_starsign($day, $month) {
       $starsign = $day < 23 ? 'libra' : 'scorpio';
       break;
     case 11:
-      $starsign = $day < 22 ? 'scorpio' : 'sagitarius';
+      $starsign = $day < 22 ? 'scorpio' : 'sagittarius';
       break;
     case 12:
-      $starsign = $day < 22 ? 'sagitarius' : 'capricorn';
+      $starsign = $day < 22 ? 'sagittarius' : 'capricorn';
       break;
   }
 

@@ -4,6 +4,12 @@ Original Author         : David Gildeh
 5.x version by          : Maarten van Grootel
 ********************************************************************
 CHANGELOG:
+2008-04-09:
+* Added pgsql-support
+
+2008-04-08:
+* Implemented better compliance with Drupal coding standards
+* Fixed Sagittarius typo
 
 2007-08-10:
 * All code rewritten according to coding guidelines of Drupal

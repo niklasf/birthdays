@@ -29,9 +29,9 @@ Features:
 * Automatically e-mails user on their birthday (optionally).
 * Possibility to synchronize between the Birthdays module and the
   Profile module.
+* PGSQL support
 
 Future features:
-* PGSQL support
 * Re-introduction optional postcard module support
 * Add optional Events module support
 * More options for the admin reminders (to choose weekly or dayly digest, etc)

@@ -12,7 +12,6 @@
  * @TODO - Fire events
  * @TODO - Add postcards
  * @TODO - Make visible to VIEWS module
- * @TODO - PGSQL patch
  * @TODO - Regulate visibility of birthdays, birthday blocks, etc
  *   by means of the settings of the profile field
  * @TODO - Make optional size & frequency:
@@ -153,7 +152,17 @@ function birthdays_sync_form_submit($form_id, $values) {
   }
   else {
     $field = variable_get('birthdays_field_name', '');
-    $result = db_query('SELECT {dob}.uid, MONTH({dob}.birthday) AS month, YEAR({dob}.birthday) AS year, DAYOFMONTH({dob}.birthday) AS day FROM {dob}');
+    
+    switch ($GLOBALS['db_type']) {
+      case 'mysql':
+      case 'mysqli':
+        $result = db_query('SELECT {dob}.uid, MONTH({dob}.birthday) AS month, YEAR({dob}.birthday) AS year, DAYOFMONTH({dob}.birthday) AS day FROM {dob}');
+        break;
+      case 'pgsql':
+        $result = db_query("SELECT uid, date_part('month',{dob}.birthday) AS month, date_part('year',{dob}.birthday) AS year, date_part('day',{dob}.birthday) AS day FROM {dob}");
+        break;
+    }
+    
     while ($birthday = db_fetch_object($result)) {
       $account = user_load(array('uid' => $birthday->uid));
       $dob = array(
@@ -188,12 +197,25 @@ function birthdays_view_page() {
   }
   $output = '';
   $filter = '';
-  // Right join = filtering out
-  $join = variable_get('birthdays_page_settings', 0) != 2 || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
-  $sort = variable_get('birthdays_page_settings', 0) == 0 || !empty($filter_month) || !empty($filter_year) ? 'MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), ' : '';
-  $filter .= !empty($filter_month) ? " AND MONTH({dob}.birthday) = ". $filter_month : '';
-  $filter .= !empty($filter_year) ? " AND YEAR({dob}.birthday) = ". $filter_year : '';
-
+  
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      // Right join = filtering out
+      $join = variable_get('birthdays_page_settings', 0) != 2 || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
+      $sort = variable_get('birthdays_page_settings', 0) == 0 || !empty($filter_month) || !empty($filter_year) ? 'MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), ' : '';
+      $filter .= !empty($filter_month) ? " AND MONTH({dob}.birthday) = ". $filter_month : '';
+      $filter .= !empty($filter_year) ? " AND YEAR({dob}.birthday) = ". $filter_year : '';
+      break;
+    case 'pgsql':
+      // Right join = filtering out
+      $join = variable_get('birthdays_page_settings', 0) != 2 || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
+      $sort = variable_get('birthdays_page_settings', 0) == 0 || !empty($filter_month) || !empty($filter_year) ? "date_part('month', {dob}.birthday), date_part('day', {dob}.birthday), date_part('year', {dob}.birthday), " : '';
+      $filter .= !empty($filter_month) ? " AND date_part('month', {dob}.birthday) = ". $filter_month : '';
+      $filter .= !empty($filter_year) ? " AND date_part('year', {dob}.birthday) = ". $filter_year : '';      
+      break;
+  }
+  
   // Select all users (but ignore blocked and never logged in ones)
   $result = pager_query("SELECT {users}.uid FROM {users} ". $join ." {dob} ON {users}.uid = {dob}.uid  WHERE {users}.status <> 0 AND {users}.access <> 0". $filter ." ORDER BY ". $sort ."{users}.name", variable_get('birthdays_page_list_number', 25));
 
@@ -636,21 +658,42 @@ function birthdays_get_birthdays_by_days($amount) {
     - First part selects all birthdays that are in the next year when the interval exceeds the end of this year.
     - Second part selects all birthdays that are between the begin and end date and are in the current year
     */
-  $result = db_query(
-    "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
-    AND (
-    (
-      DATE_FORMAT({dob}.birthday,'$next_year%%m%%d') - DATE_FORMAT(ADDDATE(ADDDATE(NOW(),INTERVAL %d SECOND),INTERVAL %d DAY),'%%Y%%m%%d') < 0
-    )
-    OR
-    (
-      DATE_FORMAT({dob}.birthday,'$current_year%%m%%d') - DATE_FORMAT(ADDDATE(NOW(),INTERVAL %d SECOND),'%%Y%%m%%d') >= 0
-      AND
-      DATE_FORMAT({dob}.birthday,'$current_year%%m%%d') - DATE_FORMAT(ADDDATE(ADDDATE(NOW(),INTERVAL %d SECOND),INTERVAL %d DAY),'%%Y%%m%%d') < 0
-    ) )
-    ORDER BY MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), {users}.name", $timezone, $amount, $timezone, $timezone, $amount
-  );
-
+    
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $result = db_query(
+        "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
+        AND (
+        (
+          DATE_FORMAT({dob}.birthday,'$next_year%%m%%d') - DATE_FORMAT(ADDDATE(ADDDATE(NOW(),INTERVAL %d SECOND),INTERVAL %d DAY),'%%Y%%m%%d') < 0
+        )
+        OR
+        (
+          DATE_FORMAT({dob}.birthday,'$current_year%%m%%d') - DATE_FORMAT(ADDDATE(NOW(),INTERVAL %d SECOND),'%%Y%%m%%d') >= 0
+          AND
+          DATE_FORMAT({dob}.birthday,'$current_year%%m%%d') - DATE_FORMAT(ADDDATE(ADDDATE(NOW(),INTERVAL %d SECOND),INTERVAL %d DAY),'%%Y%%m%%d') < 0
+        ) )
+        ORDER BY MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), {users}.name", $timezone, $amount, $timezone, $timezone, $amount
+      );
+      break;
+    case 'pgsql':
+      $result = db_query(
+        "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
+        AND (
+        (
+          cast(to_char({dob}.birthday,'{$next_year}MMDD') as integer) - cast(to_char(current_timestamp + INTERVAL '%d seconds' + INTERVAL '%d days','YYYYMMDD') as integer) < 0
+        )
+        OR
+        (
+          cast(to_char({dob}.birthday,'{$current_year}MMDD') as integer) - cast(to_char(current_timestamp + INTERVAL '%d seconds','YYYYMMDD') as integer) >= 0
+          AND
+          cast(to_char({dob}.birthday,'{$current_year}MMDD') as integer) - cast(to_char(current_timestamp + INTERVAL '%d seconds' + INTERVAL '%d days','YYYYMMDD') as integer) < 0
+        ) )
+        ORDER BY date_part('month', {dob}.birthday), date_part('day', {dob}.birthday), date_part('year', {dob}.birthday), {users}.name", $timezone, $amount, $timezone, $timezone, $amount
+      );
+      break;
+  }
 
   while ($account = db_fetch_object($result)) {
     $birthdays[] = $account->uid;
@@ -701,12 +744,24 @@ function birthdays_get_birthdays($amount) {
     - Users that haven't logged in yet are also not shown (Drupal prohibits accessing their profile, thus showing
       a link to the profile is unwanted). This is a anti spammers method.
   */
-  $result = db_query_range(
-    "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
-    AND DATE_FORMAT({dob}.birthday,'%%c%%d') - DATE_FORMAT(ADDDATE(NOW(),INTERVAL %d SECOND),'%%c%%d') >= 0
-    ORDER BY MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), {users}.name", $timezone, 0, $amount
-  );
-
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $result = db_query_range(
+        "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
+        AND DATE_FORMAT({dob}.birthday,'%%c%%d') - DATE_FORMAT(ADDDATE(NOW(),INTERVAL %d SECOND),'%%c%%d') >= 0
+        ORDER BY MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), {users}.name", $timezone, 0, $amount
+      );      
+      break;
+    case 'pgsql':
+      $result = db_query_range(
+        "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
+        AND cast(to_char({dob}.birthday,'FMMMDD') as integer) - cast(to_char(current_timestamp + INTERVAL '%d seconds','FMMMDD') as integer) >= 0
+        ORDER BY date_part('month', {dob}.birthday), date_part('day', {dob}.birthday), date_part('year', {dob}.birthday), {users}.name", $timezone, 0, $amount
+      );      
+      break;
+  }
+  
   while ($account = db_fetch_object($result)) {
     $birthdays[] = $account->uid;
   }
@@ -714,12 +769,24 @@ function birthdays_get_birthdays($amount) {
   // If less than $amount results returned, look for more after 31-12
   // return at most the difference between the number already found and
   if (db_num_rows($result) < $amount) {
-    $result = db_query_range(
-      "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
-      AND DATE_FORMAT({dob}.birthday,'%%c%%d') - DATE_FORMAT(ADDDATE(NOW(),INTERVAL %d SECOND),'%%c%%d') < 0
-      ORDER BY MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), {users}.name", $timezone, 0, $amount - db_num_rows($result)
-    );
-
+    switch ($GLOBALS['db_type']) {
+      case 'mysql':
+      case 'mysqli':
+        $result = db_query_range(
+          "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
+          AND DATE_FORMAT({dob}.birthday,'%%c%%d') - DATE_FORMAT(ADDDATE(NOW(),INTERVAL %d SECOND),'%%c%%d') < 0
+          ORDER BY MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), {users}.name", $timezone, 0, $amount - db_num_rows($result)
+        );
+        break;
+      case 'pgsql':
+        $result = db_query_range(
+          "SELECT {dob}.uid FROM {dob}, {users} WHERE {users}.uid = {dob}.uid AND {users}.status <> 0 AND {users}.access <> 0
+          AND cast(to_char({dob}.birthday,'FMMMDD') as integer) - cast(to_char(current_timestamp + INTERVAL '%d seconds','FMMMDD') as integer) < 0
+          ORDER BY date_part('month', {dob}.birthday), date_part('day', {dob}.birthday), date_part('year', {dob}.birthday), {users}.name", $timezone, 0, $amount - db_num_rows($result)
+        );
+        break;
+    }
+    
     while ($account = db_fetch_object($result)) {
       $birthdays[] = $account->uid;
     }

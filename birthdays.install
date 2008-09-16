@@ -95,4 +95,5 @@ function birthdays_uninstall() {
   variable_del('birthdays_page_show_filters');
   variable_del('birthdays_page_settings');
   variable_del('birthdays_page_list_number');
+  variable_del('birthdays_block_hide');
 }

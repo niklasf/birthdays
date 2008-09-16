@@ -524,10 +524,11 @@ function birthdays_cron() {
   if (variable_get('birthdays_field_name', '') != '' && (variable_get('birthdays_send_user', 0) || variable_get('birthdays_remind', 0))) {
     // Perform these actions just once per day
     if (variable_get('birthdays_last_cron', 0) < (time() - 3600*24)) {
-      _birthdays_send_user_message();
-      _birthdays_send_admin_message();
       // Reset time limit
       variable_set('birthdays_last_cron', time());
+
+      _birthdays_send_user_message();
+      _birthdays_send_admin_message();
     }
   }
 }
@@ -557,6 +558,13 @@ function birthdays_block($op = 'list', $delta = 'by_days', $edit = array()) {
             '#description' => t("Number of days looking forward for upcoming birthdays. Use 1 for today's birthdays only. Note: it might show more or less birthday items than the specified number of days, because not all days have birthdays, and some days have multiple birthdays."),
             '#required' => true,
           );
+          $form['birthdays_block_hide'] = array( 
+            '#type' => 'radios',
+            '#title' => t('Hide block when no birthdays'),
+            '#default_value' => variable_get("birthdays_block_hide_empty", 0),
+            '#options' => array(t('No'), t('Yes')),
+            '#description' => t("Should the block be hidden when there are no upcoming birthdays, or should it show a message."),  
+          );
           return $form;
 
         case 'by_birthdays':
@@ -569,34 +577,52 @@ function birthdays_block($op = 'list', $delta = 'by_days', $edit = array()) {
             '#description' => t("Number of upcoming birthdays to list in the block. It will show exactly the specified number of birthdays, even if more people have their birthday on the same day. In that case, there will be people who will never be shown."),
             '#required' => true,
           );
+          $form['birthdays_block_hide'] = array( 
+            '#type' => 'radios',
+            '#title' => t('Hide block when no birthdays'),
+            '#default_value' => variable_get("birthdays_block_hide_empty", 0),
+            '#options' => array(t('No'), t('Yes')),
+            '#description' => t("Should the block be hidden when there are no upcoming birthdays, or should it show a message."),  
+          );
           return $form;
       }
 
     // Save the block's configuration
     case 'save':
-      variable_set('birthdays_block_number_'. $delta, $edit['birthdays_block_settings'] );
+      variable_set('birthdays_block_number_'. $delta, $edit['birthdays_block_settings']);
+      variable_set('birthdays_block_hide_empty', $edit['birthdays_block_hide']);
       return;
 
     // View a block
     case 'view':
+      $block = array();
       // Nothing to show when birthday_field_name is still empty
       // Don't show anything when the current user doesn't have the rights.
       if (variable_get('birthdays_field_name', '') != '' && user_access('access birthdays')) {
         switch ($delta) {
           case 'by_days':
-            // Get birthdays
+            // Get desired amount of birthdays
             $amount = variable_get("birthdays_block_number_by_days", 7);
-            // Theme block
-            $block['content'] = theme('birthdays_block', birthdays_get_birthdays_by_days($amount), $amount, $delta);
+            $birthdays = birthdays_get_birthdays_by_days($amount);
+            
+            if (count($birthdays) > 0 || variable_get('birthdays_block_hide', 0) == 0) {
+              // Prepare block
+              $block['subject'] = t('Upcoming Birthdays');
+              $block['content'] = theme('birthdays_block', $birthdays, $amount, $delta);
+            }
             break;
           case 'by_birthdays':
-            // Get birthdays
+            // Get desired amount of  birthdays
             $amount = variable_get("birthdays_block_number_by_birthdays", 6);
-            // Theme block
-            $block['content'] = theme('birthdays_block', birthdays_get_birthdays($amount), $amount, $delta);
+            $birthdays = birthdays_get_birthdays($amount);
+            
+            if (count($birthdays) > 0 || variable_get('birthdays_block_hide', 0) == 0) {
+              // Prepare block
+              $block['subject'] = t('Upcoming Birthdays');
+              $block['content'] = theme('birthdays_block', $birthdays, $amount, $delta);
+            }
             break;
         }
-        $block['subject'] = t('Upcoming Birthdays');
 
         return $block;
       }
@@ -822,7 +848,7 @@ function theme_birthdays_block($birthdays, $amount, $delta) {
     $output = '<p>'. t('Nobody is having their birthday soon.') .'</p>';
   }
 
-  $output .= '<ul><li class="leaf">'. l(t('More...'), 'birthdays') .'</li></ul>';
+  $output .= l(t('More'), 'birthdays');
 
   return $output;
 }
@@ -1118,7 +1144,7 @@ function _birthdays_get_starsign($day, $month) {
       $starsign = $day < 23 ? 'libra' : 'scorpio';
       break;
     case 11:
-      $starsign = $day < 22 ? 'scorpio' : 'sagittarius';
+      $starsign = $day < 23 ? 'scorpio' : 'sagittarius';
       break;
     case 12:
       $starsign = $day < 22 ? 'sagittarius' : 'capricorn';

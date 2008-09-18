@@ -90,15 +90,6 @@ function birthdays_theme() {
 }
 
 /**
- *
- * @param $month
- * @return unknown
- */
-function birthdays_map_month_long($month) {
-  return format_date(gmmktime(0, 0, 0, $month, 2, 1970), 'custom', 'M', 0);
-}
-
-/**
  * Implementation of hook_perm().
  * Permissions:
  * - accesss birthday
@@ -524,10 +515,6 @@ function birthdays_save_user(&$edit, &$account, $category) {
   }
 }
 
-function d($str, $desc = NULL) {
-  $desc = isset($desc) ? $desc . ': ' : '';
-  drupal_set_message('<pre>'.$desc.print_r($str,1).'</pre>');
-}
 /**
  * Alter the way the birthday is shown. This is fired after every module has filled the profile.
  */
@@ -922,7 +909,6 @@ function _birthdays_show_date($date, $account, $format = 'small') {
     return NULL;
   }
 }
-
 
 /**
  * Format date, optionally hide year

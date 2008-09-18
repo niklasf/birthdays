@@ -2,85 +2,77 @@
 // $Id$
 
 /**
+ * @file
+ * Installation file for the Birthdays module.
+ */
+
+/**
  * Implementation of hook_install().
  */
 function birthdays_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("CREATE TABLE IF NOT EXISTS {dob} (
-        uid int(10) unsigned NOT NULL default 0,
-        birthday date NOT NULL default '0000-00-00',
-        PRIMARY KEY (uid)
-        );"
-      );
+  drupal_install_schema('birthdays');
 
-      // fetch current weight of the profile module, decrease with 1;
-      break;
-    case 'pgsql':
-      db_query("CREATE TABLE  {dob} (
-        uid int NOT NULL default 0 check(uid >= 0),
-        birthday date NOT NULL default '0000-01-01',
-        PRIMARY KEY (uid)
-        );"
-      );
-      break;
-  }
-  $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
-  db_query("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
+  // Still necessary?
+  //$weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
+  //db_query("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
 }
 
 /**
- * Implementation of hook_update_N()
+ * Implementation of hook_schema().
  */
-function birthdays_update_1() {
-  // 2007-08-12 for birthdays.install 1.2.2.2: Ensuring weight is lower than the weight of profile.module.
-  $ret = array();
+function birthdays_schema() {
+  $schema = array();
+  $schema['dob'] = array(
+    'description' => t('Table containing birthdays of the users.'),
+    'fields' => array(
+      'uid' => array(
+        'description' => t('The current user identifier.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'birthday' => array(
+        'description' => t('The birthday of this user.'),
+        'type' => 'datetime',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('uid'),
+  );
 
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      // fetch current weight of the profile module, decrease with 1;
-      $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
-      $ret[] = update_sql("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
-      break;
-    case 'pgsql':
-      // TODO
-      break;
-  }
-
-  return $ret;
+  return $schema;
 }
 
-function birthdays_update_2() {
-  // 2008-04-09: Postgresql added
-  $ret = array();
+/**
+ * Implementation of hook_requirements().
+ */
+function birthdays_requirements($phase) {
+  $requirements = array();
 
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      break;
-    case 'pgsql':
-      db_query("CREATE TABLE  {dob} (
-        uid int NOT NULL default 0 check(uid >= 0),
-        birthday date NOT NULL default '0000-01-01',
-        PRIMARY KEY (uid)
-        );"
-      );
-      // fetch current weight of the profile module, decrease with 1;
-      $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
-      $ret[] = update_sql("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
-      break;
+  if ($phase == 'runtime') {
+    $requirements['birthdays'] = array(
+      'title' => t('Birthdays'),
+      'value' => t('Birthday profile field'),
+      'severity' => REQUIREMENT_OK,
+    );
+
+    $field = variable_get('birthdays_field_name', '');
+    if (empty($field)) {
+      // Set warning/error message when the birthdays profile field hasn't been set yet.
+      $requirements['birthdays']['severity'] = REQUIREMENT_ERROR;
+      $requirements['birthdays']['description'] = t('Birthday profile field is not set. Please visit the <a href="@birthdays-settings">birthdays settings page</a>.', array('@birthdays-settings' => url('admin/settings/birthdays')));
+    }
   }
 
-  return $ret;
+  return $requirements;
 }
 
 /**
  * Implementation of hook_uninstall().
  */
 function birthdays_uninstall() {
-  db_query('DROP TABLE {dob}');
+  drupal_uninstall_schema('birthdays');
 
   variable_del('birthdays_show_starsign');
   variable_del('birthdays_field_name');

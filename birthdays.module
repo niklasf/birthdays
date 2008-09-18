@@ -426,13 +426,13 @@ function theme_birthdays_block($birthdays, $amount, $delta) {
   if (!empty( $birthdays)) {
     $output = '<table>';
     foreach ($birthdays as $b) {
-      $user = user_load(array('uid' => $b));
-      $age = _birthdays_show_age($user);
+      $account = user_load(array('uid' => $b));
+      $age = _birthdays_show_age($account);
       // +1 when the birthday isn't today, because it shows the age the person will be on his/her birthday
-      $age = isset($age) ? '('. ($user->age + ($user->{$field}['day'] != format_date(time(), 'custom', 'd'))) .')' : '';
+      $age = isset($age) ? '('. ($account->age + ($account->{$field}['day'] != format_date(time(), 'custom', 'd'))) .')' : '';
 
-      $user->{$field}['year'] = NULL; // Don't show the year in blocks
-      $output .= '<tr><td>'. theme('username', $user) .'&nbsp;<small>'. $age .'</small></td><td>'. _birthdays_show_date($user->{$field}, $user) .'</td></tr>';
+      $account->{$field}['year'] = NULL; // Don't show the year in blocks
+      $output .= '<tr><td>'. theme('username', $account) .'&nbsp;<small>'. $age .'</small></td><td>'. _birthdays_show_date($account->{$field}, $account) .'</td></tr>';
     }
     $output .= '</table>';
   }
@@ -449,24 +449,24 @@ function theme_birthdays_block($birthdays, $amount, $delta) {
 /**
  * Implementation of hook_user().
  */
-function birthdays_user($op, &$edit, &$user, $category = NULL) {
+function birthdays_user($op, &$edit, &$account, $category = NULL) {
   // Do nothing with user when birthdays_field_name is not yet set
   if (!variable_get('birthdays_field_name', '')) {
     return;
   }
   switch ($op) {
     case 'load':
-      return birthdays_load_user($user);
+      return birthdays_load_user($account);
     case 'update':
     case 'insert':
-      return birthdays_save_user($edit, $user, $category);
+      return birthdays_save_user($edit, $account, $category);
     case 'form':
-      return birthdays_form_user($edit, $user, $category);
+      return birthdays_form_user($edit, $account, $category);
     case 'register':
-      return birthdays_form_user($edit, $user, $category, TRUE);
+      return birthdays_form_user($edit, $account, $category, TRUE);
     case 'delete':
       // Delete from {dob} table, other information is handled by profile.module and user.module
-      db_query('DELETE FROM {dob} WHERE uid = %d', $user->uid);
+      db_query('DELETE FROM {dob} WHERE uid = %d', $account->uid);
       break;
   }
 }
@@ -475,20 +475,20 @@ function birthdays_user($op, &$edit, &$user, $category = NULL) {
 /**
  * Inject information on a user load.
  *
- * @param object $user
+ * @param object $account
  *   User object passed by reference.
  */
-function birthdays_load_user(&$user) {
-  // Pre-load birthday-information into $user
-  profile_load_profile($user);
+function birthdays_load_user(&$account) {
+  // Pre-load birthday-information into $account
+  profile_load_profile($account);
 
   // Get the name of the profile field used
   $field = variable_get('birthdays_field_name', '');
 
   // If it was set by the user
-  if ($user->$field) {
+  if ($account->$field) {
     // Set the user's age
-    $user->age = _birthdays_get_age($user->$field);
+    $account->age = _birthdays_get_age($account->$field);
   }
 }
 
@@ -496,7 +496,7 @@ function birthdays_load_user(&$user) {
 /**
  * Inject information and save birthday when editing or adding a user.
  */
-function birthdays_save_user(&$edit, &$user, $category) {
+function birthdays_save_user(&$edit, &$account, $category) {
   // Duplicate birthday-information in separate table for easy searching.
 
   // Get the name of the profile field used.
@@ -510,13 +510,13 @@ function birthdays_save_user(&$edit, &$user, $category) {
     }
 
     // Delete the old
-    db_query("DELETE FROM {dob} where uid = %d", $user->uid);
+    db_query("DELETE FROM {dob} where uid = %d", $account->uid);
 
     if ($day && $year && $month) {
       // Set the starsign for the user.module to save in the {users}.data field
       $edit['birthdays_starsign'] = _birthdays_get_starsign($day, $month);
       // Insert the new
-      db_query("INSERT INTO {dob} (uid, birthday) VALUES (%d, '%d-%d-%d');", $user->uid, $year, $month, $day);
+      db_query("INSERT INTO {dob} (uid, birthday) VALUES (%d, '%d-%d-%d');", $account->uid, $year, $month, $day);
     }
     else {
       $edit['birthdays_starsign'] = '';
@@ -572,7 +572,7 @@ function birthdays_profile_alter(&$account) {
  * are loaded during a user_load().
  * @return fields for the form
  */
-function birthdays_form_user($edit, $user, $category, $register = FALSE) {
+function birthdays_form_user($edit, $account, $category, $register = FALSE) {
   // Get entire profile field object
   $field = _birthdays_get_field(variable_get('birthdays_field_name', ''));
 
@@ -583,7 +583,7 @@ function birthdays_form_user($edit, $user, $category, $register = FALSE) {
       $form[$field->category]['birthdays_user_hide_year'] = array(
         '#type' => 'checkbox',
         '#title' => t("Hide age and birth year"),
-        '#default_value' => (int) $user->birthdays_user_hide_year,
+        '#default_value' => (int) $account->birthdays_user_hide_year,
         '#description' => t("Do not show your age and your year of birth."),
         '#return_value' => 1,
         '#weight' => $field->weight + 1
@@ -595,7 +595,7 @@ function birthdays_form_user($edit, $user, $category, $register = FALSE) {
       $form[$field->category]['birthdays_user_send_mail'] = array(
         '#type' => 'checkbox',
         '#title' => t("Do not send birthday mail"),
-        '#default_value' => (int) $user->birthdays_user_send_mail,
+        '#default_value' => (int) $account->birthdays_user_send_mail,
         '#description' => t("Do not send me an e-mail or e-card when it's my birthday."),
         '#return_value' => 1,
         '#weight' => $field->weight + 1
@@ -607,7 +607,7 @@ function birthdays_form_user($edit, $user, $category, $register = FALSE) {
         '#type' => 'checkbox',
         '#return_value' => 1,
         '#title' => t('Remove birthday'),
-        '#default_value' => (int) $user->birthdays_delete,
+        '#default_value' => (int) $account->birthdays_delete,
         '#description' => t('By checking this, the birthday information will be removed.'),
         '#weight' => $field->weight + 1,
       );
@@ -894,14 +894,14 @@ function _birthdays_calculate_age($day, $month, $year) {
 /**
  * Return age if user has agreed to show it
  *
- * @param object $user
+ * @param object $account
  *   a user object having attribute "age" set
  * @return int
  */
-function _birthdays_show_age($user) {
+function _birthdays_show_age($account) {
   $age = NULL;
-  if (isset($user->age) && (variable_get('birthdays_hide_year', 0) == 0 || (variable_get('birthdays_hide_year', 0) == 2 && $user->birthdays_user_hide_year == 0))) {
-    $age = $user->age;
+  if (isset($account->age) && (variable_get('birthdays_hide_year', 0) == 0 || (variable_get('birthdays_hide_year', 0) == 2 && $account->birthdays_user_hide_year == 0))) {
+    $age = $account->age;
   }
   return $age;
 }
@@ -910,13 +910,13 @@ function _birthdays_show_age($user) {
 /**
  * Format date array
  */
-function _birthdays_show_date($date, $user, $format = 'small') {
+function _birthdays_show_date($date, $account, $format = 'small') {
   if (is_array($date)) {
     // Extract date
     extract($date);
 
     // Call main format function
-    return _birthdays_show_date_2($day, $month, $year, $user, $format);
+    return _birthdays_show_date_2($day, $month, $year, $account, $format);
   }
   else {
     return NULL;
@@ -927,7 +927,7 @@ function _birthdays_show_date($date, $user, $format = 'small') {
 /**
  * Format date, optionally hide year
  */
-function _birthdays_show_date_2($day, $month, $year, $user, $type = 'small') {
+function _birthdays_show_date_2($day, $month, $year, $account, $type = 'small') {
   $output = '';
   // Determine format type
   switch ($type) {
@@ -943,7 +943,7 @@ function _birthdays_show_date_2($day, $month, $year, $user, $type = 'small') {
   //$format = substr($format, 0, -6);
 
   // If admin or user decide to hide the age&year: hide year
-  if ($year && ( variable_get('birthdays_hide_year', 0) == 1 || (variable_get('birthdays_hide_year', 0) == 2 && $user->birthdays_user_hide_year == 1))) {
+  if ($year && ( variable_get('birthdays_hide_year', 0) == 1 || (variable_get('birthdays_hide_year', 0) == 2 && $account->birthdays_user_hide_year == 1))) {
     $year = NULL;
   }
 

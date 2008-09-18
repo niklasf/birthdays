@@ -211,8 +211,8 @@ function birthdays_sync_form_submit($form, &$form_state) {
   if ($form_state['values']['op'] == t('Copy Profile data to Birthdays module')) {
     $field = variable_get('birthdays_field_name', '');
     $result = db_query('SELECT uid FROM {users}');
-    while ($user = db_fetch_object($result)) {
-      $account = user_load(array('uid' => $user->uid));
+    while ($uid = db_result($result)) {
+      $account = user_load(array('uid' => $uid));
       if ($account->$field) {
         user_save($account, array($field => $account->$field));
       }

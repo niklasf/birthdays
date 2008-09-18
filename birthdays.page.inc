@@ -47,11 +47,11 @@ function birthdays_view_page() {
   // Select all users (but ignore blocked and never logged in ones)
   $result = pager_query("SELECT {users}.uid FROM {users} ". $join ." {dob} ON {users}.uid = {dob}.uid  WHERE {users}.status <> 0 AND {users}.access <> 0". $filter ." ORDER BY ". $sort ."{users}.name", variable_get('birthdays_page_list_number', 25));
 
-  while ($user = db_fetch_object($result)) {
+  while ($uid = db_result($result)) {
     // load the user objects
-    $user = user_load(array('uid' => $user->uid));
-    if (empty($filter_year) || !$user->birthdays_user_hide_year) {
-      $accounts[] = $user;
+    $account = user_load(array('uid' => $uid));
+    if (empty($filter_year) || !$account->birthdays_user_hide_year) {
+      $accounts[] = $account;
     }
   }
 

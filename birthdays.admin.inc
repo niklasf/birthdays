@@ -40,7 +40,7 @@ function birthdays_admin_settings() {
   $form['birthdays_general_settings']['birthdays_show_starsign'] = array(
     '#type' => 'select',
     '#title' => t('Show star signs'),
-    '#default_value' => variable_get('birthdays_show_starsign', 0),
+    '#default_value' => variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF),
     '#options' => array(
       BIRTHDAYS_STARSIGN_OFF => t('No'),
       BIRTHDAYS_STARSIGN_LINK => t('Yes, with link to Yahoo Astrology'),
@@ -52,7 +52,7 @@ function birthdays_admin_settings() {
   $form['birthdays_general_settings']['birthdays_hide_year'] = array(
     '#type' => 'select',
     '#title' => t('Hide year and age'),
-    '#default_value' => variable_get('birthdays_hide_year', 0),
+    '#default_value' => variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_OFF),
     '#description' => t('Select whether the birth year and age should be shown.'),
     '#options' => array(
       BIRTHDAYS_HIDE_YEAR_OFF => t('No'),
@@ -72,7 +72,7 @@ function birthdays_admin_settings() {
   $form['birthdays_page']['birthdays_page_settings'] = array(
     '#type' => 'select',
     '#title' => t('Set birthdays page settings'),
-    '#default_value' => variable_get('birthdays_page_settings', 0),
+    '#default_value' => variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE),
     '#description' => t("Select whether users that haven't entered their date of birth should be shown on the birthdays page, and whether the list should be ordered by birthday or by username."),
     '#options' => array(
       BIRTHDAYS_PAGE_FILTER_SORT_DATE => t('Filter users, sort by date'),

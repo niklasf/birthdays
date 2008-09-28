@@ -31,15 +31,15 @@ function birthdays_view_page() {
     case 'mysql':
     case 'mysqli':
       // Right join = filtering out
-      $join = variable_get('birthdays_page_settings', 0) != 2 || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
-      $sort = variable_get('birthdays_page_settings', 0) == 0 || !empty($filter_month) || !empty($filter_year) ? 'MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), ' : '';
+      $join = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) != BIRTHDAYS_PAGE_NOFILTER_USER || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
+      $sort = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) == BIRTHDAYS_PAGE_FILTER_SORT_DATE || !empty($filter_month) || !empty($filter_year) ? 'MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), ' : '';
       $filter .= !empty($filter_month) ? " AND MONTH({dob}.birthday) = ". $filter_month : '';
       $filter .= !empty($filter_year) ? " AND YEAR({dob}.birthday) = ". $filter_year : '';
       break;
     case 'pgsql':
       // Right join = filtering out
-      $join = variable_get('birthdays_page_settings', 0) != 2 || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
-      $sort = variable_get('birthdays_page_settings', 0) == 0 || !empty($filter_month) || !empty($filter_year) ? "date_part('month', {dob}.birthday), date_part('day', {dob}.birthday), date_part('year', {dob}.birthday), " : '';
+      $join = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) != BIRTHDAYS_PAGE_NOFILTER_USER || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
+      $sort = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) == BIRTHDAYS_PAGE_FILTER_SORT_DATE || !empty($filter_month) || !empty($filter_year) ? "date_part('month', {dob}.birthday), date_part('day', {dob}.birthday), date_part('year', {dob}.birthday), " : '';
       $filter .= !empty($filter_month) ? " AND date_part('month', {dob}.birthday) = ". $filter_month : '';
       $filter .= !empty($filter_year) ? " AND date_part('year', {dob}.birthday) = ". $filter_year : '';
       break;
@@ -125,7 +125,7 @@ function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) 
     $header[] = t('Age');
   }
 
-  if (variable_get('birthdays_show_starsign', 0)) {
+  if (variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF)) {
     $header[] = t('Starsign');
   }
 
@@ -147,8 +147,8 @@ function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) 
       $rows[$i][] = isset($age) ? $age : '';
     }
 
-    if (variable_get('birthdays_show_starsign', 0)) {
-      $rows[$i][] = birthdays_get_starsign_image($account->birthdays_starsign, variable_get('birthdays_show_starsign', 0));
+    if (variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF)) {
+      $rows[$i][] = birthdays_get_starsign_image($account->birthdays_starsign, variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF));
     }
 
     if (variable_get('user_pictures', FALSE)) {

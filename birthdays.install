@@ -98,7 +98,6 @@ function birthdays_uninstall() {
   variable_del('birthdays_send_user_subject');
   variable_del('birthdays_send_user_message');
   variable_del('birthdays_remind');
-  variable_del('birthdays_remind_frequency');
   variable_del('birthdays_hide_year');
   variable_del('birthdays_block_number_by_days');
   variable_del('birthdays_block_number_by_birthdays');

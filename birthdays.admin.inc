@@ -42,9 +42,9 @@ function birthdays_admin_settings() {
     '#title' => t('Show star signs'),
     '#default_value' => variable_get('birthdays_show_starsign', 0),
     '#options' => array(
-      0 => t('No'),
-      1 => t('Yes, with link to Yahoo Astrology'),
-      2 => t('Yes, without link to Yahoo Astrology')
+      BIRTHDAYS_STARSIGN_OFF => t('No'),
+      BIRTHDAYS_STARSIGN_LINK => t('Yes, with link to Yahoo Astrology'),
+      BIRTHDAYS_STARSIGN_NOLINK => t('Yes, without link to Yahoo Astrology')
     ),
     '#description' => t('Select whether the star signs should be enabled.'),
   );
@@ -55,9 +55,9 @@ function birthdays_admin_settings() {
     '#default_value' => variable_get('birthdays_hide_year', 0),
     '#description' => t('Select whether the birth year and age should be shown.'),
     '#options' => array(
-      0 => t('No'),
-      1 => t('Yes'),
-      2 => t("User optional, 'No' by default"),
+      BIRTHDAYS_HIDE_YEAR_OFF => t('No'),
+      BIRTHDAYS_HIDE_YEAR_ON => t('Yes'),
+      BIRTHDAYS_HIDE_YEAR_USER => t("User optional, 'No' by default"),
     ),
   );
 
@@ -75,9 +75,9 @@ function birthdays_admin_settings() {
     '#default_value' => variable_get('birthdays_page_settings', 0),
     '#description' => t("Select whether users that haven't entered their date of birth should be shown on the birthdays page, and whether the list should be ordered by birthday or by username."),
     '#options' => array(
-      0 => t('Filter users, sort by date'),
-      1 => t('Filter users, sort by username'),
-      2 => t('Do not filter users, sort by username'),
+      BIRTHDAYS_PAGE_FILTER_SORT_DATE => t('Filter users, sort by date'),
+      BIRTHDAYS_PAGE_FILTER_SORT_USER => t('Filter users, sort by username'),
+      BIRTHDAYS_PAGE_NOFILTER_USER => t('Do not filter users, sort by username'),
     ),
   );
 
@@ -115,30 +115,22 @@ function birthdays_admin_settings() {
     '#type' => 'fieldset',
     '#title' => t('Admin'),
     '#collapsible' => TRUE,
-    '#collapsed' => variable_get('birthdays_remind', 0) == 0,
+    '#collapsed' => variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED) == BIRTHDAYS_ADMIN_MAIL_DISABLED,
   );
+
+  $days = array(0 => t('sunday'), 1 => t('monday'), 2 => t('tuesday'), 3 => t('wednesday'), 4 => t('thursday'), 5 => t('friday'), 6 => t('saturday'));
 
   $form['birthdays_email']['admin']['birthdays_remind'] = array(
     '#type' => 'select',
     '#title' => t('Send upcoming birthdays to admin'),
-    '#default_value' => variable_get('birthdays_remind', 0),
+    '#default_value' => variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED),
     '#options' => array(
-      0 => t('No'),
-      1 => t('Yes'),
-    ),
-    '#description' => t('Do you want a daily e-mail containing all upcoming birthdays (for the next week)?')
-  );
-  $days = array(0 => t('sunday'), 1 => t('monday'), 2 => t('tuesday'), 3 => t('wednesday'), 4 => t('thursday'), 5 => t('friday'), 6 => t('saturday'));
-  $form['birthdays_email']['admin']['birthdays_remind_frequency'] = array(
-    '#type' => 'select',
-    '#title' => t('Frequency of e-mails'),
-    '#default_value' => variable_get('birthdays_remind_frequency', BIRTHDAYS_MAIL_FREQUENCY_WEEKLY),
-    '#options' => array(
+      BIRTHDAYS_ADMIN_MAIL_DISABLED => t('Disabled'),
       BIRTHDAYS_MAIL_FREQUENCY_DAYLY => t('Dayly'),
       BIRTHDAYS_MAIL_FREQUENCY_WEEKLY => t('Weekly, on @first_weekday', array('@first_weekday' => $days[variable_get('date_first_day', 0)])),
       BIRTHDAYS_MAIL_FREQUENCY_MONTHLY => t('Monthly'),
     ),
-    '#description' => t('How often do you want to receive such e-mails?')
+    '#description' => t('Do you want to receive periodic e-mails containing all upcoming birthdays?')
   );
 
   // Fieldset for User E-mails
@@ -146,17 +138,17 @@ function birthdays_admin_settings() {
     '#type' => 'fieldset',
     '#title' => t('User'),
     '#collapsible' => TRUE,
-    '#collapsed' => variable_get('birthdays_send_user', 0) == 0,
+    '#collapsed' => variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) == BIRTHDAYS_USER_MAIL_NO,
   );
 
   $form['birthdays_email']['users']['birthdays_send_user'] = array(
     '#type' => 'select',
     '#title' => t('Send user e-mail on day of birth'),
-    '#default_value' => variable_get('birthdays_send_user', 0),
+    '#default_value' => variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO),
     '#options' => array(
-      0 => t('No'),
-      1 => t('Yes'),
-      2 => t("User optional, 'Yes' by default"),
+      BIRTHDAYS_USER_MAIL_NO => t('No'),
+      BIRTHDAYS_USER_MAIL_YES => t('Yes'),
+      BIRTHDAYS_USER_MAIL_USER => t("User optional, 'Yes' by default"),
     ),
     '#description' => t('Should users that have their birthday today receive an e-mail?'),
   );

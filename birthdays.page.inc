@@ -12,8 +12,9 @@
  *   Themed birthday listing of all users
  */
 function birthdays_view_page() {
+  global $_birthdays_field;
   // Nothing to see when the birthdays profile field hasn't been set yet.
-  if (!variable_get('birthdays_field_name', '')) {
+  if (!isset($_birthdays_field)) {
     return NULL;
   }
   drupal_add_css(drupal_get_path('module', 'birthdays') .'/birthdays.css');
@@ -47,9 +48,9 @@ function birthdays_view_page() {
   // Select all users (but ignore blocked and never logged in ones)
   $result = pager_query("SELECT {users}.uid FROM {users} ". $join ." {dob} ON {users}.uid = {dob}.uid  WHERE {users}.status <> 0 AND {users}.access <> 0". $filter ." ORDER BY ". $sort ."{users}.name", variable_get('birthdays_page_list_number', 25));
 
-  while ($uid = db_result($result)) {
+  while ($uid = db_fetch_object($result)) {
     // load the user objects
-    $account = user_load(array('uid' => $uid));
+    $account = user_load(array('uid' => $uid->uid));
     if (empty($filter_year) || !$account->birthdays_user_hide_year) {
       $accounts[] = $account;
     }
@@ -115,7 +116,7 @@ function birthdays_page_filter($filter_month = NULL, $filter_year = NULL) {
  * @var $accounts array of loaded user objects
  */
 function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) {
-  $field = variable_get('birthdays_field_name', '');
+  global $_birthdays_field;
 
   // $header contains the column headers
   $header = array(t('User'), t('Birthday'));
@@ -139,7 +140,7 @@ function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) 
   // For each user
   foreach ($accounts as $account) {
     //Theme username (with link and such) and format date field.
-    $rows[$i] = array(theme('username', $account), _birthdays_show_date($account->$field, $account));
+    $rows[$i] = array(theme('username', $account), _birthdays_show_date($account->{$_birthdays_field->name}, $account));
 
     if (variable_get('birthdays_hide_year', 0) != 1) {
       $age = _birthdays_show_age($account);

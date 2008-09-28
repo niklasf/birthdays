@@ -9,8 +9,33 @@
  * Implementation of hook_form().
  */
 function birthdays_admin_settings() {
+  global $_birthdays_field;
 
-  $form['birthdays_show_starsign'] = array(
+  // Fieldset for general settings
+  $form['birthdays_general_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('General settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  // Get fields from the profile.module of the type 'date'.
+  $options = _birthdays_get_date_fields();
+  // If there aren't any 'date' fields, throw a warning
+  if (empty($options)) {
+    drupal_set_message(t('No profile fields of type \'date\' were found, please <a href="@profile-settings-page">create one here</a>.', array('@profile-settings-page' => url('admin/user/profile/add/date'))), 'error');
+  }
+
+  $form['birthdays_general_settings']['birthdays_field_id'] = array(
+    '#type' => 'select',
+    '#title' => t('Profile field'),
+    '#default_value' => variable_get('birthdays_field_id', NULL),
+    '#description' => t('Choose the profile field of type \'date\' you want to use as date of birth.'),
+    '#options' => $options,
+    '#required' => TRUE,
+  );
+
+  $form['birthdays_general_settings']['birthdays_show_starsign'] = array(
     '#type' => 'select',
     '#title' => t('Show star signs'),
     '#default_value' => variable_get('birthdays_show_starsign', 0),
@@ -22,23 +47,7 @@ function birthdays_admin_settings() {
     '#description' => t('Select whether the star signs should be enabled.'),
   );
 
-  // Get fields from the profile.module of the type 'date'.
-  $options = _birthdays_get_date_fields();
-  // If there aren't any 'date' fields, throw a warning
-  if (empty($options)) {
-    drupal_set_message(t('No profile fields of type \'date\' were found, please <a href="@profile-settings-page">create one here</a>.', array('@profile-settings-page' => url('admin/user/profile/add/date'))), 'error');
-  }
-
-  $form['birthdays_field_name'] = array(
-    '#type' => 'select',
-    '#title' => t('Profile field'),
-    '#default_value' => variable_get('birthdays_field_name', ''),
-    '#description' => t('Choose the profile field of type \'date\' you want to use as date of birth.'),
-    '#options' => $options,
-    '#required' => TRUE,
-  );
-
-  $form['birthdays_hide_year'] = array(
+  $form['birthdays_general_settings']['birthdays_hide_year'] = array(
     '#type' => 'select',
     '#title' => t('Hide year and age'),
     '#default_value' => variable_get('birthdays_hide_year', 0),
@@ -50,6 +59,7 @@ function birthdays_admin_settings() {
     ),
   );
 
+  // Fieldset for the birthdays page.
   $form['birthdays_page'] = array(
     '#type' => 'fieldset',
     '#title' => t('Birthdays page settings'),
@@ -75,6 +85,7 @@ function birthdays_admin_settings() {
     '#default_value' => variable_get('birthdays_page_list_number', 25),
     '#description' => t('How many users should be listed on each page on the Birthdays listing?'),
     '#required' => TRUE,
+    '#size' => 10,
   );
 
   $form['birthdays_page']['birthdays_page_show_filters'] = array(
@@ -88,8 +99,25 @@ function birthdays_admin_settings() {
     ),
   );
 
-  $form['birthdays_remind'] = array(
-    '#type' => 'radios',
+  // Fieldset for e-mails.
+  $form['birthdays_email'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('E-mail settings'),
+    '#description' => t('Adjust the e-mail settings for both e-mails to users and e-mails to the administrator. This requires cron jobs to be active. Please see the <a href="@cron_url">online handbook</a> for more information on how to accomplish that.', array('@cron_url' => 'http://drupal.org/cron')),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  // Fieldset for Admin E-mails
+  $form['birthdays_email']['admin'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Admin'),
+    '#collapsible' => TRUE,
+    '#collapsed' => variable_get('birthdays_remind', 0) == 0,
+  );
+
+  $form['birthdays_email']['admin']['birthdays_remind'] = array(
+    '#type' => 'select',
     '#title' => t('Send upcoming birthdays to admin'),
     '#default_value' => variable_get('birthdays_remind', 0),
     '#options' => array(
@@ -98,16 +126,27 @@ function birthdays_admin_settings() {
     ),
     '#description' => t('Do you want a daily e-mail containing all upcoming birthdays (for the next week)?')
   );
-
-  // Fieldset for User E-mails
-  $form['birthdays_email'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('E-mail user'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
+  $days = array(0 => t('sunday'), 1 => t('monday'), 2 => t('tuesday'), 3 => t('wednesday'), 4 => t('thursday'), 5 => t('friday'), 6 => t('saturday'));
+  $form['birthdays_email']['admin']['birthdays_remind_frequency'] = array(
+    '#type' => 'select',
+    '#title' => t('Frequency of e-mails'),
+    '#default_value' => variable_get('birthdays_remind_frequency', 0),
+    '#options' => array(
+      1 => t('Dayly'),
+      7 => t('Weekly, every @first_weekday', array('@first_weekday' => $days[variable_get('date_first_day', 0)])),
+    ),
+    '#description' => t('How often do you want to receive such e-mails?')
   );
 
-  $form['birthdays_email']['birthdays_send_user'] = array(
+  // Fieldset for User E-mails
+  $form['birthdays_email']['users'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User'),
+    '#collapsible' => TRUE,
+    '#collapsed' => variable_get('birthdays_send_user', 0) == 0,
+  );
+
+  $form['birthdays_email']['users']['birthdays_send_user'] = array(
     '#type' => 'select',
     '#title' => t('Send user e-mail on day of birth'),
     '#default_value' => variable_get('birthdays_send_user', 0),
@@ -119,13 +158,13 @@ function birthdays_admin_settings() {
     '#description' => t('Should users that have their birthday today receive an e-mail?'),
   );
 
-  $form['birthdays_email']['birthdays_send_user_subject'] = array(
+  $form['birthdays_email']['users']['birthdays_send_user_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
     '#default_value' => variable_get('birthdays_send_user_subject', t('Happy Birthday!')),
   );
 
-  $form['birthdays_email']['birthdays_send_user_message'] = array(
+  $form['birthdays_email']['users']['birthdays_send_user_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Message'),
     '#default_value' => variable_get('birthdays_send_user_message', t("Hey @name,
@@ -135,34 +174,16 @@ Hope you have a great day!")
     '#description' => t('@name will be replaced by the username.'),
   );
 
+
   return system_settings_form($form);
-}
-
-
-/**
- * Submit hook for admin settings form
- *
- * @param string $form_id
- * @param array $values
- */
-function birthdays_admin_settings_submit($form, &$form_state) {
-  $field = _birthdays_get_field($form_state['values']['birthdays_field_name']);
-  $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
-  if ($op == t('Reset to defaults')) {
-    variable_del('birthdays_field_id');
-  }
-  else {
-    variable_set('birthdays_field_id', $field->fid);
-  }
-
-  $form_state['redirect'] = system_settings_form_submit($form, $form_state);
 }
 
 /**
  * Callback for birthdays synchronisation system.
  */
 function birthdays_sync_page() {
-  if (variable_get('birthdays_field_name', '')) {
+  global $_birthdays_field;
+  if (isset($_birthdays_field)) {
     return drupal_get_form('birthdays_sync_form');
   }
   else {
@@ -186,7 +207,8 @@ function birthdays_sync_form() {
 
   $form['profile_fieldset']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Copy Profile data to Birthdays module')
+    '#value' => t('Copy Profile data to Birthdays module'),
+    '#submit' => array('birthdays_sync_profiles_to_birthdays'),
   );
 
   $form['birthdays_fieldset'] = array('#type' => 'fieldset');
@@ -200,46 +222,52 @@ function birthdays_sync_form() {
   $form['birthdays_fieldset']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Copy Birthdays data to Profile module'),
+    '#submit' => array('birthdays_sync_birthdays_to_profiles'),
   );
+
   return $form;
 }
 
-/**
- * Implementation of hook_form_submit().
- */
-function birthdays_sync_form_submit($form, &$form_state) {
-  if ($form_state['values']['op'] == t('Copy Profile data to Birthdays module')) {
-    $field = variable_get('birthdays_field_name', '');
-    $result = db_query('SELECT uid FROM {users}');
-    while ($uid = db_result($result)) {
-      $account = user_load(array('uid' => $uid));
-      if ($account->$field) {
-        user_save($account, array($field => $account->$field));
-      }
+function birthdays_sync_profiles_to_birthdays($form, &$form_state) {
+  global $_birthdays_field;
+
+  $result = db_query('SELECT uid FROM {users} WHERE 1');
+
+  while ($uid = db_fetch_object($result)) {
+    drupal_set_message($uid);
+    $account = user_load(array('uid' => $uid->uid));
+
+    if ($account->{$_birthdays_field->name}) {
+
+      user_save($account, array($_birthdays_field->name => $account->{$_birthdays_field->name}));
     }
   }
-  else {
-    $field = variable_get('birthdays_field_name', '');
 
-    switch ($GLOBALS['db_type']) {
-      case 'mysql':
-      case 'mysqli':
-        $result = db_query('SELECT {dob}.uid, MONTH({dob}.birthday) AS month, YEAR({dob}.birthday) AS year, DAYOFMONTH({dob}.birthday) AS day FROM {dob}');
-        break;
-      case 'pgsql':
-        $result = db_query("SELECT uid, date_part('month',{dob}.birthday) AS month, date_part('year',{dob}.birthday) AS year, date_part('day',{dob}.birthday) AS day FROM {dob}");
-        break;
-    }
+  drupal_set_message(t('Birthdays have been synchronized.'));
+}
 
-    while ($birthday = db_fetch_object($result)) {
-      $account = user_load(array('uid' => $birthday->uid));
-      $dob = array(
-        'day' => $birthday->day,
-        'month' => $birthday->month,
-        'year' => $birthday->year
-      );
-      user_save($account, array($field => $dob));
-    }
+function birthdays_sync_birthdays_to_profiles($form, &$form_state) {
+  global $_birthdays_field;
+
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $result = db_query('SELECT {dob}.uid, MONTH({dob}.birthday) AS month, YEAR({dob}.birthday) AS year, DAYOFMONTH({dob}.birthday) AS day FROM {dob}');
+      break;
+    case 'pgsql':
+      $result = db_query("SELECT uid, date_part('month',{dob}.birthday) AS month, date_part('year',{dob}.birthday) AS year, date_part('day',{dob}.birthday) AS day FROM {dob}");
+      break;
   }
-  drupal_set_message(t('Modules have been synchronized.'));
+
+  while ($birthday = db_fetch_object($result)) {
+    $account = user_load(array('uid' => $birthday->uid));
+    $dob = array(
+      'day' => $birthday->day,
+      'month' => $birthday->month,
+      'year' => $birthday->year
+    );
+    user_save($account, array($_birthdays_field->name => $dob));
+  }
+
+  drupal_set_message(t('Birthdays have been synchronized.'));
 }

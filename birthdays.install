@@ -48,6 +48,7 @@ function birthdays_schema() {
  * Implementation of hook_requirements().
  */
 function birthdays_requirements($phase) {
+  global $_birthdays_field;
   $requirements = array();
 
   if ($phase == 'runtime') {
@@ -57,8 +58,7 @@ function birthdays_requirements($phase) {
       'severity' => REQUIREMENT_OK,
     );
 
-    $field = variable_get('birthdays_field_name', '');
-    if (empty($field)) {
+    if (!isset($_birthdays_field)) {
       // Set warning/error message when the birthdays profile field hasn't been set yet.
       $requirements['birthdays']['severity'] = REQUIREMENT_ERROR;
       $requirements['birthdays']['description'] = t('Birthday profile field is not set. Please visit the <a href="@birthdays-settings">birthdays settings page</a>.', array('@birthdays-settings' => url('admin/settings/birthdays')));
@@ -75,7 +75,6 @@ function birthdays_uninstall() {
   drupal_uninstall_schema('birthdays');
 
   variable_del('birthdays_show_starsign');
-  variable_del('birthdays_field_name');
   variable_del('birthdays_field_id');
   variable_del('birthdays_send_user');
   variable_del('birthdays_send_user_subject');

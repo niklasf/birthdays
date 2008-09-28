@@ -86,6 +86,7 @@ function birthdays_uninstall() {
   variable_del('birthdays_send_user_subject');
   variable_del('birthdays_send_user_message');
   variable_del('birthdays_remind');
+  variable_del('birthdays_remind_frequency');
   variable_del('birthdays_hide_year');
   variable_del('birthdays_block_number_by_days');
   variable_del('birthdays_block_number_by_birthdays');
@@ -93,4 +94,6 @@ function birthdays_uninstall() {
   variable_del('birthdays_page_settings');
   variable_del('birthdays_page_list_number');
   variable_del('birthdays_block_hide');
+  variable_del('birthdays_last_cron');
+  variable_del('birthdays_last_cron_week');
 }

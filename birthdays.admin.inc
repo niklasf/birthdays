@@ -132,10 +132,11 @@ function birthdays_admin_settings() {
   $form['birthdays_email']['admin']['birthdays_remind_frequency'] = array(
     '#type' => 'select',
     '#title' => t('Frequency of e-mails'),
-    '#default_value' => variable_get('birthdays_remind_frequency', 0),
+    '#default_value' => variable_get('birthdays_remind_frequency', BIRTHDAYS_MAIL_FREQUENCY_WEEKLY),
     '#options' => array(
-      1 => t('Dayly'),
-      7 => t('Weekly, on @first_weekday', array('@first_weekday' => $days[variable_get('date_first_day', 0)])),
+      BIRTHDAYS_MAIL_FREQUENCY_DAYLY => t('Dayly'),
+      BIRTHDAYS_MAIL_FREQUENCY_WEEKLY => t('Weekly, on @first_weekday', array('@first_weekday' => $days[variable_get('date_first_day', 0)])),
+      BIRTHDAYS_MAIL_FREQUENCY_MONTHLY => t('Monthly'),
     ),
     '#description' => t('How often do you want to receive such e-mails?')
   );
@@ -195,7 +196,7 @@ function birthdays_sync_form() {
   $form['profile_fieldset']['description'] = array(
     '#type' => 'item',
     '#title' => 'Profile to Birthdays',
-    '#value' => t("Fill the Birthdays module's table with data from the Profile module's table. This is needed when you (re-)installed the Birthdays module, but already collected birthdays with the Profile module (e.g. for age verification)."),
+    '#value' => t("Fill the Birthdays module's table with data from the Profile module's table. This is needed when you install the Birthdays module, but already collected birthdays with the Profile module (e.g. for age verification, to show in the profile or after uninstalling the Birthdays module)."),
   );
 
   $form['profile_fieldset']['submit'] = array(
@@ -209,7 +210,7 @@ function birthdays_sync_form() {
   $form['birthdays_fieldset']['description'] = array(
     '#type' => 'item',
     '#title' => 'Birthdays to Profile',
-    '#value' => t("Fill the Profile module's table with data from the Birthdays module's table. You can use this to copy the old data collected by a previous version of the Birthdays module after an update. It is only necessary when updating from a version of the Birthdays module which didn't use the Profile module."),
+    '#value' => t("Fill the Profile module's table with data from the Birthdays module's table. You can use this if you completely reinstalled the Profile module while leaving the Birthdays module alone, or to copy the old data collected by a version of the Birthdays module which didn't use the Profile module (pre-5.x)."),
   );
 
   $form['birthdays_fieldset']['submit'] = array(

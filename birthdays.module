@@ -12,16 +12,35 @@
 
 /**
  * @TODO - upgrade path
+ * @TODO - use contstants
  * @TODO - Fire events
  * @TODO - Add postcards
  * @TODO - Make visible to VIEWS module
  * @TODO - Regulate visibility of birthdays, birthday blocks, etc
  *   by means of the settings of the profile field
- * @TODO - Make optional size & frequency:
+ * @TODO - Test optional size & frequency:
  *   Once a week (on first day of week) == 7 days in advance or Every day == only today
  * @TODO - Make POT file(s)
  * @TODO - Proper DOCSYS commenting of functions
  */
+
+/**
+ * Admin e-mails should be sent dayly.
+ */
+define('BIRTHDAYS_MAIL_FREQUENCY_DAYLY', 0);
+
+/**
+ * Admin e-mails should be sent weekly, on the first day of the week defined
+ * by 'admin/settings/date-time'.
+ */
+define('BIRTHDAYS_MAIL_FREQUENCY_WEEKLY', 1);
+
+/**
+ * Admin e-mails should be sent monthly, on the first day of the month.
+ */
+define('BIRTHDAYS_MAIL_FREQUENCY_MONTHLY', 2);
+
+
 global $_birthdays_field;
 
 function birthdays_init() {
@@ -98,9 +117,6 @@ function birthdays_theme() {
 
 /**
  * Implementation of hook_perm().
- * Permissions:
- * - accesss birthday
- * - delete birthday
  */
 function birthdays_perm() {
   return array('access birthdays', 'delete birthday');
@@ -109,19 +125,34 @@ function birthdays_perm() {
 
 /**
  * Implementation of hook_cron().
- * Performed one time a day to send e-mails.
  */
 function birthdays_cron() {
   global $_birthdays_field;
-  // Either user mail or admin mail is activated and when the birthdays profile field has been set.
-  if (isset($_birthdays_field) && (variable_get('birthdays_send_user', 0) || variable_get('birthdays_remind', 0))) {
-    // Perform these actions just once per day
-    if (variable_get('birthdays_last_cron', 0) < (time() - 3600*24)) {
-      // Reset time limit
-      variable_set('birthdays_last_cron', time());
 
+  // Either user mail or admin mail is activated, and the birthdays profile field has been set.
+  if (isset($_birthdays_field) && (variable_get('birthdays_send_user', 0) || variable_get('birthdays_remind', 0))) {
+    // Perform the check just once a day
+    $time = time();
+    if (variable_get('birthdays_last_cron', 0) < ($time - 3600*24)) {
+      // Reset time limit
+      variable_set('birthdays_last_cron', $time);
+
+      $remind_frequency = variable_get('birthdays_remind_frequency', BIRTHDAYS_MAIL_FREQUENCY_WEEKLY);
+
+      // Send user e-mails.
       _birthdays_send_user_message();
-      _birthdays_send_admin_message();
+
+      // Send admin message if frequency is dayly.
+      if ($remind_frequency == BIRTHDAYS_MAIL_FREQUENCY_DAYLY) {
+        _birthdays_send_admin_message(1);
+      }// Send admin message if frequency is weekly and today is the first day of the week.
+      elseif ($remind_frequency == BIRTHDAYS_MAIL_FREQUENCY_WEEKLY && date('w', $time) == variable_get('date_first_day', 0)) {
+        _birthdays_send_admin_message(7);
+      }// Send admin message if frequency is monthly and today is the first day of the month.
+      elseif ($remind_frequency == BIRTHDAYS_MAIL_FREQUENCY_MONTHLY && date('j', $time) == 1) {
+
+        _birthdays_send_admin_message(date('t'), $time);
+      }
     }
   }
 }
@@ -650,12 +681,12 @@ function birthdays_mail($key, &$message, $params) {
  *
  * @todo Add frequency options (once a day, every week, monthly)
  */
-function _birthdays_send_admin_message() {
+function _birthdays_send_admin_message($days = 1) {
   global $user;
   // Only proceed when admin messages are enabled
   if (variable_get('birthdays_remind', 0)) {
     // Get birthdays
-    $accounts = birthdays_get_birthdays_by_days(7);
+    $accounts = birthdays_get_birthdays_by_days($days);
 
     // If there were any users:
     if (count($accounts) > 0) {

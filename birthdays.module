@@ -802,8 +802,8 @@ function _birthdays_get_date_fields() {
 /**
  * Retrieve profile field object
  *
- * @var string $field
- *   name of field to retrieve
+ * @var string $fid
+ *   Id of field to retrieve
  * @return object
  *   profile field object
  */

@@ -11,6 +11,15 @@
 function birthdays_admin_settings() {
   global $_birthdays_field;
 
+// Get fields from the profile.module of the type 'date'.
+  $options = _birthdays_get_date_fields();
+  // If there aren't any 'date' fields, throw a warning
+  if (empty($options)) {
+    drupal_set_message(t('No profile fields of type \'date\' were found, please <a href="@profile-settings-page">create one here</a>.', array('@profile-settings-page' => url('admin/user/profile/add/date'))), 'error');
+    return;
+  }
+
+  $options = array('') + $options;
   // Fieldset for general settings
   $form['birthdays_general_settings'] = array(
     '#type' => 'fieldset',
@@ -19,18 +28,11 @@ function birthdays_admin_settings() {
     '#collapsed' => FALSE,
   );
 
-  // Get fields from the profile.module of the type 'date'.
-  $options = _birthdays_get_date_fields();
-  // If there aren't any 'date' fields, throw a warning
-  if (empty($options)) {
-    drupal_set_message(t('No profile fields of type \'date\' were found, please <a href="@profile-settings-page">create one here</a>.', array('@profile-settings-page' => url('admin/user/profile/add/date'))), 'error');
-  }
-
   $form['birthdays_general_settings']['birthdays_field_id'] = array(
     '#type' => 'select',
     '#title' => t('Profile field'),
     '#default_value' => variable_get('birthdays_field_id', NULL),
-    '#description' => t('Choose the profile field of type \'date\' you want to use as date of birth.'),
+    '#description' => t("Select which profile field of type 'date' you want to use as date of birth."),
     '#options' => $options,
     '#required' => TRUE,
   );
@@ -55,7 +57,7 @@ function birthdays_admin_settings() {
     '#options' => array(
       0 => t('No'),
       1 => t('Yes'),
-      2 => t('User optional, \'No\' by default'),
+      2 => t("User optional, 'No' by default"),
     ),
   );
 
@@ -71,7 +73,7 @@ function birthdays_admin_settings() {
     '#type' => 'select',
     '#title' => t('Set birthdays page settings'),
     '#default_value' => variable_get('birthdays_page_settings', 0),
-    '#description' => t('Select whether users that haven\'t entered their date of birth should be shown on the birthdays page, and whether the list should be ordered by birthday or by username.'),
+    '#description' => t("Select whether users that haven't entered their date of birth should be shown on the birthdays page, and whether the list should be ordered by birthday or by username."),
     '#options' => array(
       0 => t('Filter users, sort by date'),
       1 => t('Filter users, sort by username'),
@@ -92,7 +94,7 @@ function birthdays_admin_settings() {
     '#type' => 'select',
     '#title' => t('Show filter options'),
     '#default_value' => variable_get('birthdays_page_show_filters', 1),
-    '#description' => t('Show the "Filter by month and year" selections on the birthdays page. When "Hide year" has been set to "Yes", the year filter isn\'t shown.'),
+    '#description' => t("Show the 'Filter by month and year' selections on the birthdays page. When 'Hide year' has been set to 'Yes', the year filter isn't shown."),
     '#options' => array(
       0 => t('No'),
       1 => t('Yes'),
@@ -133,7 +135,7 @@ function birthdays_admin_settings() {
     '#default_value' => variable_get('birthdays_remind_frequency', 0),
     '#options' => array(
       1 => t('Dayly'),
-      7 => t('Weekly, every @first_weekday', array('@first_weekday' => $days[variable_get('date_first_day', 0)])),
+      7 => t('Weekly, on @first_weekday', array('@first_weekday' => $days[variable_get('date_first_day', 0)])),
     ),
     '#description' => t('How often do you want to receive such e-mails?')
   );
@@ -153,7 +155,7 @@ function birthdays_admin_settings() {
     '#options' => array(
       0 => t('No'),
       1 => t('Yes'),
-      2 => t('User optional, \'Yes\' by default'),
+      2 => t("User optional, 'Yes' by default"),
     ),
     '#description' => t('Should users that have their birthday today receive an e-mail?'),
   );
@@ -179,30 +181,21 @@ Hope you have a great day!")
 }
 
 /**
- * Callback for birthdays synchronisation system.
- */
-function birthdays_sync_page() {
-  global $_birthdays_field;
-  if (isset($_birthdays_field)) {
-    return drupal_get_form('birthdays_sync_form');
-  }
-  else {
-    return t("You haven't set a Profile field yet in the birthdays settings, please do so first before synchronising data fields.");
-  }
-}
-
-
-/**
  * Implementation of hook_form().
  */
 function birthdays_sync_form() {
+  global $_birthdays_field;
 
+  if (!isset($_birthdays_field)) {
+    drupal_set_message(t('No date field has been selected as birthdays field. Please visit the <a href="@birthdays-settings">birthdays settings page</a>.', array('@birthdays-settings' => url('admin/settings/birthdays'))), 'warning');
+    return array();
+  }
   $form['profile_fieldset'] = array('#type' => 'fieldset');
 
   $form['profile_fieldset']['description'] = array(
     '#type' => 'item',
     '#title' => 'Profile to Birthdays',
-    '#value' => t('Fill the Birthdays module\'s table with data from the Profile module\'s table. This is needed when you (re-)installed the Birthdays module, but already collected birthdays with the Profile module (e.g. for age verification).'),
+    '#value' => t("Fill the Birthdays module's table with data from the Profile module's table. This is needed when you (re-)installed the Birthdays module, but already collected birthdays with the Profile module (e.g. for age verification)."),
   );
 
   $form['profile_fieldset']['submit'] = array(
@@ -216,7 +209,7 @@ function birthdays_sync_form() {
   $form['birthdays_fieldset']['description'] = array(
     '#type' => 'item',
     '#title' => 'Birthdays to Profile',
-    '#value' => t('Fill the Profile module\'s table with data from the Birthdays module\'s table. You can use this to copy the old data collected by a previous version of the Birthdays module after an update. It is only necessary when updating from a version of the Birthdays module which didn\'t use the Profile module.'),
+    '#value' => t("Fill the Profile module's table with data from the Birthdays module's table. You can use this to copy the old data collected by a previous version of the Birthdays module after an update. It is only necessary when updating from a version of the Birthdays module which didn't use the Profile module."),
   );
 
   $form['birthdays_fieldset']['submit'] = array(

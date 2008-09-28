@@ -11,6 +11,7 @@
  */
 
 /**
+ * @TODO - upgrade path
  * @TODO - Fire events
  * @TODO - Add postcards
  * @TODO - Make visible to VIEWS module
@@ -62,7 +63,8 @@ function birthdays_menu() {
   $items['admin/settings/birthdays/sync'] = array(
     'title' => 'Synchronize',
     'description' => 'Synchronize birthdays information of Profile module and Birthdays module. Used either when updating to a newer version of Birthdays or when integrating with an existing Profile Field.',
-    'page callback' => 'birthdays_sync_page',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('birthdays_sync_form'),
     'access arguments' => array('administer site configuration'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'birthdays.admin.inc',
@@ -130,91 +132,93 @@ function birthdays_cron() {
  */
 function birthdays_block($op = 'list', $delta = 'by_days', $edit = array()) {
   global $_birthdays_field;
-  switch ($op) {
-    // List the blocks on the blocks settings page
-    case 'list':
-      $blocks['by_days']['info'] = t('Birthdays Block: Next N days');
-      $blocks['by_birthdays']['info'] = t('Birthdays Block: N upcoming birthdays');
-      return $blocks;
+  if (isset($_birthdays_field)) {
+    switch ($op) {
+      // List the blocks on the blocks settings page
+      case 'list':
+        $blocks['by_days']['info'] = t('Birthdays Block: Next N days');
+        $blocks['by_birthdays']['info'] = t('Birthdays Block: N upcoming birthdays');
+        return $blocks;
 
-    // Configure the blocks
-    case 'configure':
-      $form = array();
-      switch ($delta) {
-        case 'by_days':
-          $form["birthdays_block_settings"] = array(
-            '#type' => 'textfield',
-            '#title' => t("Number of days to show"),
-            '#default_value' => variable_get("birthdays_block_number_by_days", 7),
-            '#size' => 2,
-            '#maxlength' => 2,
-            '#description' => t("Number of days looking forward for upcoming birthdays. Use 1 for today's birthdays only. Note: it might show more or less birthday items than the specified number of days, because not all days have birthdays, and some days have multiple birthdays."),
-            '#required' => TRUE,
-          );
-          break;
-
-        case 'by_birthdays':
-          $form["birthdays_block_settings"] = array(
-            '#type' => 'textfield',
-            '#title' => t("Number of birthdays to show"),
-            '#default_value' => variable_get("birthdays_block_number_by_birthdays", 6),
-            '#size' => 2,
-            '#maxlength' => 2,
-            '#description' => t("Number of upcoming birthdays to list in the block. It will show exactly the specified number of birthdays, even if more people have their birthday on the same day. In that case, there will be people who will never be shown."),
-            '#required' => TRUE,
-          );
-          break;
-
-      }
-      $form['birthdays_block_hide'] = array(
-        '#type' => 'radios',
-        '#title' => t('Hide block when no birthdays'),
-        '#default_value' => variable_get("birthdays_block_hide_empty", 0),
-        '#options' => array(t('No'), t('Yes')),
-        '#description' => t("Should the block be hidden when there are no upcoming birthdays, or should it show a message."),
-      );
-
-      return $form;
-
-    // Save the block's configuration
-    case 'save':
-      variable_set('birthdays_block_number_'. $delta, $edit['birthdays_block_settings']);
-      variable_set('birthdays_block_hide_empty', $edit['birthdays_block_hide']);
-      return;
-
-    // View a block
-    case 'view':
-      $block = array();
-      // Nothing to show when birthday_field_name is still empty
-      // Don't show anything when the current user doesn't have the rights.
-      if (isset($_birthdays_field) && user_access('access birthdays')) {
+      // Configure the blocks
+      case 'configure':
+        $form = array();
         switch ($delta) {
           case 'by_days':
-            // Get desired amount of birthdays
-            $amount = variable_get("birthdays_block_number_by_days", 7);
-            $birthdays = birthdays_get_birthdays_by_days($amount);
-
-            if (count($birthdays) > 0 || variable_get('birthdays_block_hide', 0) == 0) {
-              // Prepare block
-              $block['subject'] = t('Upcoming Birthdays');
-              $block['content'] = theme('birthdays_block', $birthdays, $amount, $delta);
-            }
+            $form["birthdays_block_settings"] = array(
+              '#type' => 'textfield',
+              '#title' => t("Number of days to show"),
+              '#default_value' => variable_get("birthdays_block_number_by_days", 7),
+              '#size' => 2,
+              '#maxlength' => 2,
+              '#description' => t("Number of days looking forward for upcoming birthdays. Use 1 for today's birthdays only. Note: it might show more or less birthday items than the specified number of days, because not all days have birthdays, and some days have multiple birthdays."),
+              '#required' => TRUE,
+            );
             break;
+
           case 'by_birthdays':
-            // Get desired amount of  birthdays
-            $amount = variable_get("birthdays_block_number_by_birthdays", 6);
-            $birthdays = birthdays_get_birthdays($amount);
-
-            if (count($birthdays) > 0 || variable_get('birthdays_block_hide', 0) == 0) {
-              // Prepare block
-              $block['subject'] = t('Upcoming Birthdays');
-              $block['content'] = theme('birthdays_block', $birthdays, $amount, $delta);
-            }
+            $form["birthdays_block_settings"] = array(
+              '#type' => 'textfield',
+              '#title' => t("Number of birthdays to show"),
+              '#default_value' => variable_get("birthdays_block_number_by_birthdays", 6),
+              '#size' => 2,
+              '#maxlength' => 2,
+              '#description' => t("Number of upcoming birthdays to list in the block. It will show exactly the specified number of birthdays, even if more people have their birthday on the same day. In that case, there will be people who will never be shown."),
+              '#required' => TRUE,
+            );
             break;
-        }
 
-        return $block;
-      }
+        }
+        $form['birthdays_block_hide'] = array(
+          '#type' => 'radios',
+          '#title' => t('Hide block when no birthdays'),
+          '#default_value' => variable_get("birthdays_block_hide_empty", 0),
+          '#options' => array(t('No'), t('Yes')),
+          '#description' => t("Should the block be hidden when there are no upcoming birthdays, or should it show a message."),
+        );
+
+        return $form;
+
+      // Save the block's configuration
+      case 'save':
+        variable_set('birthdays_block_number_'. $delta, $edit['birthdays_block_settings']);
+        variable_set('birthdays_block_hide_empty', $edit['birthdays_block_hide']);
+        return;
+
+      // View a block
+      case 'view':
+        $block = array();
+        // Nothing to show when birthday_field_name is still empty
+        // Don't show anything when the current user doesn't have the rights.
+        if (user_access('access birthdays')) {
+          switch ($delta) {
+            case 'by_days':
+              // Get desired amount of birthdays
+              $amount = variable_get("birthdays_block_number_by_days", 7);
+              $birthdays = birthdays_get_birthdays_by_days($amount);
+
+              if (count($birthdays) > 0 || variable_get('birthdays_block_hide', 0) == 0) {
+                // Prepare block
+                $block['subject'] = t('Upcoming Birthdays');
+                $block['content'] = theme('birthdays_block', $birthdays, $amount, $delta);
+              }
+              break;
+            case 'by_birthdays':
+              // Get desired amount of  birthdays
+              $amount = variable_get("birthdays_block_number_by_birthdays", 6);
+              $birthdays = birthdays_get_birthdays($amount);
+
+              if (count($birthdays) > 0 || variable_get('birthdays_block_hide', 0) == 0) {
+                // Prepare block
+                $block['subject'] = t('Upcoming Birthdays');
+                $block['content'] = theme('birthdays_block', $birthdays, $amount, $delta);
+              }
+              break;
+          }
+
+          return $block;
+        }
+    }
   }
 }
 
@@ -449,7 +453,7 @@ function theme_birthdays_block($birthdays, $amount, $delta) {
  */
 function birthdays_user($op, &$edit, &$account, $category = NULL) {
   global $_birthdays_field;
-  // Do nothing with user when birthdays_field_name is not yet set
+  // Do nothing with user when _birthdays_field is not yet set
   if (!isset($_birthdays_field)) {
     return;
   }
@@ -495,8 +499,9 @@ function birthdays_load_user(&$account) {
  */
 function birthdays_save_user(&$edit, &$account, $category) {
   global $_birthdays_field;
-  // Duplicate birthday-information in separate table for easy searching.
-
+  d($edit, 'edit');
+  d($account, 'account');
+  d($category, 'cat');
   // Only continue when the field is present in the form results
   if (!empty($_birthdays_field->name) && array_key_exists($_birthdays_field->name, $edit)) {
     // Extract the date information
@@ -524,7 +529,7 @@ function birthdays_save_user(&$edit, &$account, $category) {
  */
 function birthdays_profile_alter(&$account) {
   global $_birthdays_field;
-  // If the birthdays_field_name hasn't been set yet, do not continue
+  // If the _birthdays_field hasn't been set yet, do not continue
   if (!isset($_birthdays_field)) {
     return;
   }
@@ -773,7 +778,11 @@ function _birthdays_get_date_fields() {
  */
 function _birthdays_get_field($fid) {
   if (isset($fid)) {
-    return db_fetch_object(db_query("SELECT * FROM {profile_fields} WHERE fid = %d", $fid));
+    $field = db_fetch_object(db_query("SELECT * FROM {profile_fields} WHERE fid = %d", $fid));
+    return empty($field) ? NULL : $field;
+  }
+  else {
+    return NULL;
   }
 }
 

@@ -12,9 +12,9 @@
 function birthdays_install() {
   drupal_install_schema('birthdays');
 
-  // Still necessary?
-  //$weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
-  //db_query("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
+  // Still necessary!
+  $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
+  db_query("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
 }
 
 /**
@@ -54,14 +54,20 @@ function birthdays_requirements($phase) {
   if ($phase == 'runtime') {
     $requirements['birthdays'] = array(
       'title' => t('Birthdays'),
-      'value' => t('Birthday profile field'),
+      'value' => t('All requirements are met'),
       'severity' => REQUIREMENT_OK,
     );
-
-    if (!isset($_birthdays_field)) {
-      // Set warning/error message when the birthdays profile field hasn't been set yet.
+    $date_fields = _birthdays_get_date_fields();
+    if (empty($date_fields)) {
+      $requirements['birthdays']['value'] = t('Missing profile field');
       $requirements['birthdays']['severity'] = REQUIREMENT_ERROR;
-      $requirements['birthdays']['description'] = t('Birthday profile field is not set. Please visit the <a href="@birthdays-settings">birthdays settings page</a>.', array('@birthdays-settings' => url('admin/settings/birthdays')));
+      $requirements['birthdays']['description'] = t('No profile fields of type \'date\' were found, please <a href="@profile-settings-page">create one here</a>. Then visit the <a href="@birthdays-settings">birthdays settings page</a> to set up the module.', array('@profile-settings-page' => url('admin/user/profile/add/date'), '@birthdays-settings' => url('admin/settings/birthdays')));
+    }
+    elseif (!isset($_birthdays_field)) {
+      // Set warning/error message when the birthdays profile field hasn't been set yet.
+      $requirements['birthdays']['value'] = t('No date field selected');
+      $requirements['birthdays']['severity'] = REQUIREMENT_ERROR;
+      $requirements['birthdays']['description'] = t('The date field has not yet been selected as birthdays field. Please visit the <a href="@birthdays-settings">birthdays settings page</a> to do so.', array('@birthdays-settings' => url('admin/settings/birthdays')));
     }
   }
 

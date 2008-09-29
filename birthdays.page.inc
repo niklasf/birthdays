@@ -152,7 +152,7 @@ function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) 
     }
 
     if (variable_get('user_pictures', FALSE)) {
-      $rows[$i][] = theme_user_picture($account);
+      $rows[$i][] = theme('user_picture', $account);
     }
 
     $i++;

@@ -12,7 +12,6 @@
 
 /**
  * @TODO - Test upgrade path
- * @TODO - use contstants
  * @TODO - Fire events
  * @TODO - Add postcards
  * @TODO - Make visible to VIEWS module

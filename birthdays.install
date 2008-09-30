@@ -80,15 +80,13 @@ function birthdays_requirements($phase) {
   return $requirements;
 }
 
-function birthdays_update_6000() {
-  $ret[] = array('query' => "Nothing to do", 'success' => TRUE);
-  if (variable_get('birthdays_field_name', '') != '') {
-    $field = db_result(db_query("SELECT fid FROM {profile_fields} WHERE name = '%s'", variable_get('birthdays_field_name', '')));
-    if (!empty($field)) {
-      variable_set('birthdays_field_id', $field);
-      $ret[0] = array('query' => "Variable 'birthdays_field_id' has been set successfully", 'success' => TRUE);
-    }
-  }
+/**
+ * Remove the variable 'birthdays_field_name'.
+ */
+function birthdays_update_5003() {
+  $ret[] = array('success' => TRUE, 'query' => 'Variable "birthdays_field_name" has been deleted successfully');
+  variable_del('birthdays_field_name');
+
   return $ret;
 }
 

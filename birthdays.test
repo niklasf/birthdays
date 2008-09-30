@@ -36,6 +36,7 @@ class BirthdaysTestCase extends DrupalWebTestCase {
       'category' => $this->randomName(8),
       'title' => $this->randomName(8),
       'name' => 'profile_'. $this->randomName(8),
+      'required' => 1,
     );
     $this->drupalPost('admin/user/profile/add/date', $field, t('Save field'));
 
@@ -57,24 +58,9 @@ class BirthdaysTestCase extends DrupalWebTestCase {
   function testDeleteOption() {
     $this->drupalLogin($this->web_user);
 
-    // Confirm that the user is not allowed to remove their date of birth.
-    $this->drupalGet('user/'. $this->web_user->uid .'/edit/'. $this->field->category);
-    $this->assertNoField('birthdays_delete', t('"Remove birthday" is not present.'));
-
-    // Swith user.
-    $this->drupalLogout();
-    $this->drupalLogin($this->admin_user);
-
-    // Set 'delete birthday' permission.
-    $this->drupalPost('admin/user/permissions', array('2[delete birthday]' => 1), t('Save permissions'));
-
-    // Swith user.
-    $this->drupalLogout();
-    $this->drupalLogin($this->web_user);
-
-    // Confirm that the user is allowed to remove their date of birth.
-    $this->drupalGet('user/'. $this->web_user->uid .'/edit/'. $this->field->category);
-    $this->assertField('birthdays_delete', t('"Remove birthday" checkbox is present.'));
+    // Try to insert empty birthday, while required.
+    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, array(), t('Save'));
+    $this->assertText($this->field->title .' field is required.', t('Birthday field is required.'));
 
     // Set birthday of user.
     $birthday = array(
@@ -88,16 +74,27 @@ class BirthdaysTestCase extends DrupalWebTestCase {
     $this->drupalGet('user/'. $this->web_user->uid);
     $this->assertText('03/23/1980', t('Birthday has been set.'));
 
-    // Delete birthday.
-    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, array('birthdays_delete' => 1), t('Save'));
+    // Try to delete birthday.
+    $birthday = array(
+      $this->field->name .'[month]' => '',
+      $this->field->name .'[day]' => '',
+      $this->field->name .'[year]' => '',
+    );
+    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, $birthday, t('Save'));
 
-    // Confirm birthday deletion.
+    // Confirm deletion is not possible.
+    $this->assertText($this->field->title .' field is required.', t('Birthday deletion prevented.'));
+
+    // Set birthdays field optional, thus making deletion possible.
+    db_query('UPDATE {profile_fields} SET required = 0 WHERE fid = %d', $this->field->fid);
+
+    // Confirm deletion is possible.
+    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, $birthday, t('Save'));
+    $this->assertNoText($this->field->title .' field is required.', t('Birthday deletion allowed.'));
+
+    // Confirm birthday is deleted (not displayed on profile page).
     $this->drupalGet('user/'. $this->web_user->uid);
-    $this->assertNoText('03/23/1980', t('Birthday has been deleted.'));
-
-    // Confirm "remove birthday" remains checked.
-    $this->drupalGet('user/'. $this->web_user->uid .'/edit/'. $this->field->category);
-    $this->assertRaw('<input type="checkbox" name="birthdays_delete" id="edit-birthdays-delete" value="1"  checked="checked"  class="form-checkbox" />', '"Remove birthday" check box remains checked.');
+    $this->assertNoText($this->field->title, t('Birthday has been set.'));
   }
 
   /**

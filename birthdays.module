@@ -210,7 +210,7 @@ function birthdays_theme() {
  * Implementation of hook_perm().
  */
 function birthdays_perm() {
-  return array('access birthdays', 'delete birthday');
+  return array('access birthdays');
 }
 
 
@@ -688,7 +688,7 @@ function birthdays_profile_alter(&$account) {
 function birthdays_form_user($edit, $account, $category, $register = FALSE) {
   global $_birthdays_field;
 
-   // If the called category is the category of the form field
+  // If the called category is the category of the form field
   if ($category == $_birthdays_field->category || ($_birthdays_field->register && $register)) {
     // If the hiding of the year is a user option: show the option
     if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_USER) {
@@ -714,32 +714,81 @@ function birthdays_form_user($edit, $account, $category, $register = FALSE) {
       );
     }
 
-    if (user_access('delete birthday') && !$register) {
-      $form[$_birthdays_field->category]['birthdays_delete'] = array(
-        '#type' => 'checkbox',
-        '#return_value' => 1,
-        '#title' => t('Remove birthday'),
-        '#default_value' => (int) $account->birthdays_delete,
-        '#description' => t('By checking this, the birthday information will be removed.'),
-        '#weight' => $_birthdays_field->weight + 1,
-      );
-      $form['#submit'][] = 'birthdays_form_user_submit';
-    }
+    $form['#submit'][] = 'birthdays_form_user_submit';
   }
 
   return $form;
 }
 
+/**
+ * Submit function for the user form. Removes birthday if day, month
+ * and year are set to empty.
+ */
 function birthdays_form_user_submit($form, &$form_state) {
   global $_birthdays_field;
-  if ($form_state['values']['birthdays_delete'] == 1) {
+
+  if (empty($form_state['values'][$_birthdays_field->name]['month']) &&
+        empty($form_state['values'][$_birthdays_field->name]['day']) &&
+        empty($form_state['values'][$_birthdays_field->name]['year'])
+      ) {
+
     $form_state['values'][$_birthdays_field->name] = '';
   }
 
   user_edit_submit($form, $form_state);
 }
 
+/**
+ * Implementation of hook_form_alter().
+ */
+function birthdays_form_alter(&$form, $form_state, $form_id) {
+  global $_birthdays_field;
 
+  if (($form_id == 'user_profile_form' && isset($form[$_birthdays_field->category])) || ($form_id == 'user_register' && $_birthdays_field->register)) {
+    $form[$_birthdays_field->category][$_birthdays_field->name]['#process'] = array('expand_birthdays_date');
+    $form[$_birthdays_field->category][$_birthdays_field->name]['#element_validate'] = array('birthdays_date_validate');
+  }
+}
+
+/**
+ * Process the birthday field (based on a regular date element) to
+ * limit it to past birthdays and make it the entire element optional
+ * by adding empty options for days, months and years.
+ */
+function expand_birthdays_date($element) {
+  if (empty($element['#value'])) {
+    $element['#value'] = array('day' => '', 'month' => '', 'year' => '');
+  }
+
+  $element = expand_date($element);
+  $element['month']['#options'] = array('' => '--') + $element['month']['#options'];
+  $element['day']['#options'] = array('' => '--') + $element['day']['#options'];
+  $element['year']['#options'] = array('' => '--') + drupal_map_assoc(range(date('Y'), 1900));
+
+  return $element;
+}
+
+/**
+ * Validate the birthday field.
+ */
+function birthdays_date_validate($element) {
+  extract($element['#value']);
+  if (empty($month) || empty($year) || empty($day)) {
+    if ($element['#required']) {
+      form_error($element, t('!name field is required.', array('!name' => $element['#title'])));
+    }
+    elseif (!(empty($month) && empty($year) && empty($day))) {
+      form_error($element, t('The specified date is invalid.'));
+    }
+  }
+  elseif (!checkdate($month, $day, $year)) {
+      form_error($element, t('The specified date is invalid.'));
+  }
+}
+
+/**
+ * Implementation of hook_mail().
+ */
 function birthdays_mail($key, &$message, $params) {
   global $_birthdays_field;
 

@@ -664,7 +664,7 @@ function birthdays_profile_alter(&$account) {
         '</span>&nbsp;&nbsp;&nbsp;';
 
       // Show age (when allowed by user and administrator)
-      if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_NO || (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_USER && $account->birthdays_user_hide_year == BIRTHDAYS_HIDE_YEAR_USER_NO)) {
+      if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_NO || (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_USER && $account->birthdays_user_hide_year != BIRTHDAYS_HIDE_YEAR_USER_YES)) {
         $age = '&nbsp;&nbsp;&nbsp;<span class="birthdays-age">('. $account->age .')</span>';
       }
 
@@ -984,7 +984,7 @@ function _birthdays_calculate_age($day, $month, $year) {
  */
 function _birthdays_show_age($account) {
   $age = NULL;
-  if (isset($account->age) && (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_NO || (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_USER && $account->birthdays_user_hide_year == BIRTHDAYS_HIDE_YEAR_USER_NO))) {
+  if (isset($account->age) && (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_NO || (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_USER && $account->birthdays_user_hide_year != BIRTHDAYS_HIDE_YEAR_USER_YES))) {
     $age = $account->age;
   }
   return $age;

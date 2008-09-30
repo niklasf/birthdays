@@ -31,14 +31,14 @@ function birthdays_view_page() {
     case 'mysql':
     case 'mysqli':
       // Right join = filtering out
-      $join = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) != BIRTHDAYS_PAGE_NOFILTER_USER || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
+      $join = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) != BIRTHDAYS_PAGE_NOFILTER_SORT_USER || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
       $sort = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) == BIRTHDAYS_PAGE_FILTER_SORT_DATE || !empty($filter_month) || !empty($filter_year) ? 'MONTH({dob}.birthday), DAYOFMONTH({dob}.birthday), YEAR({dob}.birthday), ' : '';
       $filter .= !empty($filter_month) ? " AND MONTH({dob}.birthday) = ". $filter_month : '';
       $filter .= !empty($filter_year) ? " AND YEAR({dob}.birthday) = ". $filter_year : '';
       break;
     case 'pgsql':
       // Right join = filtering out
-      $join = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) != BIRTHDAYS_PAGE_NOFILTER_USER || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
+      $join = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) != BIRTHDAYS_PAGE_NOFILTER_SORT_USER || !empty($filter_month) || !empty($filter_year) ? 'RIGHT JOIN' : 'LEFT JOIN';
       $sort = variable_get('birthdays_page_settings', BIRTHDAYS_PAGE_FILTER_SORT_DATE) == BIRTHDAYS_PAGE_FILTER_SORT_DATE || !empty($filter_month) || !empty($filter_year) ? "date_part('month', {dob}.birthday), date_part('day', {dob}.birthday), date_part('year', {dob}.birthday), " : '';
       $filter .= !empty($filter_month) ? " AND date_part('month', {dob}.birthday) = ". $filter_month : '';
       $filter .= !empty($filter_year) ? " AND date_part('year', {dob}.birthday) = ". $filter_year : '';

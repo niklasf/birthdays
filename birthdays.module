@@ -106,7 +106,7 @@ define('BIRTHDAYS_PAGE_FILTER_SORT_USER', '1');
 /**
  * Show all users on the Birthdays listing and sort by username.
  */
-define('BIRTHDAYS_PAGE_NOFILTER_USER', '2');
+define('BIRTHDAYS_PAGE_NOFILTER_SORT_USER', '2');
 
 /**
  * Do not send an e-mail to the user on their birthday. Default.

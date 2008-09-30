@@ -9,11 +9,10 @@
  * Implementation of hook_form().
  */
 function birthdays_admin_settings() {
-  global $_birthdays_field;
-
-// Get fields from the profile.module of the type 'date'.
+  // Get fields from the profile.module of the type 'date'.
   $options = _birthdays_get_date_fields();
-  // If there aren't any 'date' fields, throw a warning
+
+  // If there aren't any 'date' fields, throw an error and return an empty form
   if (empty($options)) {
     drupal_set_message(t('No profile fields of type \'date\' were found, please <a href="@profile-settings-page">create one here</a>.', array('@profile-settings-page' => url('admin/user/profile/add/date'))), 'error');
     return;
@@ -77,7 +76,7 @@ function birthdays_admin_settings() {
     '#options' => array(
       BIRTHDAYS_PAGE_FILTER_SORT_DATE => t('Filter users, sort by date'),
       BIRTHDAYS_PAGE_FILTER_SORT_USER => t('Filter users, sort by username'),
-      BIRTHDAYS_PAGE_NOFILTER_USER => t('Do not filter users, sort by username'),
+      BIRTHDAYS_PAGE_NOFILTER_SORT_USER => t('Do not filter users, sort by username'),
     ),
   );
 

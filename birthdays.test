@@ -35,7 +35,7 @@ class BirthdaysTestCase extends DrupalWebTestCase {
     $field = array(
       'category' => $this->randomName(8),
       'title' => $this->randomName(8),
-      'name' => 'profile_' . $this->randomName(8),
+      'name' => 'profile_'. $this->randomName(8),
     );
     $this->drupalPost('admin/user/profile/add/date', $field, t('Save field'));
 
@@ -58,7 +58,7 @@ class BirthdaysTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->web_user);
 
     // Confirm that the user is not allowed to remove their date of birth.
-    $this->drupalGet('user/' . $this->web_user->uid . '/edit/' . $this->field->category);
+    $this->drupalGet('user/'. $this->web_user->uid .'/edit/'. $this->field->category);
     $this->assertNoField('birthdays_delete', t('"Remove birthday" is not present.'));
 
     // Swith user.
@@ -66,37 +66,37 @@ class BirthdaysTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->admin_user);
 
     // Set 'delete birthday' permission.
-    $this->drupalPost('admin/user/permissions',array('2[delete birthday]' => 1), t('Save permissions'));
+    $this->drupalPost('admin/user/permissions', array('2[delete birthday]' => 1), t('Save permissions'));
 
     // Swith user.
     $this->drupalLogout();
     $this->drupalLogin($this->web_user);
 
     // Confirm that the user is allowed to remove their date of birth.
-    $this->drupalGet('user/' . $this->web_user->uid . '/edit/' . $this->field->category);
+    $this->drupalGet('user/'. $this->web_user->uid .'/edit/'. $this->field->category);
     $this->assertField('birthdays_delete', t('"Remove birthday" checkbox is present.'));
 
     // Set birthday of user.
     $birthday = array(
-      $this->field->name . '[month]' => 3,
-      $this->field->name . '[day]' => 23,
-      $this->field->name . '[year]' => 1980,
+      $this->field->name .'[month]' => 3,
+      $this->field->name .'[day]' => 23,
+      $this->field->name .'[year]' => 1980,
     );
-    $this->drupalPost('user/' . $this->web_user->uid . '/edit/' . $this->field->category, $birthday, t('Save'));
+    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, $birthday, t('Save'));
 
     // Confirm that birthday is set correctly.
-    $this->drupalGet('user/' . $this->web_user->uid);
+    $this->drupalGet('user/'. $this->web_user->uid);
     $this->assertText('03/23/1980', t('Birthday has been set.'));
 
     // Delete birthday.
-    $this->drupalPost('user/' . $this->web_user->uid . '/edit/' . $this->field->category, array('birthdays_delete' => 1), t('Save'));
+    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, array('birthdays_delete' => 1), t('Save'));
 
     // Confirm birthday deletion.
-    $this->drupalGet('user/' . $this->web_user->uid);
+    $this->drupalGet('user/'. $this->web_user->uid);
     $this->assertNoText('03/23/1980', t('Birthday has been deleted.'));
 
     // Confirm "remove birthday" remains checked.
-    $this->drupalGet('user/' . $this->web_user->uid . '/edit/' . $this->field->category);
+    $this->drupalGet('user/'. $this->web_user->uid .'/edit/'. $this->field->category);
     $this->assertRaw('<input type="checkbox" name="birthdays_delete" id="edit-birthdays-delete" value="1"  checked="checked"  class="form-checkbox" />', '"Remove birthday" check box remains checked.');
   }
 
@@ -108,15 +108,15 @@ class BirthdaysTestCase extends DrupalWebTestCase {
 
     // Set birthday of user.
     $birthday = array(
-      $this->field->name . '[month]' => 3,
-      $this->field->name . '[day]' => 23,
-      $this->field->name . '[year]' => 1980,
+      $this->field->name .'[month]' => 3,
+      $this->field->name .'[day]' => 23,
+      $this->field->name .'[year]' => 1980,
     );
     $age = _birthdays_calculate_age(23, 3, 1980);
-    $this->drupalPost('user/' . $this->web_user->uid . '/edit/' . $this->field->category, $birthday, t('Save'));
+    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, $birthday, t('Save'));
 
     // Confirm there is no checkbox "Hide age and birth year", it's the default
-    $this->drupalGet('user/' . $this->web_user->uid . '/edit/' . $this->field->category);
+    $this->drupalGet('user/'. $this->web_user->uid .'/edit/'. $this->field->category);
     $this->assertNoField('birthdays_user_hide_year', '"Hide age and birth year" option not present.');
 
     // Globally hide year of birth and age.
@@ -126,23 +126,23 @@ class BirthdaysTestCase extends DrupalWebTestCase {
     $this->drupalGet('user');
     $this->assertText('03/23', 'Date of birth visible.');
     $this->assertNoText('1980', 'Year hidden.');
-    $this->assertNoText('(' . $age . ')', 'Age hidden.');
+    $this->assertNoText('('. $age .')', 'Age hidden.');
 
     // Set hiding year of birth and age as user option.
     variable_set('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_USER);
     // Confirm age and year are not hidden.
     $this->drupalGet('user');
     $this->assertText('1980', 'Year not hidden.');
-    $this->assertText('(' . $age . ')', 'Age not hidden.');
+    $this->assertText('('. $age .')', 'Age not hidden.');
 
     // Hide year of birth and age for this user.
-    $this->drupalPost('user/' . $this->web_user->uid . '/edit/' . $this->field->category, array('birthdays_user_hide_year' => BIRTHDAYS_HIDE_YEAR_USER_YES), t('Save'));
+    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, array('birthdays_user_hide_year' => BIRTHDAYS_HIDE_YEAR_USER_YES), t('Save'));
 
     // Confirm age and year are hidden, but the date of birth isn't.
     $this->drupalGet('user');
     $this->assertText('03/23', 'Date of birth visible.');
     $this->assertNoText('1980', 'Year of birth hidden.');
-    $this->assertNoText('(' . $age . ')', 'Age hidden.');
+    $this->assertNoText('('. $age .')', 'Age hidden.');
   }
 
   /**
@@ -153,11 +153,11 @@ class BirthdaysTestCase extends DrupalWebTestCase {
 
     // Set birthday of user.
     $birthday = array(
-      $this->field->name . '[month]' => 3,
-      $this->field->name . '[day]' => 23,
-      $this->field->name . '[year]' => 1980,
+      $this->field->name .'[month]' => 3,
+      $this->field->name .'[day]' => 23,
+      $this->field->name .'[year]' => 1980,
     );
-    $this->drupalPost('user/' . $this->web_user->uid . '/edit/' . $this->field->category, $birthday, t('Save'));
+    $this->drupalPost('user/'. $this->web_user->uid .'/edit/'. $this->field->category, $birthday, t('Save'));
 
     // Confirm absense of starsign.
     $this->drupalGet('user');
@@ -168,14 +168,14 @@ class BirthdaysTestCase extends DrupalWebTestCase {
 
     // Confirm presence of starsign, but absense of link.
     $this->drupalGet('user');
-    $this->assertRaw('<span class="birthdays-starsign"><img src="' . base_path() . drupal_get_path('module', 'birthdays') . '/starsigns/aries.gif" alt="aries" /></span>', 'Starsign is displayed without link.');
+    $this->assertRaw('<span class="birthdays-starsign"><img src="'. base_path() . drupal_get_path('module', 'birthdays') .'/starsigns/aries.gif" alt="aries" /></span>', 'Starsign is displayed without link.');
 
     // Set starsigns to visible, with link.
     variable_set('birthdays_show_starsign', BIRTHDAYS_STARSIGN_LINK);
 
     // Confirm presence of starsign, with link.
     $this->drupalGet('user');
-    $this->assertRaw('<span class="birthdays-starsign"><a href="http://astrology.yahoo.com/astrology/general/dailyoverview/aries" target="_blank" title="aries"><img src="' . base_path() . drupal_get_path('module', 'birthdays') . '/starsigns/aries.gif" alt="aries" /></a></span>', 'Starsign is displayed with link.');
+    $this->assertRaw('<span class="birthdays-starsign"><a href="http://astrology.yahoo.com/astrology/general/dailyoverview/aries" target="_blank" title="aries"><img src="'. base_path() . drupal_get_path('module', 'birthdays') .'/starsigns/aries.gif" alt="aries" /></a></span>', 'Starsign is displayed with link.');
   }
 
 }

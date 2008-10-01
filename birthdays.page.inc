@@ -78,7 +78,7 @@ function birthdays_page_filter($filter_month = NULL, $filter_year = NULL) {
   }
 
   $options_years[0] = '';
-  $options_years = $options_years + drupal_map_assoc(range(1900, 2050));
+  $options_years = $options_years + drupal_map_assoc(range(date('Y'), 1900));
 
   $form['#prefix'] = '<div class="container-inline birthdays-filter">';
   $form['#suffix'] = "</div>\n";

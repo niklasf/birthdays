@@ -1,12 +1,16 @@
 // $Id$
 
-Birthdays 6.x-1.0, FUTURE:
-------------------------------
+Birthdays 6.x-1.0, FUTURE
+-----------------------------
+- Added Simpletests
+
+
+Birthdays 5.x-1.2, 2008-10-01
+-----------------------------
 - CHANGELOG.txt, INSTALL.txt and README.txt are now similar to Drupal's files
 - Date field can now be empty and thus truely be required. Defaults to empty,
   to make accidental birthdays less likely.
 - Dropped 'delete birthday' permission and 'Remove birthday' check box.
-- Introduced Simpletest tests.
 - Introduced constants in stead of hard coded values.
 - Frequency of admin mails is now configurable (daily, weekly, monthly).
 - Birthdays field is set as global during module initiation in stead of using
@@ -16,6 +20,8 @@ Birthdays 6.x-1.0, FUTURE:
 - Added option 'hide block when no birthdays' in stead of showing the 'Nobody
   is having their birthday soon'.
 - Fixed bug in cron excution which caused it to creep forward over time.
+- Fixed various small issues cleaned up code.
+
 
 Birthdays 5.x-1.1, 2008-04-09
 -----------------------------
@@ -23,6 +29,7 @@ Birthdays 5.x-1.1, 2008-04-09
 - Added pgsql-support
 - Implemented better compliance with Drupal coding standards
 - Fixed Sagittarius typo
+
 
 Birthdays 5.x-1.0, 2007-11-06
 -----------------------------

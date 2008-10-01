@@ -18,7 +18,7 @@ INTRODUCTION
 
 The Birthdays module allows users to add their birthday to their profile. In
 their profile the date of birth is show, as well as their age and their
-starsign. This is all configurable. It also lists birthdays on a seperate page
+star sign. This is all configurable. It also lists birthdays on a separate page
 which can be filtered by month and year. Finally 2 blocks are defined to show
 upcoming birthdays, either a fixed number or a specific number of days in
 advance.
@@ -39,7 +39,7 @@ FEATURES
    month and year.
  * Optionally displays user's star sign, with or without a link to Yahoo
    Horoscopes.
- * Displaying the user's birthday/current age/starsign on the user's profile.
+ * Displaying the user's birthday/current age/star sign on the user's profile.
  * User option not to be mailed on their birthday.
  * User & admin option to hide the year and age of the user(s).
  * User options can be turned off by administrator.
@@ -89,7 +89,7 @@ Setting the module is done on a number of pages.
   described below.
   * 'Profile field': here you set which 'date' field of the Profile module you
     want the Birthdays module to use.
-  * 'Show starsings': select whether you want to display the starsign icons on
+  * 'Show starsings': select whether you want to display the star sign icons on
     the profile and on the Birthdays page, and, if so, whether it should link
     to Yahoo Horoscopes.
   * 'Hide year and age': some sites might want to protect the user's privacy by
@@ -133,7 +133,7 @@ Setting the module is done on a number of pages.
     their date of birth when registering to your website. If combined with the
     option above, they can not register without putting their date of birth.
   * 'Visibility': this will influence the visibility of the field as described
-    there, but the behavior might become irradic if not set to 'Public field,
+    there, but the behavior might become erratic if not set to 'Public field,
     content shown on profile page but not used on member list pages'. So it is
     recommended to leave this as is.
 

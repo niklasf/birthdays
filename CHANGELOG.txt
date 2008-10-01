@@ -1,60 +1,47 @@
-********************************************************************
-Module name             : Birthdays
-Original Author         : David Gildeh
-5.x version by          : Maarten van Grootel
-********************************************************************
-CHANGELOG:
-2008-10-01:
-* Date field can now be empty and thus truely be required. Defaults
-  to empty, to make accidental birthdays less likely.
-* Dropped 'delete birthday' permission & 'Remove birthday' check box.
+// $Id$
 
-2008-09-30:
-* Introduced first Simpletest tests, more to follow.
+Birthdays 6.x-1.0, FUTURE:
+------------------------------
+- CHANGELOG.txt, INSTALL.txt and README.txt are now similar to Drupal's files
+- Date field can now be empty and thus truely be required. Defaults to empty,
+  to make accidental birthdays less likely.
+- Dropped 'delete birthday' permission and 'Remove birthday' check box.
+- Introduced Simpletest tests.
+- Introduced constants in stead of hard coded values.
+- Frequency of admin mails is now configurable (dayly, weekly, monthly).
+- Birthdays field is set as global during module initiation in stead of using
+  the 'birthdays_field_name' variable all over the place.
+- Added the use of hook_requirements() and made requirement checks less
+  intrusive but more informative.
+- Added option 'hide block when no birthdays' in stead of showing the 'Nobody
+  is having their birthday soon'.
+- Fixed bug in cron excution which caused it to creep forward over time.
 
-2008-09-29:
-* Introduced constants in stead of hard coded values.
+Birthdays 5.x-1.1, 2008-04-09
+-----------------------------
+- Birthdays 5.x-1.1 released
+- Added pgsql-support
+- Implemented better compliance with Drupal coding standards
+- Fixed Sagittarius typo
 
-2008-09-28:
-* Frequency of admin mails is now configurable (dayly, weekly, monthly).
-* Field is set as global during module init
-
-2008-09-18:
-* Started port to 6.x
-* Requirement checking is more standards compliant.
-
-2008-09-16:
-* Added option 'hide block when no birthdays'
-* Fixed bug in cron excution creeping forward
-
-2008-04-09:
-* Birthdays 5.x-1.1 released
-* Added pgsql-support
-
-2008-04-08:
-* Implemented better compliance with Drupal coding standards
-* Fixed Sagittarius typo
-
-2007-11-06:
-* Birthdays 5.x-1.0 released
-
-2007-08-10:
-* All code rewritten according to coding guidelines of Drupal
-* Integrated with Profile module
-* Added 2 user options:
-  * Hide year & age
-  * Do not send mail on birthday
-* Shortened settings page
-* Birthday field now optionally on registration form
-* Birthday field now optionally required
-* Optimized and fixed bugs in queries
-* Made queries timezone dependent
-* Made displaying of birthdays independent of timezone
-* Added synchronization between Profile module and Birthdays module
-* Temporarily removed postcard
-* Added theme functions
-* Added proper commenting
-* Blocked users are hidden in the blocks and on the user listing
+Birthdays 5.x-1.0, 2007-11-06
+-----------------------------
+- All code rewritten according to coding guidelines of Drupal
+- Integrated with Profile module
+- Added 2 user options:
+  - Hide year & age
+  - Do not send mail on birthday
+- Shortened settings page
+- Birthday field now optionally on registration form
+- Birthday field now optionally required
+- Optimized and fixed bugs in queries
+- Made queries timezone dependent
+- Made displaying of birthdays independent of timezone
+- Added synchronization between Profile module and Birthdays module
+- Temporarily removed postcard
+- Added theme functions
+- Added proper commenting
+- Blocked users are hidden in the blocks and on the user listing
 
 
 

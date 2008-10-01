@@ -51,11 +51,11 @@ function birthdays_admin_settings() {
   $form['birthdays_general_settings']['birthdays_hide_year'] = array(
     '#type' => 'select',
     '#title' => t('Hide year and age'),
-    '#default_value' => variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_OFF),
+    '#default_value' => variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO),
     '#description' => t('Select whether the birth year and age should be shown.'),
     '#options' => array(
-      BIRTHDAYS_HIDE_YEAR_OFF => t('No'),
-      BIRTHDAYS_HIDE_YEAR_ON => t('Yes'),
+      BIRTHDAYS_HIDE_YEAR_NO => t('No'),
+      BIRTHDAYS_HIDE_YEAR_YES => t('Yes'),
       BIRTHDAYS_HIDE_YEAR_USER => t("User optional, 'No' by default"),
     ),
   );

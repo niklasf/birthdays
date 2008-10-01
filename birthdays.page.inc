@@ -91,7 +91,7 @@ function birthdays_page_filter($filter_month = NULL, $filter_year = NULL) {
     '#attributes' => array('onchange' => 'submit()'),
   );
 
-  if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_OFF) != BIRTHDAYS_HIDE_YEAR_ON) {
+  if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) != BIRTHDAYS_HIDE_YEAR_YES) {
     $form['birthdays_filter_year'] = array(
       '#type' => 'select',
       '#options' => $options_years,
@@ -121,7 +121,7 @@ function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) 
   // $header contains the column headers
   $header = array(t('User'), t('Birthday'));
 
-  if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_OFF) != BIRTHDAYS_HIDE_YEAR_ON) {
+  if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) != BIRTHDAYS_HIDE_YEAR_YES) {
     $header[] = t('Age');
   }
 
@@ -142,7 +142,7 @@ function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) 
     //Theme username (with link and such) and format date field.
     $rows[$i] = array(theme('username', $account), _birthdays_show_date($account->{$_birthdays_field->name}, $account));
 
-    if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_OFF) != BIRTHDAYS_HIDE_YEAR_ON) {
+    if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) != BIRTHDAYS_HIDE_YEAR_YES) {
       $age = _birthdays_show_age($account);
       $rows[$i][] = isset($age) ? $age : '';
     }

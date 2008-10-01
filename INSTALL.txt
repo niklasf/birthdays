@@ -57,13 +57,14 @@ UPGRADE INSTRUCTIONS
   2. Empty the Birthdays module directory and put the new files in.
   3. Go to the modules page, and install both the Profile module and the
      Birthdays module.
-  4. If you already have a Profile field of type 'date' that you want to use
+  4. Run update.php.
+  5. If you already have a Profile field of type 'date' that you want to use
      for the Birthdays module, you can skip this step. Otherwise, go to
      ?q=admin/user/profile and create one. For information about the
      settings here read the 'Settings' section of README.txt.
-  5. Go to ?q=admin/settings/birthdays and select the Profile Field you want
+  6. Go to ?q=admin/settings/birthdays and select the Profile Field you want
      Birthdays to use. You can alter any of the other settings to your likings.
-  6. Go to the Synchronisation page at ?q=admin/settings/birthdays/sync and
+  7. Go to the Synchronisation page at ?q=admin/settings/birthdays/sync and
      click the 'Copy Birthdays date to Profile module' button, which is
      the button at the bottom. This might take a while, depending on the amount
      of users.

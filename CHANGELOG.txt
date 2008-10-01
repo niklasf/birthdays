@@ -8,7 +8,7 @@ Birthdays 6.x-1.0, FUTURE:
 - Dropped 'delete birthday' permission and 'Remove birthday' check box.
 - Introduced Simpletest tests.
 - Introduced constants in stead of hard coded values.
-- Frequency of admin mails is now configurable (dayly, weekly, monthly).
+- Frequency of admin mails is now configurable (daily, weekly, monthly).
 - Birthdays field is set as global during module initiation in stead of using
   the 'birthdays_field_name' variable all over the place.
 - Added the use of hook_requirements() and made requirement checks less

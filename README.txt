@@ -105,7 +105,7 @@ Setting the module is done on a number of pages.
     month and/or year should be displayed. When 'Hide year and age' is set to
     'Yes', filtering by year is not possible.
   * 'Send upcoming birthdays to admin': this one has 4 values 'Disabled',
-    'Dayly', 'Weekly, on the first day of the week' and 'Monthly'. This will
+    'Daily', 'Weekly, on the first day of the week' and 'Monthly'. This will
     send an e-mail to your site e-mail address at the given intervals, listing
     users that will have their birthday in that period. The first day of the
     week is controlled by the date and time settings of Drupal, which can be

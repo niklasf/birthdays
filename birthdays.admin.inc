@@ -125,9 +125,9 @@ function birthdays_admin_settings() {
     '#default_value' => variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED),
     '#options' => array(
       BIRTHDAYS_ADMIN_MAIL_DISABLED => t('Disabled'),
-      BIRTHDAYS_MAIL_FREQUENCY_DAYLY => t('Dayly'),
-      BIRTHDAYS_MAIL_FREQUENCY_WEEKLY => t('Weekly, on @first_weekday', array('@first_weekday' => $days[variable_get('date_first_day', 0)])),
-      BIRTHDAYS_MAIL_FREQUENCY_MONTHLY => t('Monthly'),
+      BIRTHDAYS_ADMIN_MAIL_DAILY => t('Daily'),
+      BIRTHDAYS_ADMIN_MAIL_WEEKLY => t('Weekly, on @first_weekday', array('@first_weekday' => $days[variable_get('date_first_day', 0)])),
+      BIRTHDAYS_ADMIN_MAIL_MONTHLY => t('Monthly'),
     ),
     '#description' => t('Do you want to receive periodic e-mails containing all upcoming birthdays?')
   );

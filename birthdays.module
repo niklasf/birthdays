@@ -32,7 +32,7 @@ define('BIRTHDAYS_ADMIN_MAIL_DISABLED', '0');
 /**
  * Admin e-mails should be sent dayly.
  */
-define('BIRTHDAYS_ADMIN_MAIL_DAYLY', '1');
+define('BIRTHDAYS_ADMIN_MAIL_DAILY', '1');
 
 /**
  * Admin e-mails should be sent weekly, on the first day of the week defined
@@ -223,24 +223,24 @@ function birthdays_cron() {
   if (isset($_birthdays_field) && (variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) != BIRTHDAYS_USER_MAIL_NO || variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED) != BIRTHDAYS_ADMIN_MAIL_DISABLED)) {
     // Perform the check just once a day
     $time = time();
-    if (variable_get('birthdays_last_cron', 0) < ($time - 3600*24)) {
-      // Reset time limit
-      variable_set('birthdays_last_cron', $time);
+    if (variable_get('birthdays_last_cron', 0) <= ($time - 24*3600)) {
+      // Reset time limit, round to nearest 100 seconds.
+      variable_set('birthdays_last_cron', floor($time/100)*100);
 
       $remind_frequency = variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED);
 
       // Send user e-mails.
       _birthdays_send_user_message();
 
-      // Send admin message if frequency is dayly.
-      if ($remind_frequency == BIRTHDAYS_ADMIN_MAIL_DAYLY) {
+      // Send admin message if frequency is daily.
+      if ($remind_frequency == BIRTHDAYS_ADMIN_MAIL_DAILY) {
         _birthdays_send_admin_message(1);
       }// Send admin message if frequency is weekly and today is the first day of the week.
       elseif ($remind_frequency == BIRTHDAYS_ADMIN_MAIL_WEEKLY && date('w', $time) == variable_get('date_first_day', 0)) {
         _birthdays_send_admin_message(7);
       }// Send admin message if frequency is monthly and today is the first day of the month.
       elseif ($remind_frequency == BIRTHDAYS_ADMIN_MAIL_MONTHLY && date('j', $time) == 1) {
-        _birthdays_send_admin_message(date('t'), $time);
+        _birthdays_send_admin_message(date('t', $time));
       }
     }
   }

@@ -222,6 +222,8 @@ function birthdays_cron() {
     // Perform the check just once a day
     $time = time();
     if (variable_get('birthdays_last_cron', 0) <= ($time - 24*3600)) {
+      // The message functions are now necessary, lets include them.
+      module_load_include('inc', 'birthdays', 'birthdays.mail');
       // Reset time limit, round to nearest 100 seconds.
       variable_set('birthdays_last_cron', floor($time/100)*100);
 
@@ -710,8 +712,6 @@ function birthdays_form_user($edit, $account, $category, $register = FALSE) {
         '#weight' => $_birthdays_field->weight + 1
       );
     }
-
-    $form['#submit'][] = 'birthdays_form_user_submit';
   }
 
   return $form;
@@ -731,20 +731,20 @@ function birthdays_form_user_submit($form, &$form_state) {
 
     $form_state['values'][$_birthdays_field->name] = '';
   }
-
-  user_edit_submit($form, $form_state);
 }
 
 /**
  * Implementation of hook_form_alter().
  */
-function birthdays_form_alter(&$form, $form_state, $form_id) {
+function birthdays_form_alter(&$form, &$form_state, $form_id) {
   global $_birthdays_field;
 
   if (($form_id == 'user_profile_form' && isset($form[$_birthdays_field->category])) || ($form_id == 'user_register' && $_birthdays_field->register)) {
     $form[$_birthdays_field->category][$_birthdays_field->name]['#process'] = array('expand_birthdays_date');
     $form[$_birthdays_field->category][$_birthdays_field->name]['#element_validate'] = array('birthdays_date_validate');
   }
+
+  $form['#submit'] = array_merge(array('birthdays_form_user_submit'), $form['#submit']);
 }
 
 /**
@@ -782,89 +782,6 @@ function birthdays_date_validate($element) {
       form_error($element, t('The specified date is invalid.'));
   }
 }
-
-/**
- * Implementation of hook_mail().
- */
-function birthdays_mail($key, &$message, $params) {
-  global $_birthdays_field;
-
-  $language = $message['language'];
-
-  switch ($key) {
-    case 'admin_message':
-      $message['subject'] = t("Upcoming Birthdays");
-      $message['body'][] = t("In the next @number days, the following users are having their birthdays:", array('@number' => 7), $language->language);
-
-      // Build list of users
-      foreach ($params['accounts'] as $uid) {
-        $account = user_load(array('uid' => $uid));
-        $message['body'][] = $account->name .' at '. $account->{$_birthdays_field->name}['day'] .'/'. $account->{$_birthdays_field->name}['month'];
-      }
-      break;
-    case 'user_message':
-      $message['subject'] = variable_get('birthdays_send_user_subject', t('Happy Birthday!'));
-
-      $message['body'][] = strtr(variable_get('birthdays_send_user_message', t("Hey @name,\nHappy birthday!\nHope you have a great day!"), array(), $language), array('@name' => check_plain($account->name)));
-      break;
-  }
-}
-
-/**
- * Sends e-mail to administrator once a day as reminder about the upcoming 7 days
- *
- * @todo Add frequency options (once a day, every week, monthly)
- */
-function _birthdays_send_admin_message($days = 1) {
-  global $user;
-  // Only proceed when admin messages are enabled
-  if (variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED) != BIRTHDAYS_ADMIN_MAIL_DISABLED) {
-    // Get birthdays
-    $accounts = birthdays_get_birthdays_by_days($days);
-
-    // If there were any users:
-    if (count($accounts) > 0) {
-      // Get site e-mail to send reminder to and from
-      $to = variable_get('site_mail', ini_get('sendmail_from'));
-      // Load the accounts into the parameters;
-      $params['accounts'] = $accounts;
-      // Send the mail
-      drupal_mail('birthdays', 'admin_message', $to, user_preferred_language($user), $params);
-      // Log action
-      watchdog('Birthdays', 'Sent birthday overview e-mail to admin', array(), WATCHDOG_NOTICE, '&#160;');
-    }
-  }
-}
-
-
-/**
- * Send all birthdays on this day a message
- *
- * @todo re-introduce the postcard module to make it fun
- */
-function _birthdays_send_user_message() {
-  // If messaging is enabled
-  if (variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) != BIRTHDAYS_USER_MAIL_NO) {
-    // Get all users having their birthday today
-    $accounts = birthdays_get_todays_birthdays();
-
-    foreach ($accounts as $uid) {
-      // Load user
-      $account = user_load(array('uid' => $uid));
-      // If user and/or administrator allows sending messages
-      if (variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) == BIRTHDAYS_USER_MAIL_YES || (variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) == BIRTHDAYS_USER_MAIL_USER && $account->birthdays_user_send_mail == BIRTHDAYS_USER_MAIL_USER_YES)) {
-        $to = $account->name .'<'. $account->mail .'>';
-        $params['account'] = $account;
-
-        // Send mail
-        drupal_mail('birthdays', 'user_message', $to, user_preferred_language($account), $params);
-        // Log actions
-        watchdog('Birthdays', 'Sent @name a birthday e-mail', array('@name' => $account->name), WATCHDOG_NOTICE, '&#160;');
-      }
-    }
-  }
-}
-
 
 /**
  * Get starsign based on date of birth

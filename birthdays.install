@@ -35,7 +35,6 @@ function birthdays_schema() {
         'description' => t('The birthday of this user.'),
         'type' => 'datetime',
         'not null' => TRUE,
-        'default' => 0,
       ),
     ),
     'primary key' => array('uid'),

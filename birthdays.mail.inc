@@ -36,7 +36,9 @@ function birthdays_mail($key, &$message, $params) {
       foreach ($params['accounts'] as $uid) {
         $account = user_load(array('uid' => $uid));
         $account->{$_birthdays_field->name}['year'] = NULL; // Don't show the year
-        $message['body'][] = $account->name . ' (' . $account->age. '): ' . _birthdays_show_date($account->{$_birthdays_field->name}, $account);
+        // Calculate the age to be.
+        $age = $account->age + !($account->{$_birthdays_field->name}['day'] == format_date(time(), 'custom', 'j') && $account->{$_birthdays_field->name}['month'] == format_date(time(), 'custom', 'n'));
+        $message['body'][] = _birthdays_show_date($account->{$_birthdays_field->name}, $account) . ': ' . $account->name . ' (' . $age. ')';
       }
       break;
     // Send message to user.

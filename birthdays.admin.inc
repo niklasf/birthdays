@@ -6,7 +6,8 @@
  */
 
 /**
- * Implementation of hook_form().
+ * Generates the Birthdays admininistration form located at
+ * ?q=admin/settings/birthdays.
  */
 function birthdays_admin_settings() {
   // Get fields from the profile.module of the type 'date'.
@@ -211,48 +212,4 @@ function birthdays_sync_form() {
   );
 
   return $form;
-}
-
-function birthdays_sync_profiles_to_birthdays($form, &$form_state) {
-  global $_birthdays_field;
-
-  $result = db_query('SELECT uid FROM {users} WHERE 1');
-
-  while ($uid = db_fetch_object($result)) {
-    drupal_set_message($uid);
-    $account = user_load(array('uid' => $uid->uid));
-
-    if ($account->{$_birthdays_field->name}) {
-
-      user_save($account, array($_birthdays_field->name => $account->{$_birthdays_field->name}));
-    }
-  }
-
-  drupal_set_message(t('Birthdays have been synchronized.'));
-}
-
-function birthdays_sync_birthdays_to_profiles($form, &$form_state) {
-  global $_birthdays_field;
-
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      $result = db_query('SELECT {dob}.uid, MONTH({dob}.birthday) AS month, YEAR({dob}.birthday) AS year, DAYOFMONTH({dob}.birthday) AS day FROM {dob}');
-      break;
-    case 'pgsql':
-      $result = db_query("SELECT uid, date_part('month',{dob}.birthday) AS month, date_part('year',{dob}.birthday) AS year, date_part('day',{dob}.birthday) AS day FROM {dob}");
-      break;
-  }
-
-  while ($birthday = db_fetch_object($result)) {
-    $account = user_load(array('uid' => $birthday->uid));
-    $dob = array(
-      'day' => $birthday->day,
-      'month' => $birthday->month,
-      'year' => $birthday->year
-    );
-    user_save($account, array($_birthdays_field->name => $dob));
-  }
-
-  drupal_set_message(t('Birthdays have been synchronized.'));
 }

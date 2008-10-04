@@ -174,7 +174,7 @@ function birthdays_menu() {
     'page arguments' => array('birthdays_sync_form'),
     'access arguments' => array('administer site configuration'),
     'type' => MENU_LOCAL_TASK,
-    'file' => 'birthdays.admin.inc',
+    'file' => 'birthdays.sync.inc',
   );
 
   $items['birthdays'] = array(

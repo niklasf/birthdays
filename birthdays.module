@@ -742,9 +742,9 @@ function birthdays_form_alter(&$form, &$form_state, $form_id) {
   if (($form_id == 'user_profile_form' && isset($form[$_birthdays_field->category])) || ($form_id == 'user_register' && $_birthdays_field->register)) {
     $form[$_birthdays_field->category][$_birthdays_field->name]['#process'] = array('expand_birthdays_date');
     $form[$_birthdays_field->category][$_birthdays_field->name]['#element_validate'] = array('birthdays_date_validate');
-  }
 
-  $form['#submit'] = array_merge(array('birthdays_form_user_submit'), $form['#submit']);
+    $form['#submit'] = array_merge(array('birthdays_form_user_submit'), $form['#submit']);
+  }
 }
 
 /**

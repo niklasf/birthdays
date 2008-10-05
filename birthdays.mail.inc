@@ -43,15 +43,16 @@ function birthdays_mail($key, &$message, $params) {
       break;
     // Send message to user.
     case 'user_message':
-      $message['subject'] = variable_get('birthdays_send_user_subject', t('Happy Birthday!'));
+      // Get the content for the placeholders.
+      $variables = user_mail_tokens($params['account'], $language);
 
-      $message['body'][] = strtr(variable_get('birthdays_send_user_message', t("Hey @name,\nHappy birthday!\nHope you have a great day!"), array(), $language), array('@name' => check_plain($account->name)));
-      break;
+      $message['subject'] = _birthdays_mail_text('subject', $language, $variables);
+      $message['body'] = _birthdays_mail_text('message', $language, $variables);
   }
 }
 
 /**
- * Sends e-mail to administrator once a day as reminder about the upcoming 7 days
+ * Sends an e-mail to administrator for the upcoming day(s).
  */
 function _birthdays_send_admin_message($days = 1) {
   global $user;

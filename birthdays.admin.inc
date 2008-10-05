@@ -152,21 +152,19 @@ function birthdays_admin_settings() {
     ),
     '#description' => t('Should users that have their birthday today receive an e-mail?'),
   );
-
+  $email_token_help = t('Available variables are:') .' !username, !site, !password, !uri, !uri_brief, !mailto, !date, !login_uri, !edit_uri, !login_url.';
   $form['birthdays_email']['users']['birthdays_send_user_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#default_value' => variable_get('birthdays_send_user_subject', t('Happy Birthday!')),
+    '#default_value' => _birthdays_mail_text('subject'),
+    '#description' => $email_token_help,
   );
 
   $form['birthdays_email']['users']['birthdays_send_user_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Message'),
-    '#default_value' => variable_get('birthdays_send_user_message', t("Hey @name,
-Happy birthday!
-Hope you have a great day!")
-    ),
-    '#description' => t('@name will be replaced by the username.'),
+    '#default_value' => _birthdays_mail_text('message'),
+    '#description' => $email_token_help,
   );
 
 

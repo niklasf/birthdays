@@ -90,6 +90,21 @@ function birthdays_update_5003() {
 }
 
 /**
+ * The placeholder @name in the user birthday message has been replaced by
+ * !username, because we now can use user_mail_tokens().
+ */
+function birthdays_update_6000() {
+  $ret = array();
+  $current = variable_get('birthdays_send_user_message', FALSE);
+  if ($current !== FALSE) {
+    variable_set('birthdays_send_user_message', strtr($current, array('@name' => '!username')));
+    $ret[] = array('success' => TRUE, 'query' => 'Replaced @name with !username in user birthday e-mail.');
+  }
+
+  return $ret;
+}
+
+/**
  * Implementation of hook_uninstall().
  */
 function birthdays_uninstall() {

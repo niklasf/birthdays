@@ -1013,3 +1013,26 @@ function _birthdays_show_date_2($day, $month, $year, $account, $type = 'small') 
 
   return $output;
 }
+
+/**
+ * Check which e-mail strings should be retreived, and fill in the default
+ * placeholders. Uses the same method as _user_mail_text().
+ */
+function _birthdays_mail_text($key, $language = NULL, $variables = array()) {
+  $langcode = isset($language) ? $language->language : NULL;
+
+  // If the text is not the default, run it through strtr() to fill in the
+  // placeholders.
+  if ($text = variable_get('birthdays_send_user_' . $key, FALSE)) {
+    return strtr($text, $variables);
+  }
+  else {
+    // Which text do we want to retreive?
+    switch ($key) {
+      case 'subject':
+        return t('Happy Birthday, !username!', $variables, $langcode);
+      case 'message':
+        return t("Hey !username,\n\nHappy birthday!\nWe hope you have a great day\n\nThe !site-team\n!uri_brief", $variables, $langcode);
+    }
+  }
+}

@@ -30,15 +30,20 @@ function birthdays_mail($key, &$message, $params) {
           $period = t('This month');
           break;
       }
-      $message['body'][] = t('@period, the following users are having their birthdays:', array('@period' => $period), $language->language);
+      $message['body'][] = t('@period, the following users are having their birthday:', array('@period' => $period), $language->language);
 
       // Build list of users
       foreach ($params['accounts'] as $uid) {
         $account = user_load(array('uid' => $uid));
-        $account->{$_birthdays_field->name}['year'] = NULL; // Don't show the year
+
+        // Don't show the year
+        $account->{$_birthdays_field->name}['year'] = NULL;
+
         // Calculate the age to be.
         $age = $account->age + !($account->{$_birthdays_field->name}['day'] == format_date(time(), 'custom', 'j') && $account->{$_birthdays_field->name}['month'] == format_date(time(), 'custom', 'n'));
-        $message['body'][] = _birthdays_show_date($account->{$_birthdays_field->name}, $account) . ': ' . $account->name . ' (' . $age. ')';
+
+        // Set the message. In the case of daily messages, don't add the date.
+        $message['body'][] = ($params['period'] == BIRTHDAYS_ADMIN_MAIL_DAILY ? '' : _birthdays_show_date($account->{$_birthdays_field->name}, $account) . ': ') . $account->name . ' (' . $age. ')';
       }
       break;
     // Send message to user.
@@ -71,7 +76,7 @@ function _birthdays_send_admin_message($days = 1) {
       // Send the mail
       drupal_mail('birthdays', 'admin_message', $to, user_preferred_language($user), $params);
       // Log action
-      watchdog('Birthdays', 'Sent birthday overview e-mail to admin', array(), WATCHDOG_NOTICE, '&#160;');
+      watchdog('Birthdays', 'Sent birthday overview e-mail to admin.', array(), WATCHDOG_NOTICE, '&#160;');
     }
   }
 }
@@ -99,7 +104,7 @@ function _birthdays_send_user_message() {
         // Send mail
         drupal_mail('birthdays', 'user_message', $to, user_preferred_language($account), $params);
         // Log actions
-        watchdog('Birthdays', 'Sent @name a birthday e-mail', array('@name' => $account->name), WATCHDOG_NOTICE, '&#160;');
+        watchdog('Birthdays', 'Sent @name a birthday e-mail.', array('@name' => $account->name), WATCHDOG_NOTICE, '&#160;');
       }
     }
   }

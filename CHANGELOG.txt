@@ -2,7 +2,13 @@
 
 Birthdays 6.x-1.0, FUTURE
 -----------------------------
-- Added Simpletests
+- Ported to 6.x.
+- Added Simpletests.
+- Improved content of periodic administration e-mail.
+- Separated several functions to files of their own.
+- Introduced user_mail_tokens() instead of @name for birthday mails.
+- Introduced Batch API for synchronization to help long synchronization
+  processes.
 
 
 Birthdays 5.x-1.2, 2008-10-01

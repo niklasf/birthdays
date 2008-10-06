@@ -638,6 +638,7 @@ function birthdays_save_user(&$edit, &$account, $category) {
     }
     else {
       $edit['birthdays_starsign'] = '';
+      unset($edit[$_birthdays_field->name]);
     }
   }
 }
@@ -718,22 +719,6 @@ function birthdays_form_user($edit, $account, $category, $register = FALSE) {
 }
 
 /**
- * Submit function for the user form. Removes birthday if day, month
- * and year are set to empty.
- */
-function birthdays_form_user_submit($form, &$form_state) {
-  global $_birthdays_field;
-
-  if (empty($form_state['values'][$_birthdays_field->name]['month']) &&
-        empty($form_state['values'][$_birthdays_field->name]['day']) &&
-        empty($form_state['values'][$_birthdays_field->name]['year'])
-      ) {
-
-    $form_state['values'][$_birthdays_field->name] = '';
-  }
-}
-
-/**
  * Implementation of hook_form_alter().
  */
 function birthdays_form_alter(&$form, &$form_state, $form_id) {
@@ -742,8 +727,6 @@ function birthdays_form_alter(&$form, &$form_state, $form_id) {
   if (($form_id == 'user_profile_form' && isset($form[$_birthdays_field->category])) || ($form_id == 'user_register' && $_birthdays_field->register)) {
     $form[$_birthdays_field->category][$_birthdays_field->name]['#process'] = array('expand_birthdays_date');
     $form[$_birthdays_field->category][$_birthdays_field->name]['#element_validate'] = array('birthdays_date_validate');
-
-    $form['#submit'] = array_merge(array('birthdays_form_user_submit'), $form['#submit']);
   }
 }
 

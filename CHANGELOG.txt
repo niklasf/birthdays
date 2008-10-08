@@ -9,7 +9,7 @@ Birthdays 6.x-1.0, FUTURE
 - Introduced Batch API for synchronization to help long synchronization
   processes.
 - Created birthdays block template file, for easy customization.
-
+- Created birthdays page template file, for easy customization.
 
 Birthdays 5.x-1.3, 2008-10-08
 -----------------------------

@@ -8,6 +8,7 @@ Birthdays 6.x-1.0, FUTURE
 - Introduced user_mail_tokens() instead of @name for birthday mails.
 - Introduced Batch API for synchronization to help long synchronization
   processes.
+- Created birthdays block template file, for easy customization.
 
 
 Birthdays 5.x-1.3, 2008-10-08

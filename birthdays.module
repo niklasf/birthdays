@@ -195,10 +195,12 @@ function birthdays_menu() {
 function birthdays_theme() {
   return array(
     'birthdays_block' => array(
-      'arguments' => array('birthdays' => NULL, 'amount' => NULL, 'delta' => NULL),
+      'arguments' => array('uids' => array(), 'amount' => 0, 'block_type' => NULL),
+      'template' => 'birthdays-block',
     ),
     'birthdays_page' => array(
       'arguments' => array('accounts' => array(), 'filter_month' => NULL, 'filter_year' => NULL),
+      'file' => 'birthdays.page.inc',
     ),
   );
 }
@@ -315,23 +317,23 @@ function birthdays_block($op = 'list', $delta = 'by_days', $edit = array()) {
             case 'by_days':
               // Get desired amount of birthdays
               $amount = variable_get("birthdays_block_number_by_days", 7);
-              $birthdays = birthdays_get_birthdays_by_days($amount);
+              $uids = birthdays_get_birthdays_by_days($amount);
 
-              if (count($birthdays) > 0 || variable_get('birthdays_block_hide_empty', 0) == 0) {
+              if (count($uids) > 0 || variable_get('birthdays_block_hide_empty', 0) == 0) {
                 // Prepare block
                 $block['subject'] = t('Upcoming Birthdays');
-                $block['content'] = theme('birthdays_block', $birthdays, $amount, $delta);
+                $block['content'] = theme('birthdays_block', $uids, $amount, $delta);
               }
               break;
             case 'by_birthdays':
               // Get desired amount of  birthdays
               $amount = variable_get("birthdays_block_number_by_birthdays", 6);
-              $birthdays = birthdays_get_birthdays($amount);
+              $uids = birthdays_get_birthdays($amount);
 
-              if (count($birthdays) > 0 || variable_get('birthdays_block_hide_empty', 0) == 0) {
+              if (count($uids) > 0 || variable_get('birthdays_block_hide_empty', 0) == 0) {
                 // Prepare block
                 $block['subject'] = t('Upcoming Birthdays');
-                $block['content'] = theme('birthdays_block', $birthdays, $amount, $delta);
+                $block['content'] = theme('birthdays_block', $uids, $amount, $delta);
               }
               break;
           }
@@ -340,6 +342,49 @@ function birthdays_block($op = 'list', $delta = 'by_days', $edit = array()) {
         }
     }
   }
+}
+
+
+/**
+ * Preprocess variables to format the birthdays block.
+ *
+ * $variables contains the following data:
+ * - $uids
+ * - $amount
+ * - $block_type
+ */
+function template_preprocess_birthdays_block(&$variables) {
+  global $_birthdays_field;
+  //dsm($variables);
+  $variables['no_birthdays'] = TRUE;
+  $variables['show_starsigns'] = (bool) variable_get('birthdays_show_starsign',BIRTHDAYS_STARSIGN_OFF);
+
+  if (!empty($variables['uids'])) {
+    $row = 0;
+    $variables['no_birthdays'] = FALSE;
+
+    foreach ($variables['uids'] as $uid) {
+      $account = user_load(array('uid' => $uid));
+      $birthdays[$row]['account'] = $account;
+      $birthdays[$row]['username'] = theme('username', $account);
+
+      // +1 when the birthday isn't today, because it shows the age the person will be on his/her birthday
+      $account->age = ($account->age + !($account->{$_birthdays_field->name}['day'] == format_date(time(), 'custom', 'j') && $account->{$_birthdays_field->name}['month'] == format_date(time(), 'custom', 'n')));
+
+      $birthdays[$row]['age'] = $account->age;
+
+      $birthdays[$row]['starsign'] = birthdays_get_starsign_image($account->birthdays_starsign, variable_get('birthdays_show_starsign',BIRTHDAYS_STARSIGN_OFF));
+
+      $account->{$_birthdays_field->name}['year'] = NULL; // Don't show the year in blocks
+      $birthdays[$row]['date'] = _birthdays_show_date($account->{$_birthdays_field->name}, $account);
+
+
+      $row++;
+    }
+    $variables['birthdays'] = $birthdays;
+  }
+
+  $variables['more'] = l(t('More'), 'birthdays');
 }
 
 
@@ -534,37 +579,6 @@ function birthdays_get_birthdays($amount) {
 
   // Return array of uids that have their birthday
   return $birthdays;
-}
-
-
-/**
- * Theme function of the blocks
- *
- * @returns themed content
- */
-function theme_birthdays_block($birthdays, $amount, $delta) {
-  global $_birthdays_field;
-
-  if (!empty( $birthdays)) {
-    $output = '<table>';
-    foreach ($birthdays as $b) {
-      $account = user_load(array('uid' => $b));
-      $age = _birthdays_show_age($account);
-      // +1 when the birthday isn't today, because it shows the age the person will be on his/her birthday
-      $age = isset($age) ? '('. ($account->age + !($account->{$_birthdays_field->name}['day'] == format_date(time(), 'custom', 'j') && $account->{$_birthdays_field->name}['month'] == format_date(time(), 'custom', 'n'))) .')' : '';
-
-      $account->{$_birthdays_field->name}['year'] = NULL; // Don't show the year in blocks
-      $output .= '<tr><td>'. theme('username', $account) .'&nbsp;<small>'. $age .'</small></td><td>'. _birthdays_show_date($account->{$_birthdays_field->name}, $account) .'</td></tr>';
-    }
-    $output .= '</table>';
-  }
-  else {
-    $output = '<p>'. t('Nobody is having their birthday soon.') .'</p>';
-  }
-
-  $output .= l(t('More'), 'birthdays');
-
-  return $output;
 }
 
 

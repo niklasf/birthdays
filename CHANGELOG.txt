@@ -11,6 +11,12 @@ Birthdays 6.x-1.0, FUTURE
 - Created birthdays block template file, for easy customization.
 - Created birthdays page template file, for easy customization.
 
+
+Birthdays 5.x-1.4, 2008-10-08
+-----------------------------
+- Block didn't display date of birth any more.
+
+
 Birthdays 5.x-1.3, 2008-10-08
 -----------------------------
 - Fixed bug in sending periodic e-mails. Always listed 7 days, independent

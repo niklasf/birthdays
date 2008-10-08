@@ -201,6 +201,7 @@ function birthdays_theme() {
     'birthdays_page' => array(
       'arguments' => array('accounts' => array(), 'filter_month' => NULL, 'filter_year' => NULL),
       'file' => 'birthdays.page.inc',
+      'template' => 'birthdays-page',
     ),
   );
 }
@@ -371,7 +372,8 @@ function template_preprocess_birthdays_block(&$variables) {
       // +1 when the birthday isn't today, because it shows the age the person will be on his/her birthday
       $account->age = ($account->age + !($account->{$_birthdays_field->name}['day'] == format_date(time(), 'custom', 'j') && $account->{$_birthdays_field->name}['month'] == format_date(time(), 'custom', 'n')));
 
-      $birthdays[$row]['age'] = $account->age;
+      $birthdays[$row]['age'] = _birthdays_show_age($account);
+      $birthdays[$row]['show_age'] = isset($birthdays[$row]['age']);
 
       $birthdays[$row]['starsign'] = birthdays_get_starsign_image($account->birthdays_starsign, variable_get('birthdays_show_starsign',BIRTHDAYS_STARSIGN_OFF));
 

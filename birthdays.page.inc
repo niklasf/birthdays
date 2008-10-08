@@ -80,9 +80,6 @@ function birthdays_page_filter($filter_month = NULL, $filter_year = NULL) {
   $options_years[0] = '';
   $options_years = $options_years + drupal_map_assoc(range(date('Y'), 1900));
 
-  $form['#prefix'] = '<div class="container-inline birthdays-filter">';
-  $form['#suffix'] = "</div>\n";
-
   $form['birthdays_filter_month'] = array(
     '#type' => 'select',
     '#options' => $options_months,
@@ -112,59 +109,42 @@ function birthdays_page_filter($filter_month = NULL, $filter_year = NULL) {
 }
 
 /**
- * @desc Theme a birthdays page
- * @var $accounts array of loaded user objects
+ * Preprocess variables to format the birthdays page.
+ *
+ * $variables contains the following data:
+ * - $accounts
+ * - $filter_month
+ * - $filter_year
  */
-function theme_birthdays_page($accounts = array(), $filter_month, $filter_year) {
+function template_preprocess_birthdays_page(&$variables) {
   global $_birthdays_field;
 
-  // $header contains the column headers
-  $header = array(t('User'), t('Birthday'));
+  $row = 0;
+  $birthdays = array();
 
-  if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) != BIRTHDAYS_HIDE_YEAR_YES) {
-    $header[] = t('Age');
+  $variables['show_year'] = variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) != BIRTHDAYS_HIDE_YEAR_YES;
+  $variables['show_starsign'] = (bool) variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF);
+  $variables['show_user_picture'] = variable_get('user_pictures', FALSE);
+  $variables['show_filter'] = variable_get('birthdays_page_show_filters', 1);
+
+  foreach ($variables['accounts'] as $account) {
+    $birthdays[$row] = array(
+      'account' => $account,
+      'age' => _birthdays_show_age($account),
+      'username' => theme('username', $account),
+      'starsign' => birthdays_get_starsign_image($account->birthdays_starsign, variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF)),
+      'picture' => theme('user_picture', $account),
+      'date' => _birthdays_show_date($account->{$_birthdays_field->name}, $account),
+      'zebra' => $row % 2 == 0 ? 'odd' : 'even',
+    );
+
+    $birthdays[$row]['show_age'] = isset($birthdays[$row]['age']);
+
+    $row++;
   }
 
-  if (variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF)) {
-    $header[] = t('Starsign');
-  }
+  $variables['birthdays'] = $birthdays;
 
-  if (variable_get('user_pictures', FALSE)) {
-    $header[] = '&nbsp;';
-  }
-
-  // $rows contains all cells
-  $rows = array();
-  $accounts = is_array($accounts) ? $accounts : array();
-  $i = 0;
-  // For each user
-  foreach ($accounts as $account) {
-    //Theme username (with link and such) and format date field.
-    $rows[$i] = array(theme('username', $account), _birthdays_show_date($account->{$_birthdays_field->name}, $account));
-
-    if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) != BIRTHDAYS_HIDE_YEAR_YES) {
-      $age = _birthdays_show_age($account);
-      $rows[$i][] = isset($age) ? $age : '';
-    }
-
-    if (variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF)) {
-      $rows[$i][] = birthdays_get_starsign_image($account->birthdays_starsign, variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF));
-    }
-
-    if (variable_get('user_pictures', FALSE)) {
-      $rows[$i][] = theme('user_picture', $account);
-    }
-
-    $i++;
-  }
-
-  $output = '';
-  // Return a table. Everthing else (titles, and such) is handled by the page system.
-  if (variable_get('birthdays_page_show_filters', 1)) {
-    $output .= drupal_get_form('birthdays_page_filter', $filter_month, $filter_year);
-  }
-  $output .= theme('table', $header, $rows);
-  $output .= theme('pager', NULL, variable_get('birthdays_page_list_number', 25), 0);
-
-  return $output;
+  $variables['filter_form'] = drupal_get_form('birthdays_page_filter', $variables['filter_month'], $variables['filter_year']);
+  $variables['pager'] = theme('pager', NULL, variable_get('birthdays_page_list_number', 25), 0);
 }

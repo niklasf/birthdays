@@ -7,7 +7,7 @@
  * blocks.
  *
  * Available variables:
- * - $no_birthdays:   Boolean indicating whether there birthdays.
+ * - $no_birthdays:   Boolean indicating whether there are birthdays.
  * - $show_starsigns: Boolean indication whether to show the star sign.
  * - $amount:         Number of days or users to be shown in the block (depends
  *                    on the type of block).
@@ -23,9 +23,6 @@
  *   - 'account':       Entire account, for user pictures and other ways to
  *                      improve the birthdays block.
  *   - 'starsign':      Themed star sign.
- *
- * @see template_preprocess_forum_icon()
- * @see theme_forum_icon()
  */
 ?>
 <?php if ($no_birthdays): ?>
@@ -34,7 +31,12 @@
   <table>
     <?php foreach($birthdays as $birthday): ?>
     <tr>
-      <td><?php print $birthday['username'] ?>&nbsp;<small>(<?php print $birthday['age'] ?>)</small></td>
+      <td>
+        <?php print $birthday['username'] ?>
+        <?php if ($birthday['show_age']): ?>
+          &nbsp;<small>(<?php print $birthday['age'] ?>)</small>
+        <?php endif; ?>
+      </td>
       <td><?php print $birthday['date'] ?></td>
     </tr>
     <?php endforeach; ?>

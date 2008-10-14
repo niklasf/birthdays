@@ -29,7 +29,7 @@ function birthdays_sync_form() {
 
   $form['profile_fieldset']['description'] = array(
     '#type' => 'item',
-    '#title' => 'Profile to Birthdays',
+    '#title' => t('Profile to Birthdays'),
     '#value' => t("Fill the Birthdays module's table with data from the Profile module's table. This is needed when you install the Birthdays module, but already collected birthdays with the Profile module (e.g. for age verification, to show in the profile or after uninstalling the Birthdays module)."),
   );
 
@@ -43,7 +43,7 @@ function birthdays_sync_form() {
 
   $form['birthdays_fieldset']['description'] = array(
     '#type' => 'item',
-    '#title' => 'Birthdays to Profile',
+    '#title' => t('Birthdays to Profile'),
     '#value' => t("Fill the Profile module's table with data from the Birthdays module's table. You can use this if you completely reinstalled the Profile module while leaving the Birthdays module alone, or to copy the old data collected by a version of the Birthdays module which didn't use the Profile module (pre-5.x)."),
   );
 

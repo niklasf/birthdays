@@ -418,7 +418,7 @@ function template_preprocess_birthdays_block(&$variables) {
     $variables['birthdays'] = $birthdays;
   }
 
-  $variables['more'] = l(t('More'), 'birthdays');
+  $variables['more'] = '<div class="more-link">'. l(t('more'), 'birthdays', array('attributes' => array('title' => t('Show all birthdays.')))) .'</div>';
 }
 
 

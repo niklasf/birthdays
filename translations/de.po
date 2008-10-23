@@ -1,0 +1,608 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Drupal Birthdays V6.x-1.0\n"
+"POT-Creation-Date: 2008-10-10 18:32+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Frank Tartler <frank.tartler@googlemail.com>\n"
+"Language-Team: Frank Tartler <frank.tartler@googlemail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: GERMANY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: birthdays-block.tpl.php:29
+msgid "There are no birthdays soon."
+msgstr "Es stehen keine Geburtstage an."
+
+#: birthdays-page.tpl.php:36
+#: birthdays.admin.inc:139
+msgid "User"
+msgstr "Benutzer"
+
+#: birthdays-page.tpl.php:37
+msgid "Birthday"
+msgstr "Geburtstag"
+
+#: birthdays-page.tpl.php:39
+msgid "Age"
+msgstr "Alter"
+
+#: birthdays-page.tpl.php:42
+msgid "Starsign"
+msgstr "Sternzeichen"
+
+#: birthdays.admin.inc:18
+msgid "No profile fields of type 'date' were found, please <a href=\"@profile-settings-page\">create one here</a>."
+msgstr "Es wurden keine Profilfelder vom Typ Datum gefunden, bitte <a href=\"@profile-settings-page\">hier erstellen</a>."
+
+#: birthdays.admin.inc:26
+msgid "General settings"
+msgstr "Allgemeine Einstellungen"
+
+#: birthdays.admin.inc:33
+#: birthdays.module:147
+msgid "Profile field"
+msgstr "Profilfeld"
+
+#: birthdays.admin.inc:35
+msgid "Select which profile field of type 'date' you want to use as date of birth."
+msgstr "Auswahl, welches Profilfeld vom Typ Datum aus Geburtsdatum verwendet werden soll."
+
+#: birthdays.admin.inc:42
+#: birthdays.module:148
+msgid "Show star signs"
+msgstr "Sternzeichen zeigen"
+
+#: birthdays.admin.inc:45;58;99;149
+#: birthdays.module:331
+msgid "No"
+msgstr "Nein"
+
+#: birthdays.admin.inc:46
+msgid "Yes, with link to Yahoo Astrology"
+msgstr "Ja, mit Link zu Yahoo-Astrologie"
+
+#: birthdays.admin.inc:47
+msgid "Yes, without link to Yahoo Astrology"
+msgstr "Ja, ohne Link zu Yahoo-Astrologie"
+
+#: birthdays.admin.inc:49
+msgid "Select whether the star signs should be enabled."
+msgstr "Auswahl ob Sternzeichen aktiviert sein sollen."
+
+#: birthdays.admin.inc:54
+#: birthdays.module:149
+msgid "Hide year and age"
+msgstr "Jahr und Alter verbergen"
+
+#: birthdays.admin.inc:56
+msgid "Select whether the birth year and age should be shown."
+msgstr "Auswahl, ob das Geburtsjahr und das Alter angezeigt werden sollen."
+
+#: birthdays.admin.inc:59;100;150
+#: birthdays.module:331
+msgid "Yes"
+msgstr "Ja"
+
+#: birthdays.admin.inc:60
+msgid "User optional, 'No' by default"
+msgstr "Benutzerauswahl, standardmäßig ‚Nein‘"
+
+#: birthdays.admin.inc:67
+msgid "Birthdays page settings"
+msgstr "Einstellungen der Geburtstagsseite"
+
+#: birthdays.admin.inc:74
+msgid "Set birthdays page settings"
+msgstr "Einstellungen der Geburtstagsseite vornehmen"
+
+#: birthdays.admin.inc:76
+msgid "Select whether users that haven't entered their date of birth should be shown on the birthdays page, and whether the list should be ordered by birthday or by username."
+msgstr "Auswahl ob Benutzer auf der Geburtstagsseite angezeigt werden, die ihr Geburtsdatum nicht eingegeben haben, und ob die Liste nach Geburtstag oder nach Benutzername sortiert sein soll."
+
+#: birthdays.admin.inc:78
+msgid "Filter users, sort by date"
+msgstr "Benutzer filtern, nach Datum sortieren"
+
+#: birthdays.admin.inc:79
+msgid "Filter users, sort by username"
+msgstr "Benutzer filtern, nach Benutzernamen sortieren"
+
+#: birthdays.admin.inc:80
+msgid "Do not filter users, sort by username"
+msgstr "Benutzer nicht filtern, nach Benutzernamen sortieren"
+
+#: birthdays.admin.inc:86
+msgid "Birthdays page size"
+msgstr "Größe der Geburtstagsseite"
+
+#: birthdays.admin.inc:88
+msgid "How many users should be listed on each page on the Birthdays listing?"
+msgstr "Wie viele Benutzer sollen auf jeder Seite der Geburtstagsliste angezeigt werden?"
+
+#: birthdays.admin.inc:95
+#: birthdays.module:151
+msgid "Show filter options"
+msgstr "Filteroptionen anzeigen"
+
+#: birthdays.admin.inc:97
+msgid "Show the 'Filter by month and year' selections on the birthdays page. When 'Hide year' has been set to 'Yes', the year filter isn't shown."
+msgstr "Auswahlmöglichkeiten ‚Nach Monat und Jahr filtern‘ auf der Geburtstagsseite anzeigen. Wenn ‚Jahr verbergen‘ auf ‚Ja‘ eingestellt ist, wird der Jahresfilter nicht angezeigt."
+
+#: birthdays.admin.inc:107
+msgid "E-mail settings"
+msgstr "E-Mail-Einstellungen"
+
+#: birthdays.admin.inc:108
+msgid "Adjust the e-mail settings for both e-mails to users and e-mails to the administrator. This requires cron jobs to be active. Please see the <a href=\"@cron_url\">online handbook</a> for more information on how to accomplish that."
+msgstr "E-Mail-Einstellungen  für E-Mails an Benutzer und an den Administrator anpassen. Dies erfordert, dass der Cron-Job aktiv ist. Das <a href=\"@cron_url\">Online-Handbuch</a> enthält weitere Informationen darüber."
+
+#: birthdays.admin.inc:116
+msgid "Admin"
+msgstr "Administrator"
+
+#: birthdays.admin.inc:121
+msgid "sunday"
+msgstr "Sonntag"
+
+#: birthdays.admin.inc:121
+msgid "monday"
+msgstr "Montag"
+
+#: birthdays.admin.inc:121
+msgid "tuesday"
+msgstr "Dienstag"
+
+#: birthdays.admin.inc:121
+msgid "wednesday"
+msgstr "Mittwoch"
+
+#: birthdays.admin.inc:121
+msgid "thursday"
+msgstr "Donnerstag"
+
+#: birthdays.admin.inc:121
+msgid "friday"
+msgstr "Freitag"
+
+#: birthdays.admin.inc:121
+msgid "saturday"
+msgstr "Samstag"
+
+#: birthdays.admin.inc:125
+#: birthdays.module:152
+msgid "Send upcoming birthdays to admin"
+msgstr "Anstehende Geburtstage an den Administrator senden"
+
+#: birthdays.admin.inc:128
+msgid "Disabled"
+msgstr "Deaktiviert"
+
+#: birthdays.admin.inc:129
+msgid "Daily"
+msgstr "Täglich"
+
+#: birthdays.admin.inc:130
+msgid "Weekly, on @first_weekday"
+msgstr "Wöchentlich am @first_weekday"
+
+#: birthdays.admin.inc:131
+msgid "Monthly"
+msgstr "Monatlich"
+
+#: birthdays.admin.inc:133
+msgid "Do you want to receive periodic e-mails containing all upcoming birthdays?"
+msgstr "Möchten Sie periodische E-Mail erhalten, die alle anstehenden Geburtstage beinhaltet?"
+
+#: birthdays.admin.inc:146
+#: birthdays.module:153
+msgid "Send user e-mail on day of birth"
+msgstr "Dem Benutzer am Geburtstag eine E-Mail senden"
+
+#: birthdays.admin.inc:151
+msgid "User optional, 'Yes' by default"
+msgstr "Benutzerauswahl, standardmäßig ‚Ja‘"
+
+#: birthdays.admin.inc:153
+msgid "Should users that have their birthday today receive an e-mail?"
+msgstr "Sollen Benutzer, die heute Geburtstag haben, eine E-Mail erhalten?"
+
+#: birthdays.admin.inc:155
+msgid "Available variables are:"
+msgstr "Verfügbare Variablen sind:"
+
+#: birthdays.admin.inc:158
+msgid "Subject"
+msgstr "Betreff"
+
+#: birthdays.admin.inc:165
+msgid "Message"
+msgstr "Nachricht"
+
+#: birthdays.admin.inc:181
+#: birthdays.sync.inc:25
+msgid "No date field has been selected as birthdays field. Please visit the <a href=\"@birthdays-settings\">birthdays settings page</a>."
+msgstr "Es wurde kein Datumsfeld als Geburtstagsfeld ausgewählt. Dies erfolgt  auf der Seite <a href=\"@birthdays-settings\">Geburtstags-Einstellungen</a>."
+
+#: birthdays.admin.inc:189
+#: birthdays.sync.inc:33
+msgid "Fill the Birthdays module's table with data from the Profile module's table. This is needed when you install the Birthdays module, but already collected birthdays with the Profile module (e.g. for age verification, to show in the profile or after uninstalling the Birthdays module)."
+msgstr "Füllt die Tabelle des Birthdays-Moduls mit Daten von der Tabelle des Profile-Moduls. Dies ist erforderlich, wenn das Birthdays-Modul installiert wird, Geburtstage aber bereits mit dem Profile-Modul gesammelt wurden (z.B. für die Altersüberprüfung, zur Anzeige im Profil oder nach der Deinstallation des Birthdays-Moduls)."
+
+#: birthdays.admin.inc:194
+#: birthdays.sync.inc:38;63
+msgid "Copy Profile data to Birthdays module"
+msgstr "Profildaten in das Modul Birthdays kopieren"
+
+#: birthdays.admin.inc:203
+#: birthdays.sync.inc:47
+msgid "Fill the Profile module's table with data from the Birthdays module's table. You can use this if you completely reinstalled the Profile module while leaving the Birthdays module alone, or to copy the old data collected by a version of the Birthdays module which didn't use the Profile module (pre-5.x)."
+msgstr "Die Tabelle des Profile-Moduls mit den Daten der Tabelle des Birthdays-Moduls füllen. Dies kann verwendet werden, wenn das Profile-Modul vollständig neu installiert wurde während das Birthdays-Modul unberührt blieb, oder um die alten Daten zu kopieren, die von einer Version des Birthdays-Moduls gesammelt wurden, die nicht das Profile-Modul verwendet hat (vor 5.x)."
+
+#: birthdays.admin.inc:208
+#: birthdays.sync.inc:52
+msgid "Copy Birthdays data to Profile module"
+msgstr "Daten vom Birthdays- zum Profile-Modul kopieren"
+
+#: birthdays.mail.inc:21
+#: birthdays.module:357;368
+msgid "Upcoming Birthdays"
+msgstr "Anstehende Gebgeurtsta"
+
+#: birthdays.mail.inc:24
+msgid "Today"
+msgstr "Heute"
+
+#: birthdays.mail.inc:27
+msgid "This week"
+msgstr "Diese Woche"
+
+#: birthdays.mail.inc:30
+msgid "This month"
+msgstr "Diesen Monat"
+
+#: birthdays.mail.inc:33
+msgid "@period, the following users are having their birthday:"
+msgstr "@period haben die folgenden Benutzer Geburtstag:"
+
+#: (duplicate) birthdays.mail.inc:79;107
+#: birthdays.module:189;213
+#: birthdays.install:72
+#: birthdays.info:0
+msgid "Birthdays"
+msgstr "Geburtstage"
+
+#: birthdays.mail.inc:79
+msgid "Sent birthday overview e-mail to admin."
+msgstr "Geburtstagsübersicht an den Administrator gesendet."
+
+#: birthdays.mail.inc:107
+msgid "Sent @name a birthday e-mail."
+msgstr "@name wurde eine Geburtstags-E-Mail gesendet."
+
+#: birthdays.page.inc:87
+msgid "Filter by month"
+msgstr "Nach Monat filtern"
+
+#: birthdays.page.inc:96
+msgid "Year"
+msgstr "Jahr"
+
+#: birthdays.page.inc:104
+msgid "Filter"
+msgstr "Filtern"
+
+#: birthdays.sync.inc:32
+msgid "Profile to Birthdays"
+msgstr "Profile- in Birthdays-Modul"
+
+#: birthdays.sync.inc:46
+msgid "Profile to Birthdays"
+msgstr "Birthdays- in Profile-Modul"
+
+#: birthdays.sync.inc:70
+msgid "Copy Birthdays data to Profile module."
+msgstr "Geburtstagsdaten in das Profile-Modul kopieren."
+
+#: birthdays.sync.inc:85
+msgid "Synchronization is starting."
+msgstr "Synchronisation beginnt."
+
+#: birthdays.sync.inc:86
+#: birthdays.module:170
+msgid "Synchronizing"
+msgstr "Synchronisiert"
+
+#: birthdays.sync.inc:100
+msgid "Birthdays have been synchronized."
+msgstr "Geburtstage wurden synchronisiert."
+
+#: birthdays.sync.inc:103
+msgid "The birthdays have not been synchronized due to an error."
+msgstr "Die Geburtstage wurden wegen eines Fehlers nicht synchronisiert."
+
+#: birthdays.sync.inc:144
+msgid "Synchronized @current of @total users."
+msgstr "@current von @total Benutzern synchronisiert."
+
+#: birthdays.sync.inc:199
+msgid "Synchronized @current of @total birthdays."
+msgstr "@current von @total Geburtstagen synchronisiert."
+
+#: birthdays.module:141
+msgid "The Birthdays module allows a user to put in their birthday and display it in their profile, on a separate Birthdays page and in a block. It also has the option to send out e-mails on users's birthdays, and to notify the administrator periodically about upcoming birthdays via e-mail."
+msgstr "Das Birthday-Modul (Geburtstage) ermöglicht einem Benutzer, seinen Geburtstag zu hinterlegen und es im Profil, einen gesonderten Geburtstagsseite und in einem Block anzuzeigen. Es hat auch die Option, E-Mails an Geburtstagen der Benutzer zu versenden und den Administrator periodisch via E-Mail über anstehende Geburtstage zu benachrichtigen."
+
+#: birthdays.module:142
+msgid "Some basic information about this module can be found below. For more information, support questions, feature requests and bug reports please visit the <a href=\"@project_url\">Birthdays project page</a> and the <a href=\"@documentation_url\">online documentation</a>."
+msgstr "Einige grundlegende Informationen über dieses Modul sind unten zu finden. Für weitere Informationen, Supportanfragen, Erweiterungswünsche und Fehlerberichte stehen die <a href=\"@project_url\">Projektseite des Birthdays-Moduls</a> und die <a href=\"@documentation_url\">Online-Dokumentation</a> zur Verfügung."
+
+#: birthdays.module:143
+msgid "Configuring the module"
+msgstr "Modul konfigurieren"
+
+#: birthdays.module:144
+msgid "Configuring the module is done on a number of pages."
+msgstr "Die Konfiguration des Moduls erfolgt auf mehreren Seiten."
+
+#: birthdays.module:145
+msgid "Birthdays administration pages"
+msgstr "Geburtstage-Verwaltungsseiten"
+
+#: birthdays.module:146
+msgid "The <a href=\"@birthdays_admin\">Birthdays administration pages</a> are where the actual features of the birthdays module are set. Some of the options are described below."
+msgstr "Auf den <a href=\"@birthdays_admin\">Geburtstage-Verwaltungsseiten</a> werden die Funktionen des Birthdays-Moduls eingestellt. Manche der Optionen werden unten beschrieben."
+
+#: birthdays.module:147
+msgid "here you set which \"date\" field of the Profile module you want the Birthdays module to use."
+msgstr "hier wird eingestellt, welches Datumsfeld des Profile-Moduls das Birthdays-Modul verwenden soll."
+
+#: birthdays.module:148
+msgid "select whether you want to display the star sign icons on the profile and on the Birthdays page, and, if so, whether it should link to Yahoo Horoscopes."
+msgstr "hier wird ausgewählt ob Sternzeichen-Icons im Profil und der Geburtstagsseite angezeigt werden soll und, wenn ja, ob sie zu den Yahoo-Horsokopen verlinken sollen."
+
+#: birthdays.module:149
+msgid "some sites might want to protect the user's privacy by hiding their age and year of birth. The options are 'No', 'Yes' and 'User optional, defaults to No', where the latter gives the user the option to  select whether he or she wants this information to be hidden. If enabled it still requires them to put the full date of birth in, but only the day and month will be displayed."
+msgstr "manche Websites möchten vielleicht die Privatsphäre ihrer Benutzer schützen indem ihr Alter und Geburtsjahr verborgen wird. Die Optionen sind ‚Nein‘, ‚Ja‘, und ‚Benutzerauswahl, standardmäßig auf Nein‘, wobei letzteres dem Benutzer die Auswahlmöglichkeit gibt, ob die Informationen verborgen sein sollen. Wenn aktiviert muss trotzdem das vollständige Geburtsdatum eingegeben werden, aber nur der Tag und Monat wird angezeigt."
+
+#: birthdays.module:150
+msgid "Set Birthdays page settings"
+msgstr "Einstellungen der Geburtstagsseite vornehmen"
+
+#: birthdays.module:150
+msgid "this influences how the listing of the Birthdays page is shown. Sorted by user name of date of birth (year not included) and users without a birthday shown or not."
+msgstr "dies beeinflusst wie die Liste auf der Geburtstagseeite angezeigt wird. Sortiert nach Benutzername oder Geburtsdatum (ohne das Jahr) und Benutzer ohne Geburtstagsanzeige oder nicht."
+
+#: birthdays.module:151
+msgid "determine whether the buttons to filter by specific month and/or year should be displayed. When 'Hide year and age' is set to 'Yes', filtering by year is not possible."
+msgstr "legt fest ob die Schaltflächen zum Filtern nach einem bestimmten Monat und/oder Jahr angezeigt werden sollen. Wenn ‚Jahr und Alter verbergen‘ auf ‚Ja‘ eingestellt ist, ist das Filtern nach Jahr nicht möglich."
+
+#: birthdays.module:152
+msgid "this one has 4 values 'Disabled', 'Dayly', 'Weekly, on the first day of the week' and 'Monthly'. This will send an e-mail to your site e-mail address at the given intervals, listing users that will have their birthday in that period. The first day of the week is controlled by the <a href=\"@date_settings\">date and time settings</a>."
+msgstr "dies hat 4 Werte ‚Deaktiviert‘, ‚Täglich‘, ‚Wöchentlich am ersten Wochentag‘ und ‚Monatlich‘. Dies sendet in den angegebenen Intervallen eine E-Mail an der E-Mail-Adresse der Website, in der Benutzer aufgelistet, die in dieser Periode ihren Geburtstag haben. Der erste Tag der Woche wird eingestellt unter <a href=\"@date_settings\">Datum und Uhrzeit</a>."
+
+#: birthdays.module:153
+msgid "set whether users should receive an e-mail when they are having the birthday. Either 'No', 'Yes' or 'User optional, 'Yes' by default', where the latter leaves the decision up to the user."
+msgstr "stellt ein ob Benutzer an ihrem Geburtstag eine E-Mail erhalten sollen. Entweder ‚Nein‘, ‚Ja‘ oder ‚Benutzerauswahl, standardmäßig ‚Ja‘‘, wobei letzteres die Entscheidung dem Benutzer überlässt."
+
+#: birthdays.module:155
+msgid "Permissions"
+msgstr "Berechtigungen"
+
+#: birthdays.module:156
+msgid "To allow users to view birthdays of other people, the \"access birthdays\" <a href=\"@permissions_page\">permissions</a> needs to be set for the appropriate role. This allows them to access the <a href=\"@birthdays_page\">Birthdays page</a>, see activated blocks with birthdays and view the birthdays of users in the profiles."
+msgstr "Um Benutzern zu erlauben, die Geburtstage anderer Personen zu sehen, muss die <a href=\"@permissions_page\">Berechtigung</a> „Auf Geburtstage zugreifen“ für die passende Rolle eingestellt werden. Dies erlaubt ihnen, auf die <a href=\"@birthdays_page\">Geburtstagsseite</a> zuzugreifen, aktiveirte Blöcke mit Geburtstagen zu sehen und in den Profilen die Geburtstage von Benutzer anzusehen."
+
+#: birthdays.module:158
+msgid "Profile field settings"
+msgstr "Profilfeldeinstellungen"
+
+#: birthdays.module:160
+msgid "Several things can be adjusted to the assigned profile field. To do so please visit the !profile_admin, and edit the field in question or add one if you haven't done so already. The following settings require extra attention."
+msgstr "Mehrere Dinge können am zugewiesenen Profilfeld angepasst werden. Dazu muss die Seite !profile_admin aufgerufen werden, dann das betreffende Feld bearbeitet oder eines hinzugefügt werden, falls noch nicht geschehen. DIe folgenden Einstellungen erfordern besondere Beachtung."
+
+#: birthdays.module:162
+msgid "The user must enter a value"
+msgstr "Der Benutzer muss einen Wert eingeben"
+
+#: birthdays.module:162
+msgid "force the user to fill in their date of  birth. A once set birthday can not be deleted."
+msgstr "Den Benutzer zwingen, ein Geburtsdatum anzugeben. Ein einmal gesetzter Geburtstag kann nicht gelöscht werden."
+
+#: birthdays.module:163
+msgid "Visible in user registration form"
+msgstr "Sichtbar im Registrierungsformular für Benutzer"
+
+#: birthdays.module:163
+msgid "give new users the option to add their date of birth when registering to your website. If combined with the option above, they can not register without putting their date of birth."
+msgstr "neuen Benutzern die Option geben, bei der Registrierung für die Website ihr Geburtsdatum hinzuzufügen. Wenn dies mit der Option oben kombiniert wird, können sie sich nicht registrieren, ohne ihr Geburtsdatum anzugeben."
+
+#: birthdays.module:164
+msgid "Visibility"
+msgstr "Sichtbarkeit"
+
+#: birthdays.module:164
+msgid "this will influence the visibility of the field as described there, but the behavior might become erratic if not set to 'Public field, content shown on profile page but not used on member list pages'. So it is recommended to leave this as is."
+msgstr "dies beeinflusst die Sichtbarkeit des Feldes wie hier beschrieben, aber das Verhalten kann unregelmäßig werden, wenn es nicht auf ‚Öffentliches Feld, Inhalt wird auf der Profilseite angezeigt aber nicht in Seiten mit Mitgliederlisten verwendet‘ eingestellt ist. Daher wird empfohlen, es so zu lassen wie es ist."
+
+#: birthdays.module:165
+msgid "The other options on this page behave as described on the settings page."
+msgstr "Die anderen Optionen auf dieser Seite verhalten sich wie auf der Einstellungsseite beschrieben."
+
+#: birthdays.module:167
+msgid "Date format"
+msgstr "Datumsformat"
+
+#: birthdays.module:168
+msgid "The way the birthdays are formatted (e.g. <em>11 may 1934</em> or <em>5/11/1934</em>) is controlled by the <a href=\"@date_settings_page\">date and time settings</a>. The Birthdays module uses the short date format as basis for displaying days and months in the blocks and the medium date format is used in the profile and on the Birthdays page."
+msgstr "Die Art wie Geburtstage formiert werden (z.B. <em>11 may 1934</em> or <em>5/11/1934</em>) wird durch die Einstellungen von <a href=\"@date_settings_page\">date and time settings</a> festgelegt. Das Birthdays-Modul verwendet das kurze Datumsformat als Basis für die Anzeige von Tag und Monat in den Blöcken, das mittlere Datumsformat wird im Profil und der Geburtstagsseite verwendet."
+
+#: birthdays.module:172
+msgid "The birthdays are saved to two different database tables. This is because the profile module saves the dates in a format which limits the ability to perform calculations on the dates. These two tables need to be in sync with each other."
+msgstr "Geburtstage werden in zwei verschiedenen Datenbanktabellen gespeichert. Dies hat den Grund darin, dass das Profile-Modul die Daten in einem Format abspeichert, dass die Fähigkeit geschränkt, Berechnungen durchzuführen. Diese beiden Tabellen müssen synchron sein."
+
+#: birthdays.module:173
+msgid "Normally this is the case, but sometimes not. For example when you already collected birthdays with the Profile module, but later decided to switch to the birthdays module. Or when you accidentally (on intentionally) completely uninstalled the profile module, but left birthdays module merely disabled. To perform the synchronization you can use the <a href=\"@sync_pages\">synchronization form</a>."
+msgstr "Normalerweise ist dies der Fall, manchmal aber nicht. Zum Beispiel wenn schon Geburtstage mit dem Profile-Modul erfasst wurden und später das Bithdays-Modul zum Einsatz kommt. Oder wenn zufällig (oder absichtlich) das Profile-Modul vollständig deinstalliert wurde, aber das Birthdays-Modul nur deaktiviert wurde. Um die Synchronisation durchzuführen kann das <a href=\"@sync_pages\">Synchronisations-Formular</a> verwendet werden."
+
+#: birthdays.module:174
+msgid "In the first case you need to copy the Profile data to the (most likely empty) Birthdays table, which is done with the top button. In the latter you need the copy the birthdays in the Birthdays table back to the Profile module with the bottom button."
+msgstr "Im ersten Fall müssen die Daten des Profile-Moduls in die (höchstwahrscheinlich leere) Birthdays-Tabelle kopiert werden, das mit der oberen Schaltfläche erfolgt. Im letzteren Fall müssen mit der unteren Schaltfläche die Geburtstage der Birthdays-Tabelle zurück zum Profile-Modul kopiert werden"
+
+#: birthdays.module:175
+msgid "Please note that with a large amount of users this might take some time."
+msgstr "Zu beachten ist, dass dies mit einer großen Anzahl Benutzer etwas dauern kann."
+
+#: birthdays.module:179
+msgid "Use this page to alter the settings of the Birthdays module."
+msgstr "Auf dieser Seite werden die Einstellungen des Birthdays-Moduls (Geburtstage) angepasst."
+
+#: birthdays.module:294
+msgid "Birthdays Block: Next N days"
+msgstr "Geburtstags-Block: Nächste N Tage"
+
+#: birthdays.module:295
+msgid "Birthdays Block: N upcoming birthdays"
+msgstr "Geburtstags-Block: N anstehende Geburtstage"
+
+#: birthdays.module:305
+msgid "Number of days to show"
+msgstr "Anzahl anzuzeigender Tage"
+
+#: birthdays.module:309
+msgid "Number of days looking forward for upcoming birthdays. Use 1 for today's birthdays only. Note: it might show more or less birthday items than the specified number of days, because not all days have birthdays, and some days have multiple birthdays."
+msgstr "Anzahl Tage, in denen nach anstehenden Geburtstagen gesucht wird. Mit 1 werden nur die heutigen Geburtstage angezeigt. Hinweis: Es können mehr oder weniger Geburtstagselemente als die angegebene Anzahl Tage angezeigt werden, weil nicht alle Tage Geburtstage haben und manche Tage mehrere Geburtstage haben."
+
+#: birthdays.module:317
+msgid "Number of birthdays to show"
+msgstr "Anzahl anzuzeigender Geburtstage"
+
+#: birthdays.module:321
+msgid "Number of upcoming birthdays to list in the block. It will show exactly the specified number of birthdays, even if more people have their birthday on the same day. In that case, there will be people who will never be shown."
+msgstr "Anzahl anstehender Geburtstage die im Block angezeigt werden. Es wird exakt die angegebene Anzahl Geburtstage angezeigt, selbst wenn mehr Personen am selben Tag Geburtstag haben. In diesem Fall gibt es Personen, deren Geburtstag nue angezeigt wird."
+
+#: birthdays.module:329
+msgid "Hide block when no birthdays"
+msgstr "Block verbergen, wenn es keine Geburtstage gibt"
+
+#: birthdays.module:332
+msgid "Should the block be hidden when there are no upcoming birthdays, or should it show a message."
+msgstr "Soll der Block verborgen werden, wenn es keine anstehenden Geburtstage gibt oder soll eine Nachricht angezeigt werden."
+
+#: birthdays.module:421
+msgid "More"
+msgstr "Weiter"
+
+#: birthdays.module:745
+msgid "Hide age and birth year"
+msgstr "Alter und Geburtsjahr verbergen"
+
+#: birthdays.module:747
+msgid "Do not show your age and your year of birth."
+msgstr "Alter und Geburtsjahr nicht zeigen."
+
+#: birthdays.module:757
+msgid "Do not send birthday mail"
+msgstr "Keine Geburtstags-E-Mail senden"
+
+#: birthdays.module:759
+msgid "Do not send me an e-mail or e-card when it's my birthday."
+msgstr "An meinem Geburtstag keine E-Mail oder E-Card senden."
+
+#: birthdays.module:806
+msgid "!name field is required."
+msgstr "Das Feld !name ist erforderlich."
+
+#: birthdays.module:809;813
+msgid "The specified date is invalid."
+msgstr "Das angegebene Datum ist ungültig"
+
+#: birthdays.module:1064
+msgid "Happy Birthday, !username!"
+msgstr "Herzlichen Glückwunsch zum Geburtstag, !username!"
+
+#: birthdays.module:1066
+msgid ""
+"Hey !username,\n"
+"\n"
+"Happy birthday!\n"
+"We hope you have a great day\n"
+"\n"
+"The !site-team\n"
+"!uri_brief"
+msgstr ""
+"Hallo !username,\n"
+"\n"
+"Herzlichen Glückwunsch!\n"
+"Wir wünschen einen tollen Tag\n"
+"\n"
+"Das !site-team\n"
+"!uri_brief"
+
+#: birthdays.module:245
+msgid "access birthdays"
+msgstr "auf Geburtstage zugreifen"
+
+#: birthdays.module:190
+msgid "Set user birthday mail and toggle user mail, upcoming birthdays mail and more."
+msgstr "Geburtstags-E-Mail einstellen und Benutzer-E-Mail, anstehende Geburtstage und mehr einstellen"
+
+#: birthdays.module:198
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: birthdays.module:203
+msgid "Synchronize"
+msgstr "Synchronisieren"
+
+#: birthdays.module:204
+msgid "Synchronize birthdays information of Profile module and Birthdays module. Used either when updating to a newer version of Birthdays or when integrating with an existing Profile Field."
+msgstr "Geburtstagsinformationen den Profile-Moduls und des Birthdays-Moduls synchronisieren. Wird verwendet, wenn auf eine neuere Version von Birthdays aktualisiert wird oder zur Integration mit einem existierenden Profile-Feld."
+
+#: birthdays.module:214
+msgid "List the birthdays of all users."
+msgstr "Listet die Geburtstage aller Benutzer auf."
+
+#: birthdays.module:0
+msgid "birthdays"
+msgstr "Geburtstage"
+
+#: birthdays.install:26
+msgid "Table containing birthdays of the users."
+msgstr "Tabelle mit den Geburtstagen der Benutzer."
+
+#: birthdays.install:29
+msgid "The current user identifier."
+msgstr "Die ID des aktuellen Benutzers."
+
+#: birthdays.install:35
+msgid "The birthday of this user."
+msgstr "Der Geburtstag dieses Benutzers"
+
+#: (duplicate) birthdays.install:55
+msgid "All requirements are met"
+msgstr "Alle Anforderungen sind erfüllt"
+
+#: (duplicate) birthdays.install:60
+msgid "Missing profile field"
+msgstr "Fehlendes Profilfeld"
+
+#: (duplicate) birthdays.install:62
+msgid "No profile fields of type 'date' were found, please <a href=\"@profile-settings-page\">create one here</a>. Then visit the <a href=\"@birthdays-settings\">birthdays settings page</a> to set up the module."
+msgstr "Es wurden keine Profilfelder vom Typ ‚Datum‘ gefunden, bitte <a href=\"@profile-settings-page\">hier erstellen</a>. Danach kann das Modul auf der <a href=\"@birthdays-settings\">Einstellungsseite für Geburtstage</a> eingerichtet werden."
+
+#: (duplicate) birthdays.install:66
+msgid "No date field selected"
+msgstr "Kein Datumsfeld ausgewählt"
+
+#: (duplicate) birthdays.install:68
+msgid "The date field has not yet been selected as birthdays field. Please visit the <a href=\"@birthdays-settings\">birthdays settings page</a> to do so."
+msgstr "Es wurde noch kein Datumsfeld als Geburtstagsfeld ausgewählt. Dies erfolgt auf der <a href=\"@birthdays-settings\">Einstellungsseite für Geburtstage</a>."
+
+#: birthdays.info:0
+msgid "Displays and reminds of upcoming users birthdays."
+msgstr "Zeigt Geburtstage an und erinnert an anstehende Geburtstage."
+

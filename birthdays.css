@@ -7,3 +7,8 @@
 .birthdays-filter {
   text-align: right;
 }
+
+.birthdays-container div,
+.birthdays-container label {
+  display: block;
+}

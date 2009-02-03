@@ -735,30 +735,35 @@ function birthdays_profile_alter(&$account) {
  */
 function birthdays_form_user($edit, $account, $category, $register = FALSE) {
   global $_birthdays_field;
+  drupal_add_css(drupal_get_path('module','birthdays') . '/birthdays.css', 'module');
 
   // If the called category is the category of the form field
   if ($category == $_birthdays_field->category || ($_birthdays_field->register && $register)) {
     // If the hiding of the year is a user option: show the option
     if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_USER) {
-      $form[$_birthdays_field->category]['birthdays_user_hide_year'] = array(
+      $form[$_birthdays_field->category][$_birthdays_field->name]['birthdays_user_hide_year'] = array(
         '#type' => 'checkbox',
         '#title' => t("Hide age and birth year"),
         '#default_value' => (int) $account->birthdays_user_hide_year,
         '#description' => t("Do not show your age and your year of birth."),
         '#return_value' => BIRTHDAYS_HIDE_YEAR_USER_YES,
-        '#weight' => $_birthdays_field->weight + 1
+        '#weight' => 1,
+        '#prefix' => '<div class="birthdays-container">',
+        '#suffix' => '</div>',
       );
     }
 
     // If the birthday user mail is optionally, show the option
     if (variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) == BIRTHDAYS_USER_MAIL_USER) {
-      $form[$_birthdays_field->category]['birthdays_user_send_mail'] = array(
+      $form[$_birthdays_field->category][$_birthdays_field->name]['birthdays_user_send_mail'] = array(
         '#type' => 'checkbox',
         '#title' => t("Do not send birthday mail"),
         '#default_value' => (int) $account->birthdays_user_send_mail,
         '#description' => t("Do not send me an e-mail or e-card when it's my birthday."),
         '#return_value' => BIRTHDAYS_USER_MAIL_USER_NO,
-        '#weight' => $_birthdays_field->weight + 1
+        '#weight' => 2,
+        '#prefix' => '<div class="birthdays-container">',
+        '#suffix' => '</div>',
       );
     }
   }

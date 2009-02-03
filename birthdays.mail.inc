@@ -98,7 +98,7 @@ function _birthdays_send_user_message() {
       $account = user_load(array('uid' => $uid));
       // If user and/or administrator allows sending messages
       if (variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) == BIRTHDAYS_USER_MAIL_YES || (variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) == BIRTHDAYS_USER_MAIL_USER && $account->birthdays_user_send_mail == BIRTHDAYS_USER_MAIL_USER_YES)) {
-        $to = $account->name .'<'. $account->mail .'>';
+        $to = $account->name .' <'. $account->mail .'>';
         $params['account'] = $account;
 
         // Send mail

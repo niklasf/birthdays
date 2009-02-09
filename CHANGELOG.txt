@@ -1,9 +1,9 @@
 // $Id$
 
-Birthdays 6.x-1.0, FUTURE
+Birthdays 6.x-1.0, 2009-02-09
 -----------------------------
 - Ported to 6.x.
-- Added Simpletests.
+- Added Simpletests (not finished).
 - Separated several functions to files of their own.
 - Introduced user_mail_tokens() instead of @name for birthday mails.
 - Introduced Batch API for synchronization to help long synchronization
@@ -11,6 +11,14 @@ Birthdays 6.x-1.0, FUTURE
 - Created birthdays block template file, for easy customization.
 - Created birthdays page template file, for easy customization.
 
+Birthdays 5.x-1.5, 2009-02-09
+-----------------------------
+- Dutch translation + translation template (#367973).
+- Fixed the way the checkboxes in profile forms were shown, now grouped with
+  the date field in stead of floating freely above or below the form (#358582).
+- Fixed bug that stopped e-mails from being sent.
+- Fixed untranslatable strings (#320168).
+- #320218 by BENNYSOFT: Drupal-conform more-link or Birthdays block.
 
 Birthdays 5.x-1.4, 2008-10-08
 -----------------------------

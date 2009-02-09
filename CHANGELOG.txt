@@ -10,6 +10,7 @@ Birthdays 6.x-1.0, 2009-02-09
   processes.
 - Created birthdays block template file, for easy customization.
 - Created birthdays page template file, for easy customization.
+- German translation (#325004 by rastatt).
 
 Birthdays 5.x-1.5, 2009-02-09
 -----------------------------

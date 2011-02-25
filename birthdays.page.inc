@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * All functions related to the birthdays listings page

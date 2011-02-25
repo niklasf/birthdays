@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Because the Birthdays module uses 2 tables for the birthdays, they have

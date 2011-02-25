@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * This file contains the files necessary to e-mail the administrator his

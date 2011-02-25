@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file birthdays-page.tpl.php

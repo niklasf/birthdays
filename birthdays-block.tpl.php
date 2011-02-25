@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file birthdays-block.tpl.php

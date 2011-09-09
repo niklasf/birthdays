@@ -6,80 +6,27 @@
  */
 
 /**
- * Implementation of hook_install().
+ * Birthdays are stored as unixtimestamps in the database. A year of 1800 means
+ * that no year was given, only day and month.
+ *
+ * Implements hook_field_schema().
  */
-function birthdays_install() {
-  drupal_install_schema('birthdays');
-
-  // Still necessary!
-  $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'profile'")) - 1;
-  db_query("UPDATE {system} SET weight = %d WHERE name = 'birthdays'", $weight);
-}
-
-/**
- * Implementation of hook_schema().
- */
-function birthdays_schema() {
-  $schema = array();
-  $schema['dob'] = array(
-    'description' => t('Table containing birthdays of the users.'),
-    'fields' => array(
-      'uid' => array(
-        'description' => t('The current user identifier.'),
+function birthdays_field_schema($field) {
+  return array(
+    'columns' => array(
+      'value' => array(
         'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'birthday' => array(
-        'description' => t('The birthday of this user.'),
-        'type' => 'datetime',
-        'not null' => TRUE,
+        'size' => 'big',
+        'not null' => FALSE,
       ),
     ),
-    'primary key' => array('uid'),
   );
-
-  return $schema;
-}
-
-/**
- * Implementation of hook_requirements().
- */
-function birthdays_requirements($phase) {
-  global $_birthdays_field;
-  $t = get_t();
-  $requirements = array();
-
-  if ($phase == 'runtime') {
-    $value = $t('All requirements are met');
-    $severity = REQUIREMENT_OK;
-
-    $date_fields = _birthdays_get_date_fields();
-    if (empty($date_fields)) {
-      $value = $t('Missing profile field');
-      $severity = REQUIREMENT_ERROR;
-      $description = $t('No profile fields of type \'date\' were found, please <a href="@profile-settings-page">create one here</a>. Then visit the <a href="@birthdays-settings">birthdays settings page</a> to set up the module.', array('@profile-settings-page' => url('admin/user/profile/add/date'), '@birthdays-settings' => url('admin/settings/birthdays')));
-    }
-    elseif (!isset($_birthdays_field)) {
-      // Set warning/error message when the birthdays profile field hasn't been set yet.
-      $value = $t('No date field selected');
-      $severity = REQUIREMENT_ERROR;
-      $description = $t('The date field has not yet been selected as birthdays field. Please visit the <a href="@birthdays-settings">birthdays settings page</a> to do so.', array('@birthdays-settings' => url('admin/settings/birthdays')));
-    }
-
-    $requirements['birthdays'] = array(
-      'title' => $t('Birthdays'),
-      'value' => $value,
-      'description' => $description,
-      'severity' => $severity,
-    );
-  }
-
-  return $requirements;
 }
 
 /**
  * Remove the variable 'birthdays_field_name'.
+ *
+ * Implements hook_update_N().
  */
 function birthdays_update_5003() {
   $ret[] = array('success' => TRUE, 'query' => 'Variable "birthdays_field_name" has been deleted successfully');
@@ -91,6 +38,8 @@ function birthdays_update_5003() {
 /**
  * The placeholder @name in the user birthday message has been replaced by
  * !username, because we now can use user_mail_tokens().
+ *
+ * Implements hook_update_N().
  */
 function birthdays_update_6000() {
   $ret = array();
@@ -101,27 +50,4 @@ function birthdays_update_6000() {
   }
 
   return $ret;
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function birthdays_uninstall() {
-  drupal_uninstall_schema('birthdays');
-
-  variable_del('birthdays_show_starsign');
-  variable_del('birthdays_field_id');
-  variable_del('birthdays_send_user');
-  variable_del('birthdays_send_user_subject');
-  variable_del('birthdays_send_user_message');
-  variable_del('birthdays_remind');
-  variable_del('birthdays_hide_year');
-  variable_del('birthdays_block_number_by_days');
-  variable_del('birthdays_block_number_by_birthdays');
-  variable_del('birthdays_page_show_filters');
-  variable_del('birthdays_page_settings');
-  variable_del('birthdays_page_list_number');
-  variable_del('birthdays_block_hide');
-  variable_del('birthdays_last_cron');
-  variable_del('birthdays_last_cron_week');
 }

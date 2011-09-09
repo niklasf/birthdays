@@ -165,6 +165,19 @@ function birthdays_help($path, $arg) {
   }
 }
 
+/**
+ * Implements hook_field_info().
+ */
+function birthdays_field_info() {
+  return array(
+    'birthdays_date' => array(
+      'label' => t('Birthday'),
+      'description' => t('This field stores a birthday in the database.'),
+      'default_widget' => 'birthdays_textfield',
+      'default_formatter' => 'birthdays_plaintext',
+    ),
+  );
+}
 
 /**
  * Implementation of hook_menu().

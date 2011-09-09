@@ -208,7 +208,8 @@ function birthdays_field_is_empty($item, $field) {
 
   try {
     return BirthdaysBirthday::createFromDatabaseValue($item['value'])->isEmpty();
-  } catch (InvalidArgumentException $e) {
+  }
+  catch (InvalidArgumentException $e) {
     return FALSE;
   }
 }

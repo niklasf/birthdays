@@ -12,7 +12,7 @@
 final class BirthdaysBirthday {
 
   /**
-   * The internal value.
+   * The internal database value.
    */
   private $value = NULL;
 
@@ -117,7 +117,7 @@ final class BirthdaysBirthday {
       0, // secound,
       $month, // month,
       $day, // day
-      $year, // year
+      $year // year
     ));
   }
 
@@ -162,25 +162,40 @@ final class BirthdaysBirthday {
    *
    * @return
    *   An associative array with these indexes:
-   *    - year (4 digits)
+   *    - year (4 digits or FALSE)
    *    - month (1 to 12)
    *    - day (1 to 31)
    */
   public function toArray() {
-    return array(
+    $result = array(
       'year' => intval(date('Y', $this->value)),
       'month' => intval(date('m', $this->value)),
       'day' => intval(date('d', $this->value)),
     );
+
+    if ($result['year'] == 1800) {
+      $result['year'] = FALSE;
+    }
   }
 
   /**
-   * Get the internal value.
+   * Coverts the value to a database value.
    *
    * @return
-   *   The internal value, as it is saved in the database.
+   *   A unixtimestamp where the year 1800 means no year, as it is stored in
+   *   the database. Or NULL.
    */
-  function getValue() {
+  public function toDatabaseValue() {
     return $this->value;
+  }
+
+  /**
+   * Whether the value is empty or not.
+   *
+   * @return
+   *   TRUE if the value is empty.
+   */
+  public function isEmpty() {
+    return $this->value === NULL;
   }
 }

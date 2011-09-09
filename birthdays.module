@@ -180,6 +180,125 @@ function birthdays_field_info() {
 }
 
 /**
+ * Implements hook_field_validate().
+ */
+function birthdays_field_validate($entity_type, $entity, $field, $instance, $langcode, &$items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (isset($item['value'])) {
+      try {
+        BirthdaysBirthday::createFromDatabaseValue($item['value']);
+      }
+      catch (InvalidArgumentException $e) {
+        $errors[$field['field_name']][$langcode][$delta][] = array(
+          'error' => 'birthdays_invalid',
+          'message' => t("You can enter both <em>dd.mm.yyyy</em> or <em>dd.mm.</em>."),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function birthdays_field_is_empty($item, $field) {
+  if (!isset($item['value'])) {
+    return TRUE;
+  }
+
+  try {
+    return BirthdaysBirthday::createFromDatabaseValue($item['value'])->isEmpty();
+  } catch (InvalidArgumentException $e) {
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function birthdays_field_formatter_info() {
+  return array(
+    'birthdays_plaintext' => array(
+      'label' => t('Plaintext'),
+      'field types' => array('birthdays_date'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_field().
+ */
+function birthdays_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  if ($display['type'] = 'birthdays_plaintext') {
+    foreach ($items as $delta => $item) {
+      $element[$delta] = array('#markup' => BirthdaysBirthday::createFromDatabaseValue($item['value'])->toString());
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hoook_field_widget_info().
+ */
+function birthdays_field_widget_info() {
+  return array(
+    'birthdays_textfield' => array(
+      'label' => t('Textfield'),
+      'field types' => array('birthdays_date'),
+    ),
+  );
+}
+
+/**
+ * Implement hook_field_widget().
+ */
+function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta = 0) {
+  $element = array(
+    '#type' => 'textfield',
+    '#element_validate' => array('_birthdays_textfield_validate'),
+    '#langcode' => $langcode,
+    '#size' => 10,
+    '#title' => $instance['label'],
+    '#description' => isset($instance['description']) ? $instance['description'] : '',
+  );
+
+  if (isset($items[$delta])) {
+    $element['#default_value'] = BirthdaysBirthday::createFromDatabaseValue($items[$delta]['value'])->toString();
+  }
+
+  return $element;
+}
+
+/**
+ * FAPI validation callback for the birthdays_field_widget_form element.
+ */
+function _birthdays_textfield_validate($element, &$form_state) {
+  if ($element['#value']) {
+    try {
+      $birthday = BirthdaysBirthday::createFromText($element['#value']);
+      form_set_value($element, array('value' => $birthday->toDatabaseValue()), $form_state);
+    }
+    catch (InvalidArgumentException $e) {
+      form_set_value($element, array('value' => FALSE), $form_state);
+    }
+  }
+}
+
+/**
+ * Implements hook_field_widget_error().
+ */
+function birthdays_field_widget_error($element, $error) {
+  switch ($error['error']) {
+    case 'birthdays_invalid':
+      form_error($element, $error['message']);
+      break;
+  }
+}
+
+/**
  * Implementation of hook_theme().
  */
 function birthdays_theme() {

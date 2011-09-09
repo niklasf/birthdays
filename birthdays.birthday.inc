@@ -37,6 +37,10 @@ final class BirthdaysBirthday {
   /**
    * Create a birthday from text.
    *
+   * @todo
+   *   Currently this only parses german dd.mm(.yyyy) dates. Use Drupal's date
+   *   system to do this in a generic way.
+   *
    * @param $text
    *   The text representation of a birthday.
    *
@@ -141,6 +145,9 @@ final class BirthdaysBirthday {
 
   /**
    * Converts the value to a string.
+   *
+   * @todo
+   *   Use proper Drupal date formatting instead of dd.mm(.YYYY).
    *
    * @returns A string representation of the value.
    */

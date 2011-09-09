@@ -300,6 +300,15 @@ function birthdays_field_widget_error($element, $error) {
 }
 
 /**
+ * Implements hook_views_api().
+ */
+function birthdays_views_api() {
+  return array(
+    'api' => 3,
+  );
+}
+
+/**
  * Implementation of hook_theme().
  */
 function birthdays_theme() {

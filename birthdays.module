@@ -9,12 +9,6 @@
  */
 
 /**
- * Global variable which contains the field that was selected as Birthdays
- * field.
- */
-global $_birthdays_field;
-
-/**
  * Admin e-mails disabled. Default.
  */
 define('BIRTHDAYS_ADMIN_MAIL_DISABLED', '0');
@@ -121,14 +115,6 @@ define('BIRTHDAYS_USER_MAIL_USER_NO', '1');
  * User wants to be e-mailed on their birthday.
  */
 define('BIRTHDAYS_USER_MAIL_USER_YES', '0');
-
-/**
- * Implementation of hook_init().
- */
-function birthdays_init() {
-  global $_birthdays_field;
-  $_birthdays_field = _birthdays_get_field(variable_get('birthdays_field_id', NULL));
-}
 
 /**
  * Implementation of hook_help().

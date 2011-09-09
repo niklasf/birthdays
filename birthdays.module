@@ -180,46 +180,6 @@ function birthdays_field_info() {
 }
 
 /**
- * Implementation of hook_menu().
- */
-function birthdays_menu() {
-  $items['admin/settings/birthdays'] = array(
-    'title' => 'Birthdays',
-    'description' => 'Set user birthday mail and toggle user mail, upcoming birthdays mail and more.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('birthdays_admin_settings'),
-    'access arguments' => array('administer site configuration'),
-    'file' => 'birthdays.admin.inc',
-  );
-
-  $items['admin/settings/birthdays/settings'] = array(
-    'title' => 'Settings',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-  $items['admin/settings/birthdays/sync'] = array(
-    'title' => 'Synchronize',
-    'description' => 'Synchronize birthdays information of Profile module and Birthdays module. Used either when updating to a newer version of Birthdays or when integrating with an existing Profile Field.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('birthdays_sync_form'),
-    'access arguments' => array('administer site configuration'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'birthdays.sync.inc',
-  );
-
-  $items['birthdays'] = array(
-    'title' => 'Birthdays',
-    'description' => 'List the birthdays of all users.',
-    'page callback' => 'birthdays_view_page',
-    'access arguments' => array('access birthdays'),
-    'type' => MENU_SUGGESTED_ITEM,
-    'file' => 'birthdays.page.inc',
-  );
-
-  return $items;
-}
-
-/**
  * Implementation of hook_theme().
  */
 function birthdays_theme() {

@@ -184,16 +184,14 @@ function birthdays_field_info() {
  */
 function birthdays_field_validate($entity_type, $entity, $field, $instance, $langcode, &$items, &$errors) {
   foreach ($items as $delta => $item) {
-    if (isset($item['value'])) {
-      try {
-        BirthdaysBirthday::createFromDatabaseValue($item['value']);
-      }
-      catch (InvalidArgumentException $e) {
-        $errors[$field['field_name']][$langcode][$delta][] = array(
-          'error' => 'birthdays_invalid',
-          'message' => t("You can enter both <em>dd.mm.yyyy</em> or <em>dd.mm.</em>."),
-        );
-      }
+    try {
+      BirthdaysBirthday::fromArray($item);
+    }
+    catch (InvalidArgumentException $e) {
+      $errors[$field['field_name']][$langcode][$delta][] = array(
+        'error' => 'birthdays_invalid',
+        'message' => t("That is not a valid birthday."),
+      );
     }
   }
 }
@@ -202,12 +200,8 @@ function birthdays_field_validate($entity_type, $entity, $field, $instance, $lan
  * Implements hook_field_is_empty().
  */
 function birthdays_field_is_empty($item, $field) {
-  if (!isset($item['value'])) {
-    return TRUE;
-  }
-
   try {
-    return BirthdaysBirthday::createFromDatabaseValue($item['value'])->isEmpty();
+    return BirthdaysBirthday::fromArray($item)->isEmpty();
   }
   catch (InvalidArgumentException $e) {
     return FALSE;
@@ -227,14 +221,14 @@ function birthdays_field_formatter_info() {
 }
 
 /**
- * Implements hook_field_formatter_field().
+ * Implements hook_field_formatter_view().
  */
 function birthdays_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
 
   if ($display['type'] = 'birthdays_plaintext') {
     foreach ($items as $delta => $item) {
-      $element[$delta] = array('#markup' => BirthdaysBirthday::createFromDatabaseValue($item['value'])->toString());
+      $element[$delta] = array('#markup' => BirthdaysBirthday::fromArray($item)->toString());
     }
   }
 
@@ -267,7 +261,7 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
   );
 
   if (isset($items[$delta])) {
-    $element['#default_value'] = BirthdaysBirthday::createFromDatabaseValue($items[$delta]['value'])->toString();
+    $element['#default_value'] = BirthdaysBirthday::fromArray($items[$delta])->toString();
   }
 
   return $element;
@@ -277,14 +271,12 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
  * FAPI validation callback for the birthdays_field_widget_form element.
  */
 function _birthdays_textfield_validate($element, &$form_state) {
-  if ($element['#value']) {
-    try {
-      $birthday = BirthdaysBirthday::createFromText($element['#value']);
-      form_set_value($element, array('value' => $birthday->toDatabaseValue()), $form_state);
-    }
-    catch (InvalidArgumentException $e) {
-      form_set_value($element, array('value' => FALSE), $form_state);
-    }
+  try {
+    $birthday = BirthdaysBirthday::fromString($element['#value']);
+    form_set_value($element, $birthday->toArray(), $form_state);
+  }
+  catch (InvalidArgumentException $e) {
+    form_error($element, t('That is not a valid birthday. Enter the date as <em>day.month.year</em>, <em>year/month/day</em> or <em>year-month-day</em>. You can skip the year.'));
   }
 }
 

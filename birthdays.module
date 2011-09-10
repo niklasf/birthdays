@@ -860,18 +860,6 @@ function birthdays_form_user($edit, $account, $category, $register = FALSE) {
 }
 
 /**
- * Implementation of hook_form_alter().
- */
-function birthdays_form_alter(&$form, &$form_state, $form_id) {
-  global $_birthdays_field;
-
-  if (($form_id == 'user_profile_form' && isset($form[$_birthdays_field->category])) || ($form_id == 'user_register' && $_birthdays_field->register)) {
-    $form[$_birthdays_field->category][$_birthdays_field->name]['#process'] = array('expand_birthdays_date');
-    $form[$_birthdays_field->category][$_birthdays_field->name]['#element_validate'] = array('birthdays_date_validate');
-  }
-}
-
-/**
  * Process the birthday field (based on a regular date element) to
  * limit it to past birthdays and make it the entire element optional
  * by adding empty options for days, months and years.

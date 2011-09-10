@@ -33,7 +33,7 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
    * Test empty values.
    */
   public function testFromEmpty() {
-    $this->assertIdentical(BirthdaysBirthday::fromEmpty()->toArray(), array('year' => 0, 'month' => 0, 'day' => 0));
+    $this->assertEqual(BirthdaysBirthday::fromEmpty()->toArray(), array('year' => 0, 'month' => 0, 'day' => 0));
     $this->assertIdentical(BirthdaysBirthday::fromEmpty()->toString(), '');
     $this->assertIdentical(BirthdaysBirthday::fromEmpty()->toUnixtime(), NULL);
     $this->assertIdentical(BirthdaysBirthday::fromEmpty()->isEmpty(), TRUE);
@@ -45,10 +45,10 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
   public function testFromString() {
     // Conversions.
     $this->assertIdentical(BirthdaysBirthday::fromString("\t  ")->isEmpty(), TRUE);
-    $this->assertIdentical(BirthdaysBirthday::fromString('04.05.1999')->toArray(), array('year' => 1999, 'month' => 5, 'day' => 4));
-    $this->assertIdentical(BirthdaysBirthday::fromString('03.06.78')->toArray(), array('year' => 1978, 'month' => 6, 'day' => 3));
-    $this->assertIdentical(BirthdaysBirthday::fromString('14.7.')->toArray(), array('year' => 0, 'month' => 7, 'day' => 14));
-    $this->assertIdentical(BirthdaysBirthday::fromString('7.7.7')->toArray(), array('year' => 2007, 'month' => 7, 'day' => 7));
+    $this->assertEqual(BirthdaysBirthday::fromString('04.05.1999')->toArray(), array('year' => 1999, 'month' => 5, 'day' => 4));
+    $this->assertEqual(BirthdaysBirthday::fromString('03.06.78')->toArray(), array('year' => 1978, 'month' => 6, 'day' => 3));
+    $this->assertEqual(BirthdaysBirthday::fromString('14.7.')->toArray(), array('year' => 0, 'month' => 7, 'day' => 14));
+    $this->assertEqual(BirthdaysBirthday::fromString('7.7.07')->toArray(), array('year' => 2007, 'month' => 7, 'day' => 7));
 
     // Unparsable.
     try {
@@ -70,7 +70,7 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
 
     // Date in the future.
     try {
-      BirthdaysBirthday::fromString(date('d.m.Y', time() + 10000));
+      BirthdaysBirthday::fromString(date('d.m.Y', time() + 1000000));
       $this->fail(t('Exception expected.'));
     }
     catch (InvalidArgumentException $e) {
@@ -84,7 +84,7 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
   public function testFromArray() {
     $this->assertIdentical(BirthdaysBirthday::fromArray(array('month' => 0, 'day' => 0))->toString(), '');
     $this->assertIdentical(BirthdaysBirthday::fromArray(array('year' => 1970, 'day' => 1, 'month' => 1))->toUnixtime(), 0);
-    $this->assertIdentical(BirthdaysBirthday::fromArray(array('month' => 3, 'day' => 7))->toArray(), array('month' => 3, 'day' => 7, 'year' => 0));
+    $this->assertEqual(BirthdaysBirthday::fromArray(array('month' => 3, 'day' => 7))->toArray(), array('month' => 3, 'day' => 7, 'year' => 0));
 
     try {
       BirthdaysBirthday::fromArray(array('foo' => 'bar'));

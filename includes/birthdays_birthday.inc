@@ -9,7 +9,7 @@
  * Convert between different data representations and do calculations on a
  * birthday.
  */
-final class BirthdaysBirthday {
+class BirthdaysBirthday {
 
   /**
    * The internal database value.
@@ -19,7 +19,7 @@ final class BirthdaysBirthday {
   /**
    * Private constructur. Use on of the create methods instead.
    */
-  private function __construct($value = NULL) {
+  private function __construct($value = array('year' => 0, 'month' => 0, 'day' => 0)) {
     $this->value = $value;
   }
 
@@ -46,13 +46,13 @@ final class BirthdaysBirthday {
    *
    * @return A BirthdaysBirthday instance.
    */
-  public static function fromText($text) {
+  public static function fromString($text) {
     if (trim($text) === '') {
       return self::fromEmpty();
     }
 
-    if (preg_match('/^\s*(\d{1,2})\.(\d{1,2})\.?(\d{4})?\s*$/', $text, $matches)) {
-      return self::fromValues(isset($matches[3]) ? $matches[3] : 0, $matches[2], $matches[1]);
+    if (preg_match('/^\s*(\d{1,2})\.(\d{1,2})\.?(\d{4}|\d{2})?\s*$/', $text, $matches)) {
+      return self::fromDate(isset($matches[3]) ? $matches[3] : 0, $matches[2], $matches[1]);
     }
 
     throw new InvalidArgumentException(t("The given argument is not a valid birthday."));
@@ -90,34 +90,44 @@ final class BirthdaysBirthday {
     $maxdays = array(1 => 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
 
     if ($year) {
-      // Adjust year if only 2 digits are given.
-      if ($year > 70 && $year <= 99) {
-        $year += 1900;
-      }
-      else if ($year > 0 && $year <= 70) {
-        $year += 2000;
+      // Negative years not allowed.
+      if ($year < 0) {
+        throw new InvalidArgumentException(t('Negative years (%year) are not allowed.', array('%year' => $year)));
       }
 
-      // Check if it's in the past more than the world record or in the future.
-      if ($year < date('Y') - 115 || $year > date('Y')) {
-        throw new InvalidArgumentException(t("%year is not a valid birthday year.", array('%year' => $year)));
+      // Adjust year if only 2 digits are given.
+      if ($year <= 99) {
+        if ($year >= date('y')) {
+          $year += date('Y') - date('y') - 100;
+        }
+        else {
+          $year += date('Y') - date('y');
+        }
+      }
+
+      // Check if it's in the past more than the world record.
+      if ($year < date('Y') - 115) {
+        throw new InvalidArgumentException(t("%year is too far in the past.", array('%year' => $year)));
       }
 
       // Februrary has only 28 days if it's not a leap year.
       if (!($year % 400 == 0 || ($year % 4 == 0 && $year % 100 != 0))) {
         $maxdays[2] = 28;
       }
-    }
-    else {
-      $year = 0;
-    }
+ 
+      // Check if it's in the future.
+      $unixtime = mktime(1, 0, 0, $month, $day, $year);
+      if ($unixtime >= time()) {
+        throw new InvalidArgumentException(t("The given date is in the future."));
+      }
+   }
 
     // Validate day.
     if ($day < 1 || $day > $maxdays[$month]) {
       throw new InvalidArgumentException(t("%day is not a valid day of month %month", array('%day' => $day, '%month' => $month)));
     }
 
-    return new BirthdaysBirthday('year' => $year, 'month' => $month, 'day' => $day);
+    return new BirthdaysBirthday(array('year' => $year, 'month' => $month, 'day' => $day));
   }
 
   /**
@@ -131,12 +141,16 @@ final class BirthdaysBirthday {
    * @return A BirthdaysBirthday instance.
    */
   public static function fromArray($value) {
-    if ($value === FALSE) {
-      throw new InvalidArgumentException(t("FALSE is not a valid database value."));
+    if (!is_array($value)) {
+      throw new InvalidArgumentException(t("Must be an array."));
     }
 
     if (!isset($value['year'])) {
       $value['year'] = 0;
+    }
+
+    if (!isset($value['day']) || !isset($value['month'])) {
+      throw new InvalidArgumentException(t('Day and month must be set.'));
     }
 
     return self::fromDate($value['year'], $value['month'], $value['day']);
@@ -151,15 +165,15 @@ final class BirthdaysBirthday {
    * @returns A string representation of the value.
    */
   public function toString() {
-    if ($this->value === NULL) {
+    if ($this->isEmpty()) {
       return '';
     }
 
-    if (date('Y', $this->toUnixtime()) == 1800) {
-      return date('d.m.', $this->toUnixtime());
+    if ($this->value['year']) {
+      return date('d.m.Y', $this->toUnixtime());
     }
     else {
-      return date('d.m.Y', $this->toUnixtime());
+      return date('d.m.', $this->toUnixtime());
     }
   }
 
@@ -183,7 +197,7 @@ final class BirthdaysBirthday {
    *   A unix timestamp where the year 1800 means no year. Or NULL.
    */
   public function toUnixtime() {
-    if ($this->value === NULL) {
+    if ($this->isEmpty()) {
       return NULL;
     }
 
@@ -204,6 +218,6 @@ final class BirthdaysBirthday {
    *   TRUE if the value is empty.
    */
   public function isEmpty() {
-    return $this->value === NULL;
+    return !$this->value['year'] && !$this->value['month'] && !$this->value['day'];
   }
 }

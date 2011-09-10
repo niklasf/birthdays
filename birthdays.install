@@ -14,11 +14,30 @@
 function birthdays_field_schema($field) {
   return array(
     'columns' => array(
-      'value' => array(
+      'day' => array(
         'type' => 'int',
-        'size' => 'big',
-        'not null' => FALSE,
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
       ),
+      'month' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'year' => array(
+        'type' => 'int',
+        'size' => 'medium',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'date' => array('day', 'month', 'year'),
     ),
   );
 }

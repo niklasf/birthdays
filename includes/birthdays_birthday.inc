@@ -14,15 +14,13 @@ final class BirthdaysBirthday {
   /**
    * The internal database value.
    */
-  private $value = NULL;
+  private $value;
 
   /**
    * Private constructur. Use on of the create methods instead.
    */
   private function __construct($value = NULL) {
-    if ($value !== NULL) {
-      $this->value = intval($value);
-    }
+    $this->value = $value;
   }
 
   /**
@@ -30,7 +28,7 @@ final class BirthdaysBirthday {
    *
    * @return A BirthdaysBirthday instance.
    */
-  public static function createEmpty() {
+  public static function fromEmpty() {
     return new BirthdaysBirthday();
   }
 
@@ -48,13 +46,13 @@ final class BirthdaysBirthday {
    *
    * @return A BirthdaysBirthday instance.
    */
-  public static function createFromText($text) {
+  public static function fromText($text) {
     if (trim($text) === '') {
-      return self::createEmpty();
+      return self::fromEmpty();
     }
 
     if (preg_match('/^\s*(\d{1,2})\.(\d{1,2})\.?(\d{4})?\s*$/', $text, $matches)) {
-      return self::createFromValues(isset($matches[3]) ? $matches[3] : 0, $matches[2], $matches[1]);
+      return self::fromValues(isset($matches[3]) ? $matches[3] : 0, $matches[2], $matches[1]);
     }
 
     throw new InvalidArgumentException(t("The given argument is not a valid birthday."));
@@ -72,11 +70,16 @@ final class BirthdaysBirthday {
    *
    * @throws InvalidArgumentException when one of the given values is invalid.
    */
-  public static function createFromValues($year, $month, $day) {
+  public static function fromDate($year, $month, $day) {
     // All parameters are integers.
     $year = intval($year);
     $month = intval($month);
     $day = intval($day);
+
+    // Check for all empty.
+    if (!$year && !$month && !$day) {
+      return self::fromEmpty();
+    }
 
     // Validate month.
     if ($month < 1 || $month > 12) {
@@ -106,8 +109,7 @@ final class BirthdaysBirthday {
       }
     }
     else {
-      // 1800 means "no year given" in the database.
-      $year = 1800;
+      $year = 0;
     }
 
     // Validate day.
@@ -115,32 +117,29 @@ final class BirthdaysBirthday {
       throw new InvalidArgumentException(t("%day is not a valid day of month %month", array('%day' => $day, '%month' => $month)));
     }
 
-    return self::createFromDatabaseValue(mktime(
-      1, // hour
-      0, // minute
-      0, // secound,
-      $month, // month,
-      $day, // day
-      $year // year
-    ));
+    return new BirthdaysBirthday('year' => $year, 'month' => $month, 'day' => $day);
   }
 
   /**
    * Create a birthday from a database value.
    *
    * @param $value
-   *   Database values are unix timestamps, where the year 1800 means no year.
+   *   An associative array with year, month and day set.
    *
    * @throws InvalidArgumentException when FALSE is given.
    *
    * @return A BirthdaysBirthday instance.
    */
-  public static function createFromDatabaseValue($value) {
+  public static function fromArray($value) {
     if ($value === FALSE) {
       throw new InvalidArgumentException(t("FALSE is not a valid database value."));
     }
 
-    return new BirthdaysBirthday($value);
+    if (!isset($value['year'])) {
+      $value['year'] = 0;
+    }
+
+    return self::fromDate($value['year'], $value['month'], $value['day']);
   }
 
   /**
@@ -156,11 +155,11 @@ final class BirthdaysBirthday {
       return '';
     }
 
-    if (date('Y', $this->value) == 1800) {
-      return date('d.m.', $this->value);
+    if (date('Y', $this->toUnixtime()) == 1800) {
+      return date('d.m.', $this->toUnixtime());
     }
     else {
-      return date('d.m.Y', $this->value);
+      return date('d.m.Y', $this->toUnixtime());
     }
   }
 
@@ -169,31 +168,33 @@ final class BirthdaysBirthday {
    *
    * @return
    *   An associative array with these indexes:
-   *    - year (4 digits or FALSE)
+   *    - year (4 digits or 0)
    *    - month (1 to 12)
    *    - day (1 to 31)
    */
   public function toArray() {
-    $result = array(
-      'year' => intval(date('Y', $this->value)),
-      'month' => intval(date('m', $this->value)),
-      'day' => intval(date('d', $this->value)),
-    );
-
-    if ($result['year'] == 1800) {
-      $result['year'] = FALSE;
-    }
+    return $this->value;
   }
 
   /**
-   * Coverts the value to a database value.
+   * Coverts the value to a unix timestamp.
    *
    * @return
-   *   A unixtimestamp where the year 1800 means no year, as it is stored in
-   *   the database. Or NULL.
+   *   A unix timestamp where the year 1800 means no year. Or NULL.
    */
-  public function toDatabaseValue() {
-    return $this->value;
+  public function toUnixtime() {
+    if ($this->value === NULL) {
+      return NULL;
+    }
+
+    return mktime(
+      1, // hour
+      0, // minute
+      0, // secound
+      $this->value['month'],
+      $this->value['day'],
+      $this->value['year'] ? $this->value['year'] : 1800
+    );
   }
 
   /**

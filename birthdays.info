@@ -1,5 +1,5 @@
 name = Birthdays
 description = Displays and reminds of upcoming users birthdays.
 dependencies[] = field
-files[] = birthdays.birthday.inc
+files[] = includes/birthdays_birthday.inc
 core = 7.x

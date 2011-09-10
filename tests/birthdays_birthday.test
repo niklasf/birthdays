@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * The BirthdaysBirthdayTestCase class.
+ */
+
+/**
+ * Unit tests for the BirthdaysBirthday class.
+ */
+class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('BirthdaysBirthday unit tests'),
+      'description' => t('Unit tests for the BirthdaysBirthday class.'),
+      'group' => t('Birthdays'),
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp() {
+    parent::setUp();
+    module_load_include('inc', 'birthdays', 'includes/birthdays_birthday');
+  }
+
+  /**
+   * Test empty values.
+   */
+  public function testFromEmpty() {
+    $this->assertIdentical(BirthdaysBirthday::fromEmpty()->toArray(), array('year' => 0, 'month' => 0, 'day' => 0));
+    $this->assertIdentical(BirthdaysBirthday::fromEmpty()->toString(), '');
+    $this->assertIdentical(BirthdaysBirthday::fromEmpty()->toUnixtime(), NULL);
+    $this->assertIdentical(BirthdaysBirthday::fromEmpty()->isEmpty(), TRUE);
+  }
+
+  /**
+   * Test string parsing.
+   */
+  public function testFromString() {
+    // Conversions.
+    $this->assertIdentical(BirthdaysBirthday::fromString("\t  ")->isEmpty(), TRUE);
+    $this->assertIdentical(BirthdaysBirthday::fromString('04.05.1999')->toArray(), array('year' => 1999, 'month' => 5, 'day' => 4));
+    $this->assertIdentical(BirthdaysBirthday::fromString('03.06.78')->toArray(), array('year' => 1978, 'month' => 6, 'day' => 3));
+    $this->assertIdentical(BirthdaysBirthday::fromString('14.7.')->toArray(), array('year' => 0, 'month' => 7, 'day' => 14));
+    $this->assertIdentical(BirthdaysBirthday::fromString('7.7.7')->toArray(), array('year' => 2007, 'month' => 7, 'day' => 7));
+
+    // Unparsable.
+    try {
+      BirthdaysBirthday::fromString('foo');
+      $this->fail(t('Exception expected.'));
+    }
+    catch (InvalidArgumentException $e) {
+      $this->pass($e->getMessage());
+    }
+
+    // Invalid date.
+    try {
+      BirthdaysBirthday::fromString('30.02.1999');
+      $this->fail(t('Exception expected.'));
+    }
+    catch (InvalidArgumentException $e) {
+      $this->pass($e->getMessage());
+    }
+
+    // Date in the future.
+    try {
+      BirthdaysBirthday::fromString(date('d.m.Y', time() + 10000));
+      $this->fail(t('Exception expected.'));
+    }
+    catch (InvalidArgumentException $e) {
+      $this->pass($e->getMessage());
+    }
+  }
+
+  /**
+   * Test conversion from array.
+   */
+  public function testFromArray() {
+    $this->assertIdentical(BirthdaysBirthday::fromArray(array('month' => 0, 'day' => 0))->toString(), '');
+    $this->assertIdentical(BirthdaysBirthday::fromArray(array('year' => 1970, 'day' => 1, 'month' => 1))->toUnixtime(), 0);
+    $this->assertIdentical(BirthdaysBirthday::fromArray(array('month' => 3, 'day' => 7))->toArray(), array('month' => 3, 'day' => 7, 'year' => 0));
+
+    try {
+      BirthdaysBirthday::fromArray(array('foo' => 'bar'));
+      $this->fail(t('Exception expected.'));
+    }
+    catch (InvalidArgumentException $e) {
+      $this->pass($e->getMessage());
+    }
+
+    try {
+      BirthdaysBirthday::fromArray(NULL);
+      $this->fail(t('Exception expected.'));
+    }
+    catch (InvalidArgumentException $e) {
+      $this->pass($e->getMessage());
+    }
+  }
+
+  /**
+   * Test conversion directily given values.
+   */
+  public function testFromDate() {
+    $this->assertIdentical(BirthdaysBirthday::fromDate(0, 0, 0)->isEmpty(), TRUE);
+    $this->assertIdentical(BirthdaysBirthday::fromDate(0, 1, 1)->isEmpty(), FALSE);
+
+    try {
+      BirthdaysBirthday::fromDate(0, 2, 0);
+      $this->fail(t('Exception expected.'));
+    }
+    catch (InvalidArgumentException $e) {
+      $this->pass($e->getMessage());
+    }
+  }
+}

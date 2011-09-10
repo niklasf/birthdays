@@ -3,4 +3,5 @@ description = Displays and reminds of upcoming users birthdays.
 dependencies[] = field
 files[] = includes/birthdays_birthday.inc
 files[] = tests/birthdays.test
+files[] = tests/birthdays_birthday.test
 core = 7.x

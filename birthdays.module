@@ -305,6 +305,7 @@ function birthdays_field_widget_error($element, $error) {
 function birthdays_views_api() {
   return array(
     'api' => 3,
+    'path' => drupal_get_path('module', 'birthdays') . '/views',
   );
 }
 

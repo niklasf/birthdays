@@ -327,7 +327,26 @@ function birthdays_field_instance_settings_form($field, $instance) {
         BIRTHDAYS_ADMIN_MAIL_MONTHLY => t('Send <strong>monthly</strong> reminders'),
       ),
     ),
+    'user_mail' => array(
+      '#type' => 'item',
+      '#title' => t('User notification'),
+      '#description' => t('You can send an email or execute other actions on birthdays using the trigger module.'),
+    ),
   );
+
+  // Provide information about triggers.
+  if (module_exists('trigger')) {
+    $trigger_info = t('Trigger module is enabled. You can !configure_triggers and !actions.', array(
+      '!configure_triggers' => l('configure triggers', 'admin/structure/trigger/birthdays'),
+      '!actions' => l('actions', 'admin/config/system/actions'),
+    ));
+  }
+  else {
+    $trigger_info = t('Go to the !module_page and enable the Trigger module', array(
+      '!module_page' => l('module page', 'admin/modules'),
+    ));
+  }
+  $form['notifications']['user_mail']['#description'] .= ' ' . $trigger_info;
 
   return $form;
 }

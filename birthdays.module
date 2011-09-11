@@ -362,29 +362,22 @@ function birthdays_views_api() {
 }
 
 /**
- * Implements hook_hook_info().
+ * Implements hook_trigger_info().
  */
-function birthdays_hook_info() {
+function birthdays_trigger_info() {
   return array(
     'birthdays' => array(
       'birthdays' => array(
-        'has_birthday' => array(
-          'runs when' => t('It\'s birthday'),
-        ),
+        t('On a birthday'),
       ),
     ),
   );
 }
 
 /**
- * Implements hook_TRIGGER_NAME().
+ * Implements hook_birthdays().
  */
-function birthdays_birthdays($op, $entity) {
-  // Only one operation is supported.
-  if ($op != 'has_birthday') {
-    return;
-  }
-
+function birthdays_birthdays($entity, $instance) {
   // Require the trigger module.
   if (!module_exists('trigger')) {
     return;
@@ -397,10 +390,9 @@ function birthdays_birthdays($op, $entity) {
   );
 
   // Execute the set actions.
-  $aids = trigger_get_assigned_actions('birthdays');
+  $aids = trigger_get_assigned_actions($context['hook']);
   actions_do($aids, $entity, $context);
 }
-
 
 /**
  * Implementation of hook_cron().

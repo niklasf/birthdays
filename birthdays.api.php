@@ -13,14 +13,14 @@
 /**
  * Executed on birthdays.
  *
- * @param $op
- *   "has_birthday" unless a module defines another operation.
- *
  * @param $entity
  *   The entity the birthday field is attached to. For example the user
  *   object.
+ *
+ * @param $instance
+ *   The field instance.
  */
-function hook_birthdays($op, $entity) {
+function hook_birthdays($entity, $instance) {
   if (isset($entity->name)) {
     watchdog('birthdays', "It's %name's birthday.", array('%name' => $entity->name));
   }

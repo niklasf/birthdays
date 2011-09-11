@@ -248,7 +248,7 @@ function birthdays_field_widget_info() {
 }
 
 /**
- * Implement hook_field_widget().
+ * Implement hook_field_widget_form().
  */
 function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta = 0) {
   $element = array(
@@ -284,11 +284,7 @@ function _birthdays_textfield_validate($element, &$form_state) {
  * Implements hook_field_widget_error().
  */
 function birthdays_field_widget_error($element, $error) {
-  switch ($error['error']) {
-    case 'birthdays_invalid':
-      form_error($element, $error['message']);
-      break;
-  }
+  form_error($element, $error['message']);
 }
 
 /**

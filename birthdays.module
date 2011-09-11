@@ -175,6 +175,11 @@ function birthdays_field_info() {
       'description' => t('This field stores a birthday in the database.'),
       'default_widget' => 'birthdays_textfield',
       'default_formatter' => 'birthdays_plaintext',
+      'instance_settings' => array(
+        'admin_mail' => BIRTHDAYS_ADMIN_MAIL_DISABLED,
+        'user_mail' => BIRTHDAYS_USER_MAIL_NO,
+        'hide_year' => BIRTHDAYS_HIDE_YEAR_NO,
+      ),
     ),
   );
 }
@@ -285,6 +290,32 @@ function _birthdays_textfield_validate($element, &$form_state) {
  */
 function birthdays_field_widget_error($element, $error) {
   form_error($element, $error['message']);
+}
+
+/**
+ * Implements hook_field_instance_settings_form().
+ */
+function birthdays_field_instance_settings_form($field, $instance) {
+  $settings = $instance['settings'];
+
+  $form['notifications'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Email notifications'),
+    'admin_mail' => array(
+      '#type' => 'radios',
+      '#title' => t('Birthday reminder for the administrator'),
+      '#default_value' => $settings['admin_mail'],
+      '#description' => t('The site administrator can be reminded of upcoming birthdays via email.'),
+      '#options' => array(
+        BIRTHDAYS_ADMIN_MAIL_DISABLED => t('Send <strong>no</strong> reminders'),
+        BIRTHDAYS_ADMIN_MAIL_DAILY => t('Send <strong>daily</strong> reminders'),
+        BIRTHDAYS_ADMIN_MAIL_WEEKLY => t('Send <strong>weekly</strong> reminders'),
+        BIRTHDAYS_ADMIN_MAIL_MONTHLY => t('Send <strong>monthly</strong> reminders'),
+      ),
+    ),
+  );
+
+  return $form;
 }
 
 /**

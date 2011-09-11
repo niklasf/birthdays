@@ -387,17 +387,7 @@ function birthdays_trigger_info() {
     $name = md5('birthdays|' . $instance['entity_type'] . '|' . $instance['bundle'] . '|' . $instance['field_name']);
 
     // Create a localized label for the trigger.
-    $vars = array(
-      '@entity_type' => $instance['entity_type'],
-      '@bundle' => $instance['bundle'],
-      '@field_name' => $instance['field_name'],
-    );
-    if ($instance['entity_type'] == $instance['bundle']) {
-      $label = t('@entity_type: @field_name (On birthday)', $vars);
-    }
-    else {
-      $label = t('@entity_type: @bundle: @field_name (On birthday)', $vars);
-    }
+    $label = _birthdays_instance_description($instance) . ' ' . t('(On Birthdays)');
 
     // Add it to the list of triggers.
     $triggers['birthdays'][$name] = array('label' => $label);
@@ -405,6 +395,34 @@ function birthdays_trigger_info() {
 
   return $triggers;
 }
+
+/**
+ * Get a human readable description of a field instance.
+ *
+ * @param $instance
+ *   The field instance.
+ *
+ * @return
+ *   A localized string.
+ */
+function _birthdays_instance_description($instance) {
+  $vars = array(
+    '@entity_type' => $instance['entity_type'],
+    '@bundle' => $instance['bundle'],
+    '@field_name' => $instance['field_name'],
+  );
+
+  if ($instance['entity_type'] == $instance['bundle']) {
+    $desc = t('@entity_type: @field_name', $vars);
+  }
+  else {
+    $desc = t('@entity_type: @bundle: @field_name', $vars);
+  }
+
+  return $desc;
+}
+
+
 
 /**
  * Implements hook_birthdays().

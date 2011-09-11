@@ -298,6 +298,20 @@ function birthdays_field_widget_error($element, $error) {
 function birthdays_field_instance_settings_form($field, $instance) {
   $settings = $instance['settings'];
 
+  // Year settings.
+  $form['hide_year'] = array(
+    '#type' => 'radios',
+    '#title' => t('Year settings'),
+    '#default_value' => $settings['hide_year'],
+    '#description' => t('Make entering a year optional, required or forbidden.'),
+    '#options' => array(
+      BIRTHDAYS_HIDE_YEAR_NO => t('Require the user to enter a year'),
+      BIRTHDAYS_HIDE_YEAR_USER => t('Let the user decide, if he wants to enter a year'),
+      BIRTHDAYS_HIDE_YEAR_YES => t('Don\'t allow the user to enter a year'),
+    ),
+  );
+
+  // E-Mail notifications for administrators.
   $form['notifications'] = array(
     '#type' => 'fieldset',
     '#title' => t('Email notifications'),

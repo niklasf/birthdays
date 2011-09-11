@@ -724,119 +724,6 @@ function birthdays_get_birthdays($amount) {
   return $birthdays;
 }
 
-
-/**
- * Implementation of hook_user().
- */
-function birthdays_user($op, &$edit, &$account, $category = NULL) {
-  global $_birthdays_field;
-  // Do nothing with user when _birthdays_field is not yet set
-  if (!isset($_birthdays_field)) {
-    return;
-  }
-  switch ($op) {
-    case 'load':
-      return birthdays_load_user($account);
-    case 'update':
-    case 'insert':
-      return birthdays_save_user($edit, $account, $category);
-    case 'form':
-      return birthdays_form_user($edit, $account, $category);
-    case 'register':
-      return birthdays_form_user($edit, $account, $category, TRUE);
-    case 'delete':
-      // Delete from {dob} table, other information is handled by profile.module and user.module
-      db_query('DELETE FROM {dob} WHERE uid = %d', $account->uid);
-      break;
-  }
-}
-
-
-/**
- * Inject information on a user load.
- *
- * @param object $account
- *   User object passed by reference.
- */
-function birthdays_load_user(&$account) {
-  global $_birthdays_field;
-  // Pre-load birthday-information into $account
-  profile_load_profile($account);
-
-  // If it was set by the user
-  if ($account->{$_birthdays_field->name}) {
-    // Set the user's age
-    $account->age = _birthdays_get_age($account->{$_birthdays_field->name});
-  }
-}
-
-
-/**
- * Inject information and save birthday when editing or adding a user.
- */
-function birthdays_save_user(&$edit, &$account, $category) {
-  global $_birthdays_field;
-
-  // Only continue when the field is present in the form results
-  if (!empty($_birthdays_field->name) && array_key_exists($_birthdays_field->name, $edit)) {
-    // Extract the date information
-    if (is_array($edit[$_birthdays_field->name])) {
-      extract($edit[$_birthdays_field->name]);
-    }
-
-    // Delete the old
-    db_query("DELETE FROM {dob} where uid = %d", $account->uid);
-
-    if ($day && $year && $month) {
-      // Set the starsign for the user.module to save in the {users}.data field
-      $edit['birthdays_starsign'] = _birthdays_get_starsign($day, $month);
-      // Insert the new
-      db_query("INSERT INTO {dob} (uid, birthday) VALUES (%d, '%d-%d-%d');", $account->uid, $year, $month, $day);
-    }
-    else {
-      $edit['birthdays_starsign'] = '';
-      unset($edit[$_birthdays_field->name]);
-    }
-  }
-}
-
-/**
- * Alter the way the birthday is shown. This is fired after every module has filled the profile.
- */
-function birthdays_profile_alter(&$account) {
-  global $_birthdays_field;
-  // If the _birthdays_field hasn't been set yet, do not continue
-  if (!isset($_birthdays_field)) {
-    return;
-  }
-
-  // If the field existed, and is amongst the profile fields to be shown, it is save to continue
-  if (isset( $_birthdays_field ) && array_key_exists($_birthdays_field->category, $account->content) && array_key_exists($_birthdays_field->name, $account->content[$_birthdays_field->category])) {
-
-    // Do you have access to see birthdays?
-    if (user_access('access birthdays')) {
-      // Show starsign (will be hidden when needed)
-      $starsign = '<span class="birthdays-starsign">'.
-        birthdays_get_starsign_image($account->birthdays_starsign, variable_get('birthdays_show_starsign', BIRTHDAYS_STARSIGN_OFF)) .
-        '</span>&nbsp;&nbsp;&nbsp;';
-
-      // Show age (when allowed by user and administrator)
-      if (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_NO || (variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO) == BIRTHDAYS_HIDE_YEAR_USER && $account->birthdays_user_hide_year != BIRTHDAYS_HIDE_YEAR_USER_YES)) {
-        $age = '&nbsp;&nbsp;&nbsp;<span class="birthdays-age">('. $account->age .')</span>';
-      }
-
-      // Alter the profile field setup by profile.module. Show medium format in stead of short format
-      $account->content[$_birthdays_field->category][$_birthdays_field->name]['#value'] = $starsign . _birthdays_show_date($account->{$_birthdays_field->name}, $account, 'medium') . $age ;
-
-    }
-    else {
-      // No access? Remove from profile to show
-      unset($account->content[$_birthdays_field->category][$_birthdays_field->name]);
-    }
-  }
-}
-
-
 /**
  * Adds user options to the profile form which are saved in {users}.data and
  * are loaded during a user_load().
@@ -878,42 +765,6 @@ function birthdays_form_user($edit, $account, $category, $register = FALSE) {
   }
 
   return $form;
-}
-
-/**
- * Process the birthday field (based on a regular date element) to
- * limit it to past birthdays and make it the entire element optional
- * by adding empty options for days, months and years.
- */
-function expand_birthdays_date($element) {
-  if (empty($element['#value'])) {
-    $element['#value'] = array('day' => '', 'month' => '', 'year' => '');
-  }
-
-  $element = expand_date($element);
-  $element['month']['#options'] = array('' => '--') + $element['month']['#options'];
-  $element['day']['#options'] = array('' => '--') + $element['day']['#options'];
-  $element['year']['#options'] = array('' => '--') + drupal_map_assoc(range(date('Y'), 1900));
-
-  return $element;
-}
-
-/**
- * Validate the birthday field.
- */
-function birthdays_date_validate($element) {
-  extract($element['#value']);
-  if (empty($month) || empty($year) || empty($day)) {
-    if ($element['#required']) {
-      form_error($element, t('!name field is required.', array('!name' => $element['#title'])));
-    }
-    elseif (!(empty($month) && empty($year) && empty($day))) {
-      form_error($element, t('The specified date is invalid.'));
-    }
-  }
-  elseif (!checkdate($month, $day, $year)) {
-      form_error($element, t('The specified date is invalid.'));
-  }
 }
 
 /**
@@ -965,42 +816,6 @@ function _birthdays_get_starsign($day, $month) {
 
   return $starsign;
 }
-
-
-/**
- * Retrieve all fields of type 'date' from the profile.module's tables
- * @return array with fieldnames
- */
-function _birthdays_get_date_fields() {
-  $options = array();
-  $result = db_query("SELECT fid, name FROM {profile_fields} WHERE type = 'date'");
-
-  while ($field = db_fetch_object($result)) {
-    $options[$field->fid] = $field->name;
-  }
-
-  return $options;
-}
-
-
-/**
- * Retrieve profile field object
- *
- * @var string $fid
- *   Id of field to retrieve
- * @return object
- *   profile field object
- */
-function _birthdays_get_field($fid) {
-  if (isset($fid)) {
-    $field = db_fetch_object(db_query("SELECT * FROM {profile_fields} WHERE fid = %d", $fid));
-    return empty($field) ? NULL : $field;
-  }
-  else {
-    return NULL;
-  }
-}
-
 
 /**
  * Return the picture of a starsign, given the name. Links to Yahoo! when option is selected.

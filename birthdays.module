@@ -527,35 +527,65 @@ function _birthdays_get($instance, $day, $month, $year = NULL) {
 /**
  * Implementation of hook_cron().
  */
-function birthdays_cron() {
-  global $_birthdays_field;
+function birthdays_init() {
+  // The the cronjob run at most once a day.
+  $time = time();
+  $day = 10; // 24 * 60 * 60;
+  $last_cron = variable_get('birthdays_last_cron', $time - $day);
 
-  // Either user mail or admin mail is activated, and the birthdays profile field has been set.
-  if (isset($_birthdays_field) && (variable_get('birthdays_send_user', BIRTHDAYS_USER_MAIL_NO) != BIRTHDAYS_USER_MAIL_NO || variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED) != BIRTHDAYS_ADMIN_MAIL_DISABLED)) {
-    // Perform the check just once a day
-    $time = time();
-    if (variable_get('birthdays_last_cron', 0) <= ($time - 24*3600)) {
-      // The message functions are now necessary, lets include them.
-      module_load_include('inc', 'birthdays', 'birthdays.mail');
-      // Reset time limit, round to nearest 100 seconds.
-      variable_set('birthdays_last_cron', floor($time/100)*100);
+  // It will be determined, whether an admin mail should be sent.
+  $send_admin_mail = FALSE;
+  $admin_mail = array();
 
-      $remind_frequency = variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED);
+  $instances = _birthdays_field_instances();
 
-      // Send user e-mails.
-      _birthdays_send_user_message();
+  // Iterate over all the days that passed since the last cron run.
+  while ($last_cron <= $time - $day) {
+    $last_cron += $day;
 
-      // Send admin message if frequency is daily.
-      if ($remind_frequency == BIRTHDAYS_ADMIN_MAIL_DAILY) {
-        _birthdays_send_admin_message(1);
-      }// Send admin message if frequency is weekly and today is the first day of the week.
-      elseif ($remind_frequency == BIRTHDAYS_ADMIN_MAIL_WEEKLY && date('w', $time) == variable_get('date_first_day', 0)) {
-        _birthdays_send_admin_message(7);
-      }// Send admin message if frequency is monthly and today is the first day of the month.
-      elseif ($remind_frequency == BIRTHDAYS_ADMIN_MAIL_MONTHLY && date('j', $time) == 1) {
-        _birthdays_send_admin_message(date('t', $time));
+    foreach ($instances as $instance) {
+      // Determine if an admin mail should be triggered on this day.
+      switch ($instance['settings']['admin_mail']) {
+        case BIRTHDAYS_ADMIN_MAIL_DAILY:
+          $send_admin_mail = TRUE;
+        case BIRTHDAYS_ADMIN_MAIL_WEEKLY:
+          $send_admin_mail |= variable_get('date_first_day', 0) == date('w', $last_cron);
+        case BIRTHDAYS_ADMIN_MAIL_MONTHLY:
+          $send_admin_mail |= date('d', $last_cron) == 1;
+          $admin_mail_current = TRUE;
+          break;
+
+        default:
+          $admin_mail_current = FALSE;
+          break;
+      }
+
+      // Find the birthdays.
+      $birthdays = _birthdays_get($instance, date('d', $last_cron), date('m', $last_cron), date('Y', $last_cron));
+      $entities = entity_load($instance['entity_type'], $birthdays);
+
+      // Add an entry to the admin mail.
+      if (!empty($entities) && $admin_mail_current) {
+        $admin_mail[_birthdays_instance_description($instance)] = array(
+          'instance' => $instance,
+          'entities' => $entities,
+        );
+      }
+
+      // Invoke hook_birthdays().
+      foreach ($entities as $entity) {
+        module_invoke_all('birthdays', $entity, $instance);
       }
     }
+  }
+  variable_set('birthdays_last_cron', $last_cron);
+
+  dpm($send_admin_mail, 'send_admin_mail');
+
+  // Send an admin mail.
+  if ($send_admin_mail && !empty($admin_mail)) {
+    $to = variable_get('site_mail', ini_get('sendmail_from'));
+    dpm(drupal_mail('birthdays', 'admin_mail', $to, language_default(), $admin_mail, NULL, FALSE));
   }
 }
 

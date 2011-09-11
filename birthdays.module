@@ -363,15 +363,37 @@ function birthdays_views_api() {
 
 /**
  * Implements hook_trigger_info().
+ *
+ * @todo:
+ *   Find a better solution to per field instance triggers.
  */
 function birthdays_trigger_info() {
-  return array(
-    'birthdays' => array(
-      'birthdays' => array(
-        t('On a birthday'),
-      ),
-    ),
-  );
+  $triggers = array();
+
+  foreach (_birthdays_field_instances() as $instance) {
+    // The name is supposed to be a hook name, but we want more granular hooks
+    // without implementing them all. So we generate a unique key and implement
+    // only hook_birthdays().
+    $name = md5('birthdays|' . $instance['entity_type'] . '|' . $instance['bundle'] . '|' . $instance['field_name']);
+
+    // Create a localized label for the trigger.
+    $vars = array(
+      '@entity_type' => $instance['entity_type'],
+      '@bundle' => $instance['bundle'],
+      '@field_name' => $instance['field_name'],
+    );
+    if ($instance['entity_type'] == $instance['bundle']) {
+      $label = t('@entity_type: @field_name (On birthday)', $vars);
+    }
+    else {
+      $label = t('@entity_type: @bundle: @field_name (On birthday)', $vars);
+    }
+
+    // Add it to the list of triggers.
+    $triggers['birthdays'][$name] = array('label' => $label);
+  };
+
+  return $triggers;
 }
 
 /**
@@ -386,12 +408,92 @@ function birthdays_birthdays($entity, $instance) {
   // Context information.
   $context = array(
     'group' => 'birthdays',
-    'hook' => 'birthdays',
+    'hook' => md5('birthdays|' . $instance['entity_type'] . '|' . $instance['bundle'] . '|' . $instance['field_name']),
+    $instance['entity_type'] => $entity,
   );
 
-  // Execute the set actions.
+  // Execute the matching set of actions.
   $aids = trigger_get_assigned_actions($context['hook']);
-  actions_do($aids, $entity, $context);
+  actions_do(array_keys($aids), $entity, $context, $instance);
+}
+
+/**
+ * Get all instances of birthday fields that are around.
+ */
+function _birthdays_field_instances() {
+  $result = array();
+
+  // Get the instances.
+  foreach (field_info_fields() as $field) {
+    if ($field['type'] == 'birthdays_date') {
+      foreach ($field['bundles'] as $entity_type => $bundles) {
+        foreach ($bundles as $bundle) {
+          $result[] = field_info_instance($entity_type, $field['field_name'], $bundle);
+        }
+      }
+    }
+  }
+
+  // Sort them.
+  usort($result, '_birthdays_field_instances_compare');
+
+  return $result;
+}
+
+/**
+ * Comparison callback to sort an array of field instances by entity type,
+ * bundle name and field name as humans would do.
+ *
+ * @see strnatcmp
+ */
+function _birthdays_field_instances_compare($a, $b) {
+  // Entity types have first priority.
+  if ($result = strnatcmp($a['entity_type'], $b['entity_type'])) {
+    return $result;
+  }
+
+  // Next are bundle names.
+  if ($result = strnatcmp($a['bundle'], $b['bundle'])) {
+    return $result;
+  }
+
+  // The field name at last.
+  return strnatcmp($a['field_name'], $b['field_name']);
+}
+
+/**
+ * Query the database for birthdays.
+ *
+ * @param $instance
+ *   The field instance to query for.
+ * @param $day
+ *   The day to look up.
+ * @param $month
+ *   The month to look up.
+ * @param $year
+ *   Optional. If that year is not a leap year and $day and $month indicate the
+ *   first of March, then February 29 will be included in the query.
+ *
+ * @return
+ *   An array where both keys and values are entity ids.
+ */
+function _birthdays_get($instance, $day, $month, $year = NULL) {
+  $field_name = $instance['field_name'];
+
+  $result = db_select('field_data_' . $field_name, 'f')
+    ->fields('f', array('entity_id'))
+    ->condition($field_name . '_day', $day)
+    ->condition($field_name . '_month', $month)
+    ->condition('entity_type', $instance['entity_type'])
+    ->condition('bundle', $instance['bundle'])
+    ->execute()
+    ->fetchAllKeyed(0, 0);
+
+  if ($year && $day == 1 && $month == 3 && !BirthdaysBirthday::isLeapYear($year)) {
+    $result += _birthdays_get($instance, 29, 2);
+  }
+
+  return $result;
 }
 
 /**

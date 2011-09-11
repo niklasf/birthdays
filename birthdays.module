@@ -323,9 +323,10 @@ function birthdays_field_instance_settings_form($field, $instance) {
       '#options' => array(
         BIRTHDAYS_ADMIN_MAIL_DISABLED => t('Send <strong>no</strong> reminders'),
         BIRTHDAYS_ADMIN_MAIL_DAILY => t('Send <strong>daily</strong> reminders'),
-        BIRTHDAYS_ADMIN_MAIL_WEEKLY => t('Send <strong>weekly</strong> reminders'),
-        BIRTHDAYS_ADMIN_MAIL_MONTHLY => t('Send <strong>monthly</strong> reminders'),
+        BIRTHDAYS_ADMIN_MAIL_WEEKLY => t('Send <strong>weekly</strong> reminders, on the first day of the week'),
+        BIRTHDAYS_ADMIN_MAIL_MONTHLY => t('Send <strong>monthly</strong> reminders, on the first day of the month'),
       ),
+      '#element_validate' => array('_birthdays_admin_mail_validate'),
     ),
     'user_mail' => array(
       '#type' => 'item',
@@ -349,6 +350,15 @@ function birthdays_field_instance_settings_form($field, $instance) {
   $form['notifications']['user_mail']['#description'] .= ' ' . $trigger_info;
 
   return $form;
+}
+
+/**
+ * FAPI validation for the admin mail period selection.
+ */
+function _birthdays_admin_mail_validate($element, &$form_state, $form) {
+  // The notifications fieldset is only for the ui, not for logic.
+  $form_state['values']['instance']['settings']['admin_mail'] = $element['#value'];
+  unset($form_state['values']['instance']['settings']['notifications']);
 }
 
 /**

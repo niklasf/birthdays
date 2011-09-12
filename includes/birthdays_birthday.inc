@@ -222,7 +222,7 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Calculate the age.
+   * Calculate the age for a specific year.
    *
    * @param $year
    *   Optionally give a year other than the current.

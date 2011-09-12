@@ -1,6 +1,7 @@
 name = Birthdays
 description = Displays and reminds of upcoming users birthdays.
 dependencies[] = field
-files[] = includes/birthdays_birthday.inc
 files[] = birthdays.test
+files[] = includes/birthdays_birthday.inc
+files[] = views/birthdays_field_views_handler_sort.inc
 core = 7.x

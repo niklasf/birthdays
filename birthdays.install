@@ -70,3 +70,10 @@ function birthdays_update_6000() {
 
   return $ret;
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function birthdays_uninstall() {
+  variable_del('birthdays_last_cron');
+}

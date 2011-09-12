@@ -508,12 +508,17 @@ function _birthdays_field_instances_compare($a, $b) {
 function _birthdays_get($instance, $day, $month, $year = NULL) {
   $field_name = $instance['field_name'];
 
-  $result = db_select('field_data_' . $field_name, 'f')
+  $query = db_select('field_data_' . $field_name, 'f')
     ->fields('f', array('entity_id'))
-    ->condition($field_name . '_day', $day)
     ->condition($field_name . '_month', $month)
     ->condition('entity_type', $instance['entity_type'])
-    ->condition('bundle', $instance['bundle'])
+    ->condition('bundle', $instance['bundle']);
+
+  if ($day) {
+    $query->condition($field_name . '_day', $day);
+  }
+
+  $result = $query
     ->execute()
     ->fetchAllKeyed(0, 0);
 
@@ -528,65 +533,75 @@ function _birthdays_get($instance, $day, $month, $year = NULL) {
  * Implementation of hook_cron().
  */
 function birthdays_init() {
+  $instances = _birthdays_field_instances();
+
   // The the cronjob run at most once a day.
   $time = time();
   $day = 10; // 24 * 60 * 60;
   $last_cron = variable_get('birthdays_last_cron', $time - $day);
+  if ($last_cron > $time - $day) {
+    return;
+  }
 
-  // It will be determined, whether an admin mail should be sent.
-  $send_admin_mail = FALSE;
+  // Prepare an admin mail.
   $admin_mail = array();
+  foreach ($instances as $instance) {
+    // Query for birthdays.
+    $birthdays = array();
+    switch ($instance['settings']['admin_mail']) {
+      case BIRTHDAYS_ADMIN_MAIL_DAILY:
+        $birthdays = _birthdays_get($instance, date('d', $time), date('m', $time), date('Y', $time));
+        $period = t('Today');
+        break;
 
-  $instances = _birthdays_field_instances();
+      case BIRTHDAYS_ADMIN_MAIL_WEEKLY:
+        if (variable_get('date_first_day', 0) == date('w', $time)) {
+          for ($i = 0; $i++; $i < 7) {
+            $qtime = $time + $i * $day;
+            $birthdays += _birthdays_get($instance, date('d', $qtime), date('m', $qtime), date('Y', $qtime));
+          }
+          $period = t('This week');
+        }
+        break;
+
+      case BIRTHDAYS_ADMIN_MAIL_MONTHLY:
+        if (date('d', $time) == 1) {
+          $birthdays = _birthdays_get($instance, 0, date('m', $time), date('Y', $time));
+          $period = t('This month');
+        }
+        break;
+    }
+
+    // Add an entry to the mail.
+    $entities = entity_load($instance['entity_type'], $birthdays);
+    if (!empty($entities)) {
+      $admin_mail[_birthdays_instance_description($instance) . ' ('. $period . ')'] = array(
+        'instance' => $instance,
+        'entities' => $entities,
+      );
+    }
+  }
+
+  // Send the admin mail.
+  if (!empty($admin_mail)) {
+    $to = variable_get('site_mail', ini_get('sendmail_from'));
+    dpm(drupal_mail('birthdays', 'admin_mail', $to, language_default(), $admin_mail, NULL, FALSE));
+  }
 
   // Iterate over all the days that passed since the last cron run.
   while ($last_cron <= $time - $day) {
     $last_cron += $day;
 
-    foreach ($instances as $instance) {
-      // Determine if an admin mail should be triggered on this day.
-      switch ($instance['settings']['admin_mail']) {
-        case BIRTHDAYS_ADMIN_MAIL_DAILY:
-          $send_admin_mail = TRUE;
-        case BIRTHDAYS_ADMIN_MAIL_WEEKLY:
-          $send_admin_mail |= variable_get('date_first_day', 0) == date('w', $last_cron);
-        case BIRTHDAYS_ADMIN_MAIL_MONTHLY:
-          $send_admin_mail |= date('d', $last_cron) == 1;
-          $admin_mail_current = TRUE;
-          break;
+    // Find the birthdays.
+    $birthdays = _birthdays_get($instance, date('d', $last_cron), date('m', $last_cron), date('Y', $last_cron));
+    $entities = entity_load($instance['entity_type'], $birthdays);
 
-        default:
-          $admin_mail_current = FALSE;
-          break;
-      }
-
-      // Find the birthdays.
-      $birthdays = _birthdays_get($instance, date('d', $last_cron), date('m', $last_cron), date('Y', $last_cron));
-      $entities = entity_load($instance['entity_type'], $birthdays);
-
-      // Add an entry to the admin mail.
-      if (!empty($entities) && $admin_mail_current) {
-        $admin_mail[_birthdays_instance_description($instance)] = array(
-          'instance' => $instance,
-          'entities' => $entities,
-        );
-      }
-
-      // Invoke hook_birthdays().
-      foreach ($entities as $entity) {
-        module_invoke_all('birthdays', $entity, $instance);
-      }
+    // Invoke hook_birthdays().
+    foreach ($entities as $entity) {
+      module_invoke_all('birthdays', $entity, $instance);
     }
   }
   variable_set('birthdays_last_cron', $last_cron);
-
-  dpm($send_admin_mail, 'send_admin_mail');
-
-  // Send an admin mail.
-  if ($send_admin_mail && !empty($admin_mail)) {
-    $to = variable_get('site_mail', ini_get('sendmail_from'));
-    dpm(drupal_mail('birthdays', 'admin_mail', $to, language_default(), $admin_mail, NULL, FALSE));
-  }
 }
 
 /**

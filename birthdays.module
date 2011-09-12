@@ -63,8 +63,7 @@ define('BIRTHDAYS_HIDE_YEAR_USER', '2');
 /**
  * Implementation of hook_help().
  *
- * @todo
- *   Rewrite.
+ * @todo  Rewrite.
  */
 function birthdays_help($path, $arg) {
   global $_birthdays_field;
@@ -321,8 +320,7 @@ function birthdays_views_api() {
 /**
  * Implements hook_trigger_info().
  *
- * @todo:
- *   Find a better solution to per field instance triggers.
+ * @todo: Find a better solution to per field instance triggers.
  */
 function birthdays_trigger_info() {
   $triggers = array();
@@ -440,7 +438,7 @@ function _birthdays_field_instances_compare($a, $b) {
  * @param $instance
  *   The field instance to query for.
  * @param $day
- *   The day to look up.
+ *   The day to look up. 0 for all days of a month.
  * @param $month
  *   The month to look up.
  * @param $year

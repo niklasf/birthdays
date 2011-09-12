@@ -220,4 +220,25 @@ class BirthdaysBirthday {
   public function isEmpty() {
     return !$this->value['year'] && !$this->value['month'] && !$this->value['day'];
   }
+
+  /**
+   * Calculate the age.
+   *
+   * @param $year
+   *   Optionally give a year other than the current.
+   *
+   * @return
+   *   The age.
+   */
+  public function getAge($year = 0) {
+    if ($this->value['year'] == 0) {
+      return t('Age unknown');
+    }
+    else {
+      if (!$year) {
+        $year = date('Y');
+      }
+      return $year - $this->value['year'];
+    }
+  }
 }

@@ -590,6 +590,50 @@ function birthdays_init() {
 }
 
 /**
+ * Implements hook_mail().
+ */
+function birthdays_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'admin_mail':
+      $message['subject'] = t('Upcoming birthdays');
+      foreach ($params as $category => $items) {
+        $type = $items['instance']['entity_type'];
+
+        // Category header, underlined.
+        $message['body'][] = $category;
+        $message['body'][] = str_repeat('-', strlen($category));
+        $message['body'][] = '';
+
+        foreach ($items['entities'] as $entity) {
+          $item = array();
+
+          // Entity label.
+          $label = entity_label($type, $entity);
+          if ($label) {
+            $item[] = $label;
+          }
+
+          // Actual birthday and age.
+          $date = reset(field_get_items($type, $entity, $items['instance']['field_name']));
+          $birthday = BirthdaysBirthday::fromArray($date);
+          $item[] = $birthday->toString() . ' (' . $birthday->getAge() . ')';
+
+          // Entity URL.
+          $uri = entity_uri($type, $entity);
+          if ($uri) {
+            $item[] = url($uri['path'], array('absolute' => TRUE) + $uri['options']);
+          }
+
+          $message['body'][] = join($item, ', ');
+        }
+
+        $message['body'][] = '';
+      }
+      break;
+  }
+}
+
+/**
  *  Helper function for displaying only todays birthdays
  *  @return An array containing all user objects that have their birthday today
  */

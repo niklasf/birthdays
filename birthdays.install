@@ -173,7 +173,7 @@ function birthdays_uninstall() {
 
   // Delete the default action unless it has been overridden.
   if ($action = actions_load(variable_get('birthdays_default_action', 0))) {
-    if ($action->parameters == _birthdays_default_action_parameters()) {
+    if (unserialize($action->parameters) == _birthdays_default_action_parameters()) {
       actions_delete($action->aid);
     }
   }

@@ -48,11 +48,17 @@ function birthdays_field_schema($field) {
 }
 
 /**
- * Implements hook_install().
+ * Implements hook_enable().
  */
-function birthdays_install() {
+function birthdays_enable() {
   // Create a default birthdays field.
-  if (!field_info_field('birthdays')) {
+  if (!field_info_field('birthdays') && !variable_get('birthdays_default_field_created')) {
+    variable_set('birthdays_default_field_created', TRUE);
+
+    // Clear field caches to make the new field type available.
+    field_cache_clear();
+
+    // Create the field.
     field_create_field(array(
       'field_name' => 'birthdays',
       'type' => 'birthdays_date',
@@ -60,49 +66,49 @@ function birthdays_install() {
       'translatable' => FALSE,
       'entity_types' => array('user'),
     ));
-  }
 
-  // Create deault field instance.
-  if (!field_info_instance('user', 'birthdays', 'user')) {
-    field_create_instance(array(
-      'field_name' => 'birthdays',
-      'entity_type' => 'user',
-      'bundle' => 'user',
-      'label' => t('Birthday'),
-    ));
-  }
+    // Create the deault field instance.
+    if (!field_info_instance('user', 'birthdays', 'user')) {
+      field_create_instance(array(
+        'field_name' => 'birthdays',
+        'entity_type' => 'user',
+        'bundle' => 'user',
+        'label' => t('Birthday'),
+      ));
 
-  // Explain that.
-  if (module_exists('field_ui')) {
-    $field_ui = t('You can adjust the !field_settings, !manage_account_fields or !manage_the_display under Administration &raquo; Configuration &raquo; People.', array(
-      '!field_settings' => l('field settings', 'admin/config/people/accounts/fields/field_birthday'),
-      '!manage_account_fields' => l('manage account fields', 'admin/config/people/accounts/fields'),
-      '!manage_the_display' => l('manage the display', 'admin/config/people/accounts/display')
-    ));
+      // Explain that.
+      if (module_exists('field_ui')) {
+        $field_ui = t('You can adjust the !field_settings, !manage_account_fields or !manage_the_display under Administration &raquo; Configuration &raquo; People.', array(
+          '!field_settings' => l('field settings', 'admin/config/people/accounts/fields/birthdays'),
+          '!manage_account_fields' => l('manage account fields', 'admin/config/people/accounts/fields'),
+          '!manage_the_display' => l('manage the display', 'admin/config/people/accounts/display')
+        ));
+      }
+      else {
+        $field_ui = t('Enable the Field UI module to adjust the field settings, manage account fields or manage the display under Administration &raquo; Configuration &raquo; People.');
+      }
+      drupal_set_message(t('Birthdays module has been installed. A default field has been attached to your users.') . ' ' . $field_ui . ' ' . t('You can also delete that default field or add further birthday fields to your entities.'));
+    }
   }
-  else {
-    $field_ui = t('Enable the Field UI module to adjust the field settings, manage account fields or manage the display under Administration &raquo; Configuration &raquo; People.');
-  }
-  drupal_set_message(t('Birthdays module has been installed. A default field has been attached to your users.') . ' ' . $field_ui . ' ' . t('You can also delete that default field or add further birthday fields to your entities.'));
 
   // Create a default birthday mail action.
-  actions_save(
-    'system_send_email_action', // Send a mail.
-    'system', // Action is defined by system module.
-    array(
-      'recipient' => "[user:name] <[user:mail]>",
-      'subject' => t("Happy Birthday, [user:name]!"),
-      'message' => t("Hey [user:name],\n\nHappy birthday!\nWe hope you have a great day.\n\nThe [site:name]-team\n[site:uri-brief]"),
-    ),
-    t('Happy birthday mail')
-  );
+  if (!actions_load(variable_get('birthdays_default_action', 0))) {
+    $aid = actions_save(
+      'system_send_email_action', // Send a mail.
+      'system', // Action is defined by system module.
+      _birthdays_default_action_parameters(),
+      t('Happy birthday mail')
+    );
 
-  // Explain that.
-  if (module_exists('trigger')) {
-    drupal_set_message(t('A <em>Happy birthday mail</em> action has been created. You can !assign that action so that users recieve an email on their birthday.', array('!assign' => l('assign', 'admin/structure/trigger/birthdays'))));
-  }
-  else {
-    drupal_set_message(t('Enable the Trigger module and assign the newly created <em>Happy birthday mail</em> action to send users emails on their birthdays.'));
+    variable_set('birthdays_default_action', $aid);
+
+    // Explain that.
+    if (module_exists('trigger')) {
+      drupal_set_message(t('A <em>Happy birthday mail</em> action has been created. You can !assign that action so that users recieve an email on their birthday.', array('!assign' => l('assign', 'admin/structure/trigger/birthdays'))));
+    }
+    else {
+      drupal_set_message(t('Enable the Trigger module and assign the newly created <em>Happy birthday mail</em> action to send users emails on their birthdays.'));
+    }
   }
 
   // Explain views support.
@@ -112,6 +118,20 @@ function birthdays_install() {
   else {
     drupal_set_message(t('You can use the the Views module to lists of birthdays as blocks or pages.'));
   }
+}
+
+/**
+ * Get the default action settings.
+ *
+ * @return
+ *   An associative array with recipient, subject and message keys set.
+ */
+function _birthdays_default_action_parameters() {
+  return array(
+    'recipient' => "[user:name] <[user:mail]>",
+    'subject' => t("Happy Birthday, [user:name]!"),
+    'message' => t("Hey [user:name],\n\nHappy birthday!\nWe hope you have a great day.\n\nThe [site:name]-team\n[site:uri-brief]"),
+  );
 }
 
 /**
@@ -147,5 +167,15 @@ function birthdays_update_6000() {
  * Implements hook_uninstall().
  */
 function birthdays_uninstall() {
+  // Delete variables.
   variable_del('birthdays_last_cron');
+  variable_del('birthdays_default_field_created');
+
+  // Delete the default action unless it has been overridden.
+  if ($action = actions_load(variable_get('birthdays_default_action', 0))) {
+    if ($action->parameters == _birthdays_default_action_parameters()) {
+      actions_delete($action->aid);
+    }
+  }
+  variable_del('birthdays_default_action');
 }

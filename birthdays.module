@@ -532,12 +532,12 @@ function _birthdays_get($instance, $day, $month, $year = NULL) {
 /**
  * Implementation of hook_cron().
  */
-function birthdays_init() {
+function birthdays_cron() {
   $instances = _birthdays_field_instances();
 
   // The the cronjob run at most once a day.
   $time = time();
-  $day = 10; // 24 * 60 * 60;
+  $day = 24 * 60 * 60;
   $last_cron = variable_get('birthdays_last_cron', $time - $day);
   if ($last_cron > $time - $day) {
     return;
@@ -585,7 +585,7 @@ function birthdays_init() {
   // Send the admin mail.
   if (!empty($admin_mail)) {
     $to = variable_get('site_mail', ini_get('sendmail_from'));
-    dpm(drupal_mail('birthdays', 'admin_mail', $to, language_default(), $admin_mail, NULL, FALSE));
+    drupal_mail('birthdays', 'admin_mail', $to, language_default(), $admin_mail);
   }
 
   // Iterate over all the days that passed since the last cron run.

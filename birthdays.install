@@ -6,9 +6,6 @@
  */
 
 /**
- * Birthdays are stored as unixtimestamps in the database. A year of 1800 means
- * that no year was given, only day and month.
- *
  * Implements hook_field_schema().
  */
 function birthdays_field_schema($field) {
@@ -40,6 +37,32 @@ function birthdays_field_schema($field) {
       'date' => array('day', 'month', 'year'),
     ),
   );
+}
+
+/**
+ * Implements hook_install().
+ */
+function birthdays_install() {
+  // Create a default birthdays field.
+  if (!field_info_field('birthdays')) {
+    field_create_field(array(
+      'field_name' => 'birthdays',
+      'type' => 'birthdays_date',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+      'entity_types' => array('user'),
+    ));
+  }
+
+  // Create deault field instance.
+  if (!field_info_instance('user', 'birthdays', 'user')) {
+    field_create_instance(array(
+      'field_name' => 'birthdays',
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => t('Birthday'),
+    ));
+  }
 }
 
 /**

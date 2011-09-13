@@ -76,17 +76,7 @@ class birthdays_field_views_handler_field extends views_handler_field_field {
       $this->query->add_orderby(NULL, NULL, $order, $columns['day']);
     }
     else {
-      $now = date('m') * 32 + date('d');
-      switch (Database::getConnection()->databaseType()) {
-        case 'mysql':
-        case 'mysqli':
-        case 'pgsql':
-          $formula = "CASE WHEN {$columns['month']}*32 + {$columns['day']} >= $now THEN {$columns['month']}*32 + {$columns['day']} ELSE {$columns['month']}*32 + {$columns['day']} + 1000 END";
-          break;
-      }
-      if (isset($formula)) {
-        $this->query->add_orderby(NULL, $formula, $order, $this->definition['field_name'] . '_sort');
-      }
+      birthdays_field_views_handler_sort::addOrderBy($this->query, $order, $columns, $this->definition['field_name'] . '_sort', time());
     }
   }
 }

@@ -46,6 +46,7 @@ class birthdays_field_views_handler_field extends views_handler_field_field {
       ),
       '#description' => t('The way this column should beclick sorted.'),
       '#fieldset' => 'more',
+      '#default_value' => $this->options['click_sort_mode'],
     );
   }
 

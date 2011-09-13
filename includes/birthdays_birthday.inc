@@ -249,4 +249,25 @@ class BirthdaysBirthday {
       return $year - $this->value['year'];
     }
   }
+
+  /**
+   * @return The year or 0.
+   */
+  function getYear() {
+    return $this->value['year'];
+  }
+
+  /**
+   * @retrun The month or 0.
+   */
+  function getMonth() {
+    return $this->value['month'];
+  }
+
+  /**
+   * @return The day or 0.
+   */
+  function getDay() {
+    return $this->value['day'];
+  }
 }

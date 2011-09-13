@@ -165,6 +165,22 @@ class BirthdaysBirthday {
   }
 
   /**
+   * Create a BirthdaysBirthday instance from an offset of dates from the
+   * current time.
+   * That does not include a year.
+   *
+   * @param $offset
+   *   The date offset as a signed integer.
+   *
+   * @return
+   *   A BirthdaysBirthday instance.
+   */
+  public function fromOffset($offset) {
+    $time = time() + intval($offset) * 24 * 60 * 60;
+    return self::fromDate(0, date('m', $time), date('d', $time));
+  }
+
+  /**
    * Converts the value to a string.
    *
    * @todo

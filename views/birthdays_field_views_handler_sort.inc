@@ -17,9 +17,17 @@ class birthdays_field_views_handler_sort extends views_handler_sort {
   function query() {
     $this->ensure_my_table();
 
-    $this->query->add_orderby($this->table_alias, $this->field . '_year', $this->options['order']);
-    $this->query->add_orderby($this->table_alias, $this->field . '_month', $this->options['order']);
-    $this->query->add_orderby($this->table_alias, $this->field . '_day', $this->options['order']);
+    self::addOrderBy(
+      $this->query,
+      $this->options['order'],
+      array(
+        'day' => $this->field . '_day',
+        'month' => $this->field . '_month',
+        'year' => $this->field . '_year',
+      ),
+      $this->field . '_sort_column',
+      time()
+    );
   }
 
   /**
@@ -55,6 +63,4 @@ class birthdays_field_views_handler_sort extends views_handler_sort {
       $query->add_orderby(NULL, $formula, $order, $fieldname);
     }
   }
-
-
 }

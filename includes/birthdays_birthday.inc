@@ -41,18 +41,20 @@ class BirthdaysBirthday {
    *
    * @param $text
    *   The text representation of a birthday.
+   * @param $allow_future
+   *   Allow valeus in the future. Default is FALSE.
    *
    * @throws InvalidArgumentException when the given text is invalid.
    *
    * @return A BirthdaysBirthday instance.
    */
-  public static function fromString($text) {
+  public static function fromString($text, $allow_future = FALSE) {
     if (trim($text) === '') {
       return self::fromEmpty();
     }
 
     if (preg_match('/^\s*(\d{1,2})\.(\d{1,2})\.?(\d{4}|\d{2})?\s*$/', $text, $matches)) {
-      return self::fromDate(isset($matches[3]) ? $matches[3] : 0, $matches[2], $matches[1]);
+      return self::fromDate(isset($matches[3]) ? $matches[3] : 0, $matches[2], $matches[1], $allow_future);
     }
 
     throw new InvalidArgumentException(t("The given argument is not a valid birthday."));
@@ -67,10 +69,12 @@ class BirthdaysBirthday {
    *   The month (1 to 12).
    * @param $day
    *   The day (1 to 31).
+   * @param $allow_future
+   *   Allow values in the futzre. Default is FALSE.
    *
    * @throws InvalidArgumentException when one of the given values is invalid.
    */
-  public static function fromDate($year, $month, $day) {
+  public static function fromDate($year, $month, $day, $allow_future = FALSE) {
     // All parameters are integers.
     $year = intval($year);
     $month = intval($month);
@@ -116,9 +120,11 @@ class BirthdaysBirthday {
       }
  
       // Check if it's in the future.
-      $unixtime = mktime(1, 0, 0, $month, $day, $year);
-      if ($unixtime >= time()) {
-        throw new InvalidArgumentException(t("The given date is in the future."));
+      if (!$allow_future) {
+        $unixtime = mktime(1, 0, 0, $month, $day, $year);
+        if ($unixtime >= time()) {
+          throw new InvalidArgumentException(t("The given date is in the future."));
+        }
       }
    }
 
@@ -135,12 +141,14 @@ class BirthdaysBirthday {
    *
    * @param $value
    *   An associative array with year, month and day set.
+   * @param $allow_future
+   *   Allow values in the future. Defaults to FALSE.
    *
    * @throws InvalidArgumentException when FALSE is given.
    *
    * @return A BirthdaysBirthday instance.
    */
-  public static function fromArray($value) {
+  public static function fromArray($value, $allow_future = FALSE) {
     if (!is_array($value)) {
       throw new InvalidArgumentException(t("Must be an array."));
     }
@@ -153,7 +161,7 @@ class BirthdaysBirthday {
       throw new InvalidArgumentException(t('Day and month must be set.'));
     }
 
-    return self::fromDate($value['year'], $value['month'], $value['day']);
+    return self::fromDate($value['year'], $value['month'], $value['day'], $allow_future);
   }
 
   /**

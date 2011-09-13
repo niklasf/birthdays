@@ -5,4 +5,5 @@ files[] = birthdays.test
 files[] = includes/birthdays_birthday.inc
 files[] = views/birthdays_field_views_handler_field.inc
 files[] = views/birthdays_field_views_handler_sort.inc
+files[] = views/birthdays_field_views_handler_filter.inc
 core = 7.x

@@ -123,8 +123,13 @@ function birthdays_field_info() {
       'default_formatter' => 'birthdays_plaintext',
       'instance_settings' => array(
         'admin_mail' => BIRTHDAYS_ADMIN_MAIL_DISABLED,
-        'user_mail' => BIRTHDAYS_USER_MAIL_NO,
         'hide_year' => BIRTHDAYS_HIDE_YEAR_NO,
+        'triggers' => array(
+          'default' => TRUE,
+          'user' => FALSE,
+          'title' => t('Fire triggers on birthdays'),
+          'description' => '',
+        ),
       ),
     ),
   );
@@ -258,26 +263,57 @@ function birthdays_field_instance_settings_form($field, $instance) {
   );
 
   // E-Mail notifications for administrators.
-  $form['notifications'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Email notifications'),
-    'admin_mail' => array(
-      '#type' => 'radios',
-      '#title' => t('Birthday reminder for the administrator'),
-      '#default_value' => $settings['admin_mail'],
-      '#description' => t('The site administrator can be reminded of upcoming birthdays via email.'),
-      '#options' => array(
-        BIRTHDAYS_ADMIN_MAIL_DISABLED => t('Send <strong>no</strong> reminders'),
-        BIRTHDAYS_ADMIN_MAIL_DAILY => t('Send <strong>daily</strong> reminders'),
-        BIRTHDAYS_ADMIN_MAIL_WEEKLY => t('Send <strong>weekly</strong> reminders, on the first day of the week'),
-        BIRTHDAYS_ADMIN_MAIL_MONTHLY => t('Send <strong>monthly</strong> reminders, on the first day of the month'),
-      ),
-      '#element_validate' => array('_birthdays_admin_mail_validate'),
+  $form['admin_mail'] = array(
+    '#type' => 'radios',
+    '#title' => t('Birthday reminder for the administrator'),
+    '#default_value' => $settings['admin_mail'],
+    '#description' => t('The site administrator can be reminded of upcoming birthdays via email.'),
+    '#options' => array(
+      BIRTHDAYS_ADMIN_MAIL_DISABLED => t('Send <strong>no</strong> reminders'),
+      BIRTHDAYS_ADMIN_MAIL_DAILY => t('Send <strong>daily</strong> reminders'),
+      BIRTHDAYS_ADMIN_MAIL_WEEKLY => t('Send <strong>weekly</strong> reminders, on the first day of the week'),
+      BIRTHDAYS_ADMIN_MAIL_MONTHLY => t('Send <strong>monthly</strong> reminders, on the first day of the month'),
     ),
-    'user_mail' => array(
-      '#type' => 'item',
-      '#title' => t('User notification'),
-      '#description' => t('You can send an email or execute other actions on birthdays using the trigger module.'),
+  );
+
+  // Whether the user checkbox is selected.
+  $user_checked = array(
+    ':input[name="instance[settings][triggers][user]"]' => array('checked' => TRUE),
+  );
+
+  // Trigger settings.
+  $form['triggers'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Triggers'),
+    '#description' => t('You can send an email or execute other actions on birthdays using the trigger module.'),
+    'default' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable triggers'),
+      '#default_value' => $settings['triggers']['default'],
+    ),
+    'user' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Allow users to override the default setting, i.e. opt-out or opt-in triggers'),
+      '#default_value' => $settings['triggers']['user'],
+    ),
+    'title' => array(
+      '#type' => 'textfield',
+      '#title' => t('Checkbox title'),
+      '#description' => t('The title to use for the opt-in / opt-out checkbox. Usually this should describe what the trigger does, for example: Send me an email on my brithday.'),
+      '#default_value' => $settings['triggers']['title'],
+      '#states' => array(
+        'visible' => $user_checked,
+        'required' => $user_checked,
+      ),
+    ),
+    'description' => array(
+      '#type' => 'textfield',
+      '#title' => t('Checkbox description'),
+      '#description' => t('Optional. The description of the opt-in / opt-out checkbox.'),
+      '#default_value' => $settings['triggers']['description'],
+      '#states' => array(
+        'visible' => $user_checked,
+      ),
     ),
   );
 
@@ -293,7 +329,7 @@ function birthdays_field_instance_settings_form($field, $instance) {
       '!module_page' => l('module page', 'admin/modules'),
     ));
   }
-  $form['notifications']['user_mail']['#description'] .= ' ' . $trigger_info;
+  $form['triggers']['#description'] .= ' ' . $trigger_info;
 
   return $form;
 }

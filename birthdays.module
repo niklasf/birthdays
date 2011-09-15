@@ -253,18 +253,20 @@ function birthdays_field_textfield_validate($element, &$form_state) {
     $birthday = BirthdaysBirthday::fromString($element['value']['#value']);
 
     // Validate against the hide_year setting.
-    switch ($instance['settings']['hide_year']) {
-      case BIRTHDAYS_HIDE_YEAR_NO:
-        if (!$birthday->getYear()) {
-          form_error($element, t('Please also enter a year.'));
-        }
-        break;
+    if (!$birthday->isEmpty()) {
+      switch ($instance['settings']['hide_year']) {
+        case BIRTHDAYS_HIDE_YEAR_NO:
+          if (!$birthday->getYear()) {
+            form_error($element, t('Please also enter a year.'));
+          }
+          break;
 
-      case BIRTHDAYS_HIDE_YEAR_YES:
-        if ($birthday->getYear()) {
-          form_error($element, t('Please don\'t enter a year.'));
-        }
-        break;
+        case BIRTHDAYS_HIDE_YEAR_YES:
+          if ($birthday->getYear()) {
+            form_error($element, t('Please don\'t enter a year.'));
+          }
+          break;
+      }
     }
 
     // Make the values ready to save.

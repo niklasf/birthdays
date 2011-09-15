@@ -286,4 +286,42 @@ class BirthdaysBirthday {
   function getDay() {
     return $this->value['day'];
   }
+
+  /**
+   * Get the starsign.
+   *
+   * @return
+   *   The latin name of the western starsign or NULL.
+   */
+  function getStarsign() {
+    $day = $this->value['day'];
+
+    // Find the matchin starsign.
+    switch ($this->value['month']) {
+      case 1:
+        return $day < 20 ? 'capricorn' : 'aquarius';
+      case 2:
+        return $day < 19 ? 'aquarius' : 'pisces';
+      case 3:
+        return $day < 21 ? 'pisces' : 'aries';
+      case 4:
+        return $day < 20 ? 'aries' : 'taurus';
+      case 5:
+        return $day < 21 ? 'taurus' : 'gemini';
+      case 6:
+        return $day < 22 ? 'gemini' : 'cancer';
+      case 7:
+        return $day < 23 ? 'cancer' : 'leo';
+      case 8:
+        return $day < 23 ? 'leo' : 'virgo';
+      case 9:
+        return $day < 23 ? 'virgo' : 'libra';
+      case 10:
+        return $day < 23 ? 'libra' : 'scorpio';
+      case 11:
+        return $day < 23 ? 'scorpio' : 'sagittarius';
+      case 12:
+        return $day < 22 ? 'sagittarius' : 'capricorn';
+    }
+  }
 }

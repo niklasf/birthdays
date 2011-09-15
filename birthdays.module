@@ -668,70 +668,18 @@ function birthdays_mail($key, &$message, $params) {
 }
 
 /**
- * Get starsign based on date of birth
- *
- * @var $day and $month, decribing date of birth
- * @return The name of the starsign
- *
- * @todo: Remove!
- */
-function _birthdays_get_starsign($day, $month) {
-
-  switch ($month) {
-    case 1:
-      $starsign = $day < 20 ? 'capricorn' : 'aquarius';
-      break;
-    case 2:
-      $starsign = $day < 19 ? 'aquarius' : 'pisces';
-      break;
-    case 3:
-      $starsign = $day < 21 ? 'pisces' : 'aries';
-      break;
-    case 4:
-      $starsign = $day < 20 ? 'aries' : 'taurus';
-      break;
-    case 5:
-      $starsign = $day < 21 ? 'taurus' : 'gemini';
-      break;
-    case 6:
-      $starsign = $day < 22 ? 'gemini' : 'cancer';
-      break;
-    case 7:
-      $starsign = $day < 23 ? 'cancer' : 'leo';
-      break;
-    case 8:
-      $starsign = $day < 23 ? 'leo' : 'virgo';
-      break;
-    case 9:
-      $starsign = $day < 23 ? 'virgo' : 'libra';
-      break;
-    case 10:
-      $starsign = $day < 23 ? 'libra' : 'scorpio';
-      break;
-    case 11:
-      $starsign = $day < 23 ? 'scorpio' : 'sagittarius';
-      break;
-    case 12:
-      $starsign = $day < 22 ? 'sagittarius' : 'capricorn';
-      break;
-  }
-
-  return $starsign;
-}
-
-/**
  * Return the picture of a starsign, given the name. Links to Yahoo! when option is selected.
  *
  * @param string starsign
  *   name of the starsign to show (not translated)
  * @param int $show
  *   Show starsigns for values > 0
- * @return string
- *   HTML of a picture link to Yahoo horoscopes
  *
- * @todo: Remove!
+ * @return string
+ *   Empty string, HTML of a picture or a picture linked to Yahoo horoscopes,
+ *   depending on the $show mode.
  */
-function birthdays_get_starsign_image($starsign, $show = BIRTHDAYS_STARSIGN_OFF) {
+function _birthdays_starsign_image($starsign, $show = BIRTHDAYS_STARSIGN_OFF) {
   $output = '';
 
   // Only show starsign when enabled

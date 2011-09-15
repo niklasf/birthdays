@@ -384,6 +384,17 @@ function _birthdays_required_if_user_checked($element, &$form_state, $form) {
 }
 
 /**
+ * Implements hook_field_delete_instance().
+ */
+function birthdays_field_delete_instance($instance) {
+  if (db_table_exists('trigger_assignments')) {
+    db_delete('trigger_assignments')
+      ->condition('hook', _birthdays_instance_hook($instance))
+      ->execute();
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function birthdays_views_api() {
@@ -405,7 +416,7 @@ function birthdays_trigger_info() {
     // The name is supposed to be a hook name, but we want more granular hooks
     // without implementing them all. So we generate a unique key and implement
     // only hook_birthdays().
-    $name = md5('birthdays|' . $instance['entity_type'] . '|' . $instance['bundle'] . '|' . $instance['field_name']);
+    $name = _birthdays_instance_hook($instance);
 
     // Create a localized label for the trigger.
     $label = _birthdays_instance_description($instance) . ' ' . t('(On Birthdays)');
@@ -444,6 +455,20 @@ function _birthdays_instance_description($instance) {
 }
 
 /**
+ * Get a hook name that is unique for a field instance.
+ *
+ * @param $i
+ *   The field instance.
+ *
+ * @return
+ *   birthdays_{uuid}, maximum length is 32 characters.
+ */
+function _birthdays_instance_hook($i) {
+  $hook = 'birthdays_' . sha1($i['entity_type'] . '|' . $i['bundle'] . '|' . $i['field_name']);
+  return substr($hook, 0, 32);
+}
+
+/**
  * Implements hook_birthdays().
  */
 function birthdays_birthdays($entity, $instance) {
@@ -455,7 +480,7 @@ function birthdays_birthdays($entity, $instance) {
   // Context information.
   $context = array(
     'group' => 'birthdays',
-    'hook' => md5('birthdays|' . $instance['entity_type'] . '|' . $instance['bundle'] . '|' . $instance['field_name']),
+    'hook' => _birthdays_instance_hook($instance),
     $instance['entity_type'] => $entity,
   );
 

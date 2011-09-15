@@ -224,7 +224,7 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
 function _birthdays_textfield_validate($element, &$form_state) {
   try {
     $birthday = BirthdaysBirthday::fromString($element['#value']);
-    form_set_value($element, $birthday->toArray(), $form_state);
+    form_set_value($element, $birthday->toArray() + array('triggers' => 1), $form_state);
   }
   catch (InvalidArgumentException $e) {
     form_error($element, t('That is not a valid birthday. Enter the date as <em>day.month.year</em>, <em>year/month/day</em> or <em>year-month-day</em>. You can skip the year.'));

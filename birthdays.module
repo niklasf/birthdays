@@ -210,9 +210,8 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       '#type' => 'textfield',
       '#langcode' => $langcode,
       '#size' => 10,
-      '#title' => $instance['label'],
-      '#tree' => TRUE,
-      '#description' => isset($instance['description']) ? $instance['description'] : '',
+      '#title' => $element['#title'],
+      '#description' => $element['#description'],
       '#required' => $element['#required'],
     ),
   );
@@ -226,8 +225,8 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
   if (!empty($instance['settings']['triggers']['user'])) {
     $element['triggers'] = array(
       '#type' => 'checkbox',
-      '#title' => $instance['settings']['triggers']['title'],
-      '#description' => $instance['settings']['triggers']['description'],
+      '#title' => check_plain($instance['settings']['triggers']['title']),
+      '#description' => check_plain($instance['settings']['triggers']['description']),
       '#default_value' => isset($items[$delta]) ? $items[$delta]['triggers'] : TRUE,
     );
   }
@@ -342,6 +341,7 @@ function birthdays_field_instance_settings_form($field, $instance) {
         'visible' => $user_checked,
         'required' => $user_checked,
       ),
+      '#element_validate' => array('_birthdays_required_if_user_checked'),
     ),
     'description' => array(
       '#type' => 'textfield',
@@ -372,12 +372,15 @@ function birthdays_field_instance_settings_form($field, $instance) {
 }
 
 /**
- * FAPI validation for the admin mail period selection.
+ * FAPI validation for the checkbox title field, that is required, if the
+ * opt-out trigger checkbox is checked.
  */
-function _birthdays_admin_mail_validate($element, &$form_state, $form) {
-  // The notifications fieldset is only for the ui, not for logic.
-  $form_state['values']['instance']['settings']['admin_mail'] = $element['#value'];
-  unset($form_state['values']['instance']['settings']['notifications']);
+function _birthdays_required_if_user_checked($element, &$form_state, $form) {
+  if (trim($element['#value']) === '') {
+    if ($form_state['values']['instance']['settings']['triggers']['user']) {
+      form_error($element, t('@title field is required.', array('@title' => $element['#title'])));
+    }
+  }
 }
 
 /**

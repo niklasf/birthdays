@@ -125,7 +125,6 @@ function birthdays_field_info() {
         'admin_mail' => BIRTHDAYS_ADMIN_MAIL_DISABLED,
         'hide_year' => BIRTHDAYS_HIDE_YEAR_NO,
         'triggers' => array(
-          'default' => TRUE,
           'user' => FALSE,
           'title' => t('Fire triggers on birthdays'),
           'description' => '',
@@ -156,12 +155,9 @@ function birthdays_field_validate($entity_type, $entity, $field, $instance, $lan
  * Implements hook_field_is_empty().
  */
 function birthdays_field_is_empty($item, $field) {
-  try {
-    return BirthdaysBirthday::fromArray($item)->isEmpty();
-  }
-  catch (InvalidArgumentException $e) {
-    return FALSE;
-  }
+  // There is always something about the triggers, so a birthday field is never
+  // empty.
+  return FALSE;
 }
 
 /**
@@ -206,18 +202,34 @@ function birthdays_field_widget_info() {
 /**
  * Implement hook_field_widget_form().
  */
-function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta = 0) {
-  $element = array(
-    '#type' => 'textfield',
-    '#element_validate' => array('_birthdays_textfield_validate'),
-    '#langcode' => $langcode,
-    '#size' => 10,
-    '#title' => $instance['label'],
-    '#description' => isset($instance['description']) ? $instance['description'] : '',
+function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  // The widget.
+  $element += array(
+    '#element_validate' => array('birthdays_field_textfield_validate'),
+    'value' => array(
+      '#type' => 'textfield',
+      '#langcode' => $langcode,
+      '#size' => 10,
+      '#title' => $instance['label'],
+      '#tree' => TRUE,
+      '#description' => isset($instance['description']) ? $instance['description'] : '',
+      '#required' => $element['#required'],
+    ),
   );
 
+  // The default value.
   if (isset($items[$delta])) {
-    $element['#default_value'] = BirthdaysBirthday::fromArray($items[$delta])->toString();
+    $element['value']['#default_value'] = BirthdaysBirthday::fromArray($items[$delta])->toString();
+  }
+
+  // The trigger checkbox.
+  if (!empty($instance['settings']['triggers']['user'])) {
+    $element['triggers'] = array(
+      '#type' => 'checkbox',
+      '#title' => $instance['settings']['triggers']['title'],
+      '#description' => $instance['settings']['triggers']['description'],
+      '#default_value' => isset($items[$delta]) ? $items[$delta]['triggers'] : TRUE,
+    );
   }
 
   return $element;
@@ -226,10 +238,37 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
 /**
  * FAPI validation callback for the birthdays_field_widget_form element.
  */
-function _birthdays_textfield_validate($element, &$form_state) {
+function birthdays_field_textfield_validate($element, &$form_state) {
   try {
-    $birthday = BirthdaysBirthday::fromString($element['#value']);
-    form_set_value($element, $birthday->toArray() + array('triggers' => 1), $form_state);
+    // If user input for triggers is aloud, get the checkbox value.
+    $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+    if ($instance['settings']['triggers']['user']) {
+      $triggers = $element['triggers']['#value'];
+    }
+    else {
+      $triggers = TRUE;
+    }
+
+    // Parse the string.
+    $birthday = BirthdaysBirthday::fromString($element['value']['#value']);
+
+    // Validate against the hide_year setting.
+    switch ($instance['settings']['hide_year']) {
+      case BIRTHDAYS_HIDE_YEAR_NO:
+        if (!$birthday->getYear()) {
+          form_error($element, t('Please also enter a year.'));
+        }
+        break;
+
+      case BIRTHDAYS_HIDE_YEAR_YES:
+        if ($birthday->getYear()) {
+          form_error($element, t('Please don\'t enter a year.'));
+        }
+        break;
+    }
+
+    // Make the values ready to save.
+    form_set_value($element, $birthday->toArray() + array('triggers' => $triggers), $form_state);
   }
   catch (InvalidArgumentException $e) {
     form_error($element, t('That is not a valid birthday. Enter the date as <em>day.month.year</em>, <em>year/month/day</em> or <em>year-month-day</em>. You can skip the year.'));
@@ -286,20 +325,16 @@ function birthdays_field_instance_settings_form($field, $instance) {
     '#type' => 'fieldset',
     '#title' => t('Triggers'),
     '#description' => t('You can send an email or execute other actions on birthdays using the trigger module.'),
-    'default' => array(
-      '#type' => 'checkbox',
-      '#title' => t('Enable triggers'),
-      '#default_value' => $settings['triggers']['default'],
-    ),
     'user' => array(
       '#type' => 'checkbox',
-      '#title' => t('Allow users to override the default setting, i.e. opt-out or opt-in triggers'),
+      '#title' => t('Allow users to opt-out triggers'),
+      '#description' => t('Users will see a checkbox for the birthday field, that allows them to opt-out of triggers.'),
       '#default_value' => $settings['triggers']['user'],
     ),
     'title' => array(
       '#type' => 'textfield',
       '#title' => t('Checkbox title'),
-      '#description' => t('The title to use for the opt-in / opt-out checkbox. Usually this should describe what the trigger does, for example: Send me an email on my brithday.'),
+      '#description' => t('The title to use for opt-out checkbox. Usually this should describe what the trigger does, for example: Send me an email on my brithday.'),
       '#default_value' => $settings['triggers']['title'],
       '#states' => array(
         'visible' => $user_checked,
@@ -309,7 +344,7 @@ function birthdays_field_instance_settings_form($field, $instance) {
     'description' => array(
       '#type' => 'textfield',
       '#title' => t('Checkbox description'),
-      '#description' => t('Optional. The description of the opt-in / opt-out checkbox.'),
+      '#description' => t('Optional. The description of the opt-out checkbox.'),
       '#default_value' => $settings['triggers']['description'],
       '#states' => array(
         'visible' => $user_checked,

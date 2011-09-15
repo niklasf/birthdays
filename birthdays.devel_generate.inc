@@ -23,4 +23,3 @@ function birthdays_devel_generate($object, $field, $instance, $bundle) {
     catch (InvalidArgumentException $e) { }
   }
 }
-

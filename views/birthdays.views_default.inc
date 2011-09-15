@@ -103,7 +103,7 @@ function birthdays_views_default_views() {
   $handler->display->display_options['fields']['birthdays']['empty_zero'] = 0;
   $handler->display->display_options['fields']['birthdays']['hide_alter_empty'] = 0;
   $handler->display->display_options['fields']['birthdays']['field_api_classes'] = 0;
-  $handler->display->display_options['fields']['birthdays']['click_sort_mode'] = '2';
+  $handler->display->display_options['fields']['birthdays']['click_sort_mode'] = 'now';
   /* Filter criterion: User: Active */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'users';

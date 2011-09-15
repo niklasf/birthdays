@@ -5,10 +5,6 @@
  * The birthdays_field_views_handler_field class.
  */
 
-define('BIRTHDAYS_SORT_ALL', 0);
-define('BIRTHDAYS_SORT_YEAR', 1);
-define('BIRTHDAYS_SORT_NOW', 2);
-
 /**
  * A Views field handler that provides click sorting of birthday fields.
  */
@@ -21,7 +17,7 @@ class birthdays_field_views_handler_field extends views_handler_field_field {
     $options = parent::option_definition();
 
     $options['click_sort_mode'] = array(
-      'default' => BIRTHDAYS_SORT_YEAR,
+      'default' => 'year',
     );
 
     return $options;
@@ -40,9 +36,9 @@ class birthdays_field_views_handler_field extends views_handler_field_field {
       '#type' => 'radios',
       '#title' => 'Click sort mode',
       '#options' => array(
-        BIRTHDAYS_SORT_ALL => t('Sort by year, month and day.'),
-        BIRTHDAYS_SORT_YEAR => t('Sort by month and day.'),
-        BIRTHDAYS_SORT_NOW => t('Sort by time to next birthday.'),
+        'all' => t('Sort by year, month and day.'),
+        'year' => t('Sort by month and day.'),
+        'now' => t('Sort by time to next birthday.'),
       ),
       '#description' => t('The way this column should beclick sorted.'),
       '#fieldset' => 'more',
@@ -69,10 +65,10 @@ class birthdays_field_views_handler_field extends views_handler_field_field {
 
     // Add sorting to the query.
     $mode = $this->options['click_sort_mode'];
-    if ($mode == BIRTHDAYS_SORT_ALL) {
+    if ($mode == 'all') {
       $this->query->add_orderby(NULL, NULL, $order, $columns['year']);
     }
-    if ($mode == BIRTHDAYS_SORT_ALL || $mode == BIRTHDAYS_SORT_YEAR) {
+    if ($mode == 'all' || $mode == 'year') {
       $this->query->add_orderby(NULL, NULL, $order, $columns['month']);
       $this->query->add_orderby(NULL, NULL, $order, $columns['day']);
     }

@@ -127,13 +127,13 @@ class birthdays_field_views_handler_filter extends views_handler_filter_date {
    */
   function op_empty($field) {
     if ($this->operator == 'empty') {
-      $op = 'IS NULL';
+      $prefix = 'NOT ';
     }
     else {
-      $op = 'IS NOT NULL';
+      $prefix = '';
     }
 
-    $this->query->add_where($this->options['group'], $field . '_month', NULL, $op);
-    $this->query->add_where($this->options['group'], $field . '_day', NULL, $op);
+    $this->query->add_where_expression($this->options['group'], $prefix . 'COALESCE(' . $field . '_month, FALSE)');
+    $this->query->add_where_expression($this->options['group'], $prefix . 'COALESCE(' . $field . '_day, FALSE)');
   }
 }

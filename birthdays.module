@@ -536,6 +536,9 @@ function _birthdays_field_instances_compare($a, $b) {
 /**
  * Query the database for birthdays.
  *
+ * @param $trigger
+ *   TRUE, if only birthdays should be returned, that are not opted out of
+ *   triggers.
  * @param $instance
  *   The field instance to query for.
  * @param $day
@@ -549,7 +552,7 @@ function _birthdays_field_instances_compare($a, $b) {
  * @return
  *   An array where both keys and values are entity ids.
  */
-function _birthdays_get($instance, $day, $month, $year = NULL) {
+function _birthdays_get($trigger, $instance, $day, $month, $year = NULL) {
   $field_name = $instance['field_name'];
 
   $query = db_select('field_data_' . $field_name, 'f')
@@ -560,6 +563,10 @@ function _birthdays_get($instance, $day, $month, $year = NULL) {
 
   if ($day) {
     $query->condition($field_name . '_day', $day);
+  }
+
+  if ($trigger && $instance['settings']['triggers']['user']) {
+    $query->condition($field_name . '_triggers', TRUE);
   }
 
   $result = $query
@@ -594,7 +601,7 @@ function birthdays_cron() {
     $birthdays = array();
     switch ($instance['settings']['admin_mail']) {
       case BIRTHDAYS_ADMIN_MAIL_DAILY:
-        $birthdays = _birthdays_get($instance, date('d', $time), date('m', $time), date('Y', $time));
+        $birthdays = _birthdays_get(FALSE, $instance, date('d', $time), date('m', $time), date('Y', $time));
         $period = t('Today');
         break;
 
@@ -602,7 +609,7 @@ function birthdays_cron() {
         if (variable_get('date_first_day', 0) == date('w', $time)) {
           for ($i = 0; $i++; $i < 7) {
             $qtime = $time + $i * $day;
-            $birthdays += _birthdays_get($instance, date('d', $qtime), date('m', $qtime), date('Y', $qtime));
+            $birthdays += _birthdays_get(FALSE, $instance, date('d', $qtime), date('m', $qtime), date('Y', $qtime));
           }
           $period = t('This week');
         }
@@ -610,7 +617,7 @@ function birthdays_cron() {
 
       case BIRTHDAYS_ADMIN_MAIL_MONTHLY:
         if (date('d', $time) == 1) {
-          $birthdays = _birthdays_get($instance, 0, date('m', $time), date('Y', $time));
+          $birthdays = _birthdays_get(FALSE, $instance, 0, date('m', $time), date('Y', $time));
           $period = t('This month');
         }
         break;
@@ -637,7 +644,7 @@ function birthdays_cron() {
     $last_cron += $day;
 
     // Find the birthdays.
-    $birthdays = _birthdays_get($instance, date('d', $last_cron), date('m', $last_cron), date('Y', $last_cron));
+    $birthdays = _birthdays_get(TRUE, $instance, date('d', $last_cron), date('m', $last_cron), date('Y', $last_cron));
     $entities = entity_load($instance['entity_type'], $birthdays);
 
     // Invoke hook_birthdays().

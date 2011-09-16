@@ -1,0 +1,5 @@
+name = Birthdays defaults
+description = A default view, default field on user profiles and a default action for the Birthdays module.
+dependencies[] = birthdays
+core = 7.x
+package = Fields

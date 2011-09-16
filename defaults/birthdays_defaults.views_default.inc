@@ -8,7 +8,7 @@
 /**
  * Implements hook_views_default_views().
  */
-function birthdays_views_default_views() {
+function birthdays_defaults_views_default_views() {
   $view = new view;
   $view->name = 'birthdays';
   $view->description = 'A page displaying all birthdays and a block with the next five.';

@@ -1,5 +1,5 @@
 name = Birthdays
-description = Displays and reminds of upcoming users birthdays.
+description = Provides a birthday field type. Displays and reminds of upcoming birthdays.
 dependencies[] = field
 files[] = birthdays.test
 files[] = birthdays_birthday.inc
@@ -7,3 +7,4 @@ files[] = views/birthdays_field_views_handler_field.inc
 files[] = views/birthdays_field_views_handler_sort.inc
 files[] = views/birthdays_field_views_handler_filter.inc
 core = 7.x
+package = Fields

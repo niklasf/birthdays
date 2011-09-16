@@ -48,88 +48,6 @@ function birthdays_field_schema($field) {
 }
 
 /**
- * Implements hook_install().
- */
-function birthdays_install() {
-  // Create a default birthdays field.
-  if (!field_info_field('birthdays')) {
-    // Clear field caches to make the new field type available.
-    field_cache_clear();
-
-    // Create the field.
-    field_create_field(array(
-      'field_name' => 'birthdays',
-      'type' => 'birthdays_date',
-      'cardinality' => 1,
-      'translatable' => FALSE,
-      'entity_types' => array('user'),
-    ));
-
-    // Create the deault field instance.
-    if (!field_info_instance('user', 'birthdays', 'user')) {
-      field_create_instance(array(
-        'field_name' => 'birthdays',
-        'entity_type' => 'user',
-        'bundle' => 'user',
-        'label' => t('Birthday'),
-      ));
-
-      // Explain that.
-      if (module_exists('field_ui')) {
-        $field_ui = t('You can adjust the !field_settings, !manage_account_fields or !manage_the_display under Administration &raquo; Configuration &raquo; People.', array(
-          '!field_settings' => l('field settings', 'admin/config/people/accounts/fields/birthdays'),
-          '!manage_account_fields' => l('manage account fields', 'admin/config/people/accounts/fields'),
-          '!manage_the_display' => l('manage the display', 'admin/config/people/accounts/display')
-        ));
-      }
-      else {
-        $field_ui = t('Enable the Field UI module to adjust the field settings, manage account fields or manage the display under Administration &raquo; Configuration &raquo; People.');
-      }
-      drupal_set_message(t('Birthdays module has been installed. A default field has been attached to your users.') . ' ' . $field_ui . ' ' . t('You can also delete that default field or add further birthday fields to your entities.'));
-    }
-  }
-
-  // Create a default birthday mail action.
-  $aid = actions_save(
-    'system_send_email_action', // Send a mail.
-    'system', // Action is defined by system module.
-    _birthdays_default_action_parameters(),
-    t('Happy birthday mail')
-  );
-  variable_set('birthdays_default_action', $aid);
-
-  // Explain that.
-  if (module_exists('trigger')) {
-    drupal_set_message(t('A <em>Happy birthday mail</em> action has been created. You can !assign that action so that users recieve an email on their birthday.', array('!assign' => l('assign', 'admin/structure/trigger/birthdays'))));
-  }
-  else {
-    drupal_set_message(t('Enable the Trigger module and assign the newly created <em>Happy birthday mail</em> action to send users emails on their birthdays.'));
-  }
-
-  // Explain views support.
-  if (module_exists('views_ui')) {
-    drupal_set_message(t('Birthdays module provides a default page and block with birthdays. You can !use_the_views_module to enable or customize them.', array('!use_the_views_module' => l('use the views module', 'admin/structure/views'))));
-  }
-  else {
-    drupal_set_message(t('You can use the the Views module to lists of birthdays as blocks or pages.'));
-  }
-}
-
-/**
- * Get the default action settings.
- *
- * @return
- *   An associative array with recipient, subject and message keys set.
- */
-function _birthdays_default_action_parameters() {
-  return array(
-    'recipient' => "[user:name] <[user:mail]>",
-    'subject' => t("Happy Birthday, [user:name]!"),
-    'message' => t("Hey [user:name],\n\nHappy birthday!\nWe hope you have a great day.\n\nThe [site:name]-team\n[site:uri-brief]"),
-  );
-}
-
-/**
  * Remove the variable 'birthdays_field_name'.
  *
  * Implements hook_update_N().
@@ -164,12 +82,4 @@ function birthdays_update_6000() {
 function birthdays_uninstall() {
   // Delete variables.
   variable_del('birthdays_last_cron');
-
-  // Delete the default action unless it has been overridden.
-  if ($action = actions_load(variable_get('birthdays_default_action', 0))) {
-    if (unserialize($action->parameters) == _birthdays_default_action_parameters()) {
-      actions_delete($action->aid);
-    }
-  }
-  variable_del('birthdays_default_action');
 }

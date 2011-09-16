@@ -324,6 +324,28 @@ function birthdays_views_default_views() {
   $handler->display->display_options['defaults']['style_options'] = FALSE;
   $handler->display->display_options['defaults']['row_plugin'] = FALSE;
   $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $translatables['birthdays'] = array(
+    t('Master'),
+    t('Birthdays'),
+    t('All birthdays'),
+    t('Apply'),
+    t('Reset'),
+    t('Sort by'),
+    t('Asc'),
+    t('Desc'),
+    t('Items per page'),
+    t('- All -'),
+    t('Offset'),
+    t('Name'),
+    t('Age'),
+    t('Birthday'),
+    t('Page'),
+    t('more'),
+    t('Current age'),
+    t('Starsign'),
+    t('Block'),
+    t('Next birthdays'),
+  );
 
   return array('birthdays' => $view);
 }

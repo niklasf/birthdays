@@ -267,6 +267,32 @@ class BirthdaysBirthday {
   }
 
   /**
+   * Calculate the current age.
+   *
+   * @return
+   *   The current age.
+   */
+  public function getCurrentAge() {
+    if ($this->value['year'] == 0) {
+      return t('Age unkown');
+    }
+
+    $time = time();
+    $months_diff = date('m', $time) - $this->value['month'];
+
+    if ($months_diff < 0) {
+      return $this->getAge(date('Y', $time)) - 1;
+    }
+    elseif ($months_diff == 0) {
+      if ($this->value['day'] < date('d')) {
+        return $this->getAge(date('Y', $time)) - 1;
+      }
+    }
+
+    return $this->getAge(date('Y', $time));
+  }
+
+  /**
    * @return The year or 0.
    */
   function getYear() {

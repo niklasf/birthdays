@@ -31,21 +31,6 @@ define('BIRTHDAYS_ADMIN_MAIL_WEEKLY', '2');
 define('BIRTHDAYS_ADMIN_MAIL_MONTHLY', '3');
 
 /**
- * Do not show starsigns. Default.
- */
-define('BIRTHDAYS_STARSIGN_OFF', '0');
-
-/**
- * Show starsigns, with link to Yahoo.
- */
-define('BIRTHDAYS_STARSIGN_LINK', '1');
-
-/**
- * Show starsigns, image only.
- */
-define('BIRTHDAYS_STARSIGN_NOLINK', '2');
-
-/**
  * Require a year to be given. Default.
  */
 define('BIRTHDAYS_HIDE_YEAR_NO', '0');
@@ -169,6 +154,14 @@ function birthdays_field_formatter_info() {
       'label' => t('Plaintext'),
       'field types' => array('birthdays_date'),
     ),
+    'birthdays_starsign' => array(
+      'label' => t('Starsign'),
+      'field types' => array('birthdays_date'),
+    ),
+    'birthdays_age' => array(
+      'label' => t('Age'),
+      'field types' => array('birthdays_date'),
+    ),
   );
 }
 
@@ -178,9 +171,32 @@ function birthdays_field_formatter_info() {
 function birthdays_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
 
-  if ($display['type'] = 'birthdays_plaintext') {
-    foreach ($items as $delta => $item) {
-      $element[$delta] = array('#markup' => BirthdaysBirthday::fromArray($item)->toString());
+  foreach ($items as $delta => $item) {
+    $birthday = BirthdaysBirthday::fromArray($item);
+
+    switch ($display['type']) {
+      case 'birthdays_plaintext':
+        $element[$delta] = array('#markup' => check_plain($birthday->toString()));
+        break;
+
+      case 'birthdays_starsign':
+        if (!$birthday->isEmpty()) {
+          $element[$delta] = array(
+            '#theme' => 'image',
+            '#path' => url(drupal_get_path('module', 'birthdays') . '/starsigns/' . $birthday->getStarsign() . '.gif'),
+            '#height' => '35',
+            '#width' => '35',
+            '#alt' => $birthday->getStarsign(),
+            '#title' => $birthday->getStarsign(),
+          );
+        }
+        break;
+
+      case 'birthdays_age':
+        if ($birthday->getYear()) {
+          $element[$delta] = array('#markup' => check_plain($birthday->getCurrentAge()));
+        }
+        break;
     }
   }
 
@@ -697,34 +713,4 @@ function birthdays_mail($key, &$message, $params) {
       }
       break;
   }
-}
-
-/**
- * Return the picture of a starsign, given the name. Links to Yahoo! when option is selected.
- *
- * @param string starsign
- *   name of the starsign to show (not translated)
- * @param int $show
- *   Show starsigns for values > 0
- *
- * @return string
- *   Empty string, HTML of a picture or a picture linked to Yahoo horoscopes,
- *   depending on the $show mode.
- */
-function _birthdays_starsign_image($starsign, $show = BIRTHDAYS_STARSIGN_OFF) {
-  $output = '';
-
-  // Only show starsign when enabled
-  if ($show > BIRTHDAYS_STARSIGN_OFF && !empty($starsign)) {
-    // Image based on thme path.
-    $output = '<img src="'. base_path() . drupal_get_path('module', 'birthdays') .'/starsigns/'. $starsign .'.gif" alt="'. t($starsign) .'" />';
-
-    // If link should be shown: update $output
-    if ($show == BIRTHDAYS_STARSIGN_LINK) {
-      $output = '<a href="http://astrology.yahoo.com/astrology/general/dailyoverview/'. $starsign .'" target="_blank" title="'. t($starsign) .'">'. $output .'</a>';
-    }
-  }
-
-  // Return HTML
-  return $output;
 }

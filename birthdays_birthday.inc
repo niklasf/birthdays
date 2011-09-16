@@ -296,7 +296,7 @@ class BirthdaysBirthday {
   function getStarsign() {
     $day = $this->value['day'];
 
-    // Find the matchin starsign.
+    // Find the matching starsign.
     switch ($this->value['month']) {
       case 1:
         return $day < 20 ? 'capricorn' : 'aquarius';

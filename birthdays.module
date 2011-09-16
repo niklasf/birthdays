@@ -200,7 +200,7 @@ function birthdays_field_widget_info() {
 }
 
 /**
- * Implement hook_field_widget_form().
+ * Implements hook_field_widget_form().
  */
 function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   // The widget.
@@ -302,7 +302,7 @@ function birthdays_field_instance_settings_form($field, $instance) {
     ),
   );
 
-  // E-Mail notifications for administrators.
+  // Email notifications for administrators.
   $form['admin_mail'] = array(
     '#type' => 'radios',
     '#title' => t('Birthday reminder for the administrator'),

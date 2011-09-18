@@ -9,6 +9,9 @@
  * Implements hook_install().
  */
 function birthdays_defaults_install() {
+  // Clear the field cache to be sure the new field type is available.
+  field_cache_clear();
+
   // Create the default field.
   field_create_field(array(
     'field_name' => 'birthdays',

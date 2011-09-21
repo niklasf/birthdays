@@ -215,7 +215,8 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Coverts the value to a unix timestamp.
+   * Coverts the value to a unix timestamp, 0:00:00 at the given date. Note
+   * that this depends on the timezone.
    *
    * @return
    *   A unix timestamp where the year 1800 means no year. Or NULL.
@@ -226,7 +227,7 @@ class BirthdaysBirthday {
     }
 
     return mktime(
-      1, // hour
+      0, // hour
       0, // minute
       0, // secound
       $this->value['month'],

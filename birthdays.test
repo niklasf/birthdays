@@ -83,7 +83,10 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
    */
   public function testFromArray() {
     $this->assertIdentical(BirthdaysBirthday::fromArray(array('month' => 0, 'day' => 0))->toString(), '');
+
+    date_default_timezone_set('UTC');
     $this->assertIdentical(BirthdaysBirthday::fromArray(array('year' => 1970, 'day' => 1, 'month' => 1))->toUnixtime(), 0);
+
     $this->assertEqual(BirthdaysBirthday::fromArray(array('month' => 3, 'day' => 7))->toArray(), array('month' => 3, 'day' => 7, 'year' => 0));
 
     try {

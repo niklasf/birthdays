@@ -36,8 +36,7 @@ class BirthdaysBirthday {
    * Create a birthday from text.
    *
    * @todo
-   *   Currently this only parses german dd.mm(.yyyy) dates. Use Drupal's date
-   *   system to do this in a generic way.
+   *   Parse dates with different formats in a generic way.
    *
    * @param $text
    *   The text representation of a birthday.
@@ -49,14 +48,22 @@ class BirthdaysBirthday {
    * @return A BirthdaysBirthday instance.
    */
   public static function fromString($text, $allow_future = FALSE) {
-    if (trim($text) === '') {
+    $text = trim($text);
+    if ($text === '') {
       return self::fromEmpty();
     }
 
-    if (preg_match('/^\s*(\d{1,2})\.(\d{1,2})\.?(\d{4}|\d{2})?\s*$/', $text, $matches)) {
+    // Match dd.mm(.yyyy).
+    if (preg_match('/^(\d{1,2})\.(\d{1,2})\.?(\d{4}|\d{2})?$/', $text, $matches)) {
       return self::fromDate(isset($matches[3]) ? $matches[3] : 0, $matches[2], $matches[1], $allow_future);
     }
 
+    // Match (yyyy-)mm-dd or (yyyy/)mm/dd.
+    foreach(array('\/', '-') as $sep) {
+      if (preg_match('/^((?P<year>\d{4}|\d{2})' . $sep . ')?(?P<month>\d{1,2})' . $sep . '(?P<day>\d{1,2})/', $text, $matches)) {
+        return self::fromArray($matches, $allow_future);
+      }
+    }
     throw new InvalidArgumentException(t("The given argument is not a valid birthday."));
   }
 

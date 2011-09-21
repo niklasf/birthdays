@@ -43,12 +43,20 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
    * Test string parsing.
    */
   public function testFromString() {
-    // Conversions.
+    // Conversions from day.month.year.
     $this->assertIdentical(BirthdaysBirthday::fromString("\t  ")->isEmpty(), TRUE);
     $this->assertEqual(BirthdaysBirthday::fromString('04.05.1999')->toArray(), array('year' => 1999, 'month' => 5, 'day' => 4));
     $this->assertEqual(BirthdaysBirthday::fromString('03.06.78')->toArray(), array('year' => 1978, 'month' => 6, 'day' => 3));
     $this->assertEqual(BirthdaysBirthday::fromString('14.7.')->toArray(), array('year' => 0, 'month' => 7, 'day' => 14));
     $this->assertEqual(BirthdaysBirthday::fromString('7.7.07')->toArray(), array('year' => 2007, 'month' => 7, 'day' => 7));
+
+    // Conversions from year-month-day.
+    $this->assertEqual(BirthdaysBirthday::fromString('1998-01-5')->toArray(), array('year' => 1998, 'month' => 1, 'day' => 5));
+    $this->assertEqual(BirthdaysBirthday::fromString('12-29')->toArray(), array('year' => 0, 'month' => 12, 'day' => 29));
+
+    // Conversion from year/month/day.
+    $this->assertEqual(BirthdaysBirthday::fromString('2001/11/04')->toArray(), array('year' => 2001, 'month' => 11, 'day' => 4));
+    $this->assertEqual(BirthdaysBirthday::fromString('04/03')->toArray(), array('year' => 0, 'month' => 4, 'day' => 3));
 
     // Unparsable.
     try {

@@ -77,7 +77,8 @@ function birthdays_update_6000() {
 }
 
 /**
- * Upgrade to Drupal 7.
+ * Upgrade the data structure to Drupal 7, creating actions, triggers and
+ * fields.
  *
  * Implements hook_update_N().
  */
@@ -164,7 +165,8 @@ function birthdays_update_7000() {
     field_create_instance($instance);
   }
 
-  // TODO: Move data
+  // The data should be synchronized for the next step, so we don't need the
+  // field id.
   variable_del('birthdays_field_id');
 
   // Block, page and viewmode aren't upgraded automatically. Delete the
@@ -176,6 +178,75 @@ function birthdays_update_7000() {
   variable_del('birthdays_block_number_by_days');
   variable_del('birthdays_block_number_by_birthdays');
   return t('Birthday block and page are now a view provided by the Birthdays defaults module and birthdays are in their own field type. Check you view and view mode settings, to make sure they are correct, because they are not upgraded automatically.');
+}
+
+/**
+ * Upgrade the field data to Drupal 7.
+ *
+ * Implements hook_update_N().
+ */
+function birthdays_update_7001(&$sandbox) {
+  if (!db_table_exists('dob')) {
+    return;
+  }
+
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['last_uid_processed'] = -1;
+    $sandbox['max'] = db_query('SELECT COUNT(*) FROM {dob}');
+  }
+
+  $instance = field_info_instance('user', 'birthdays', 'user');
+
+  $query = db_query_range('SELECT uid, DAY(birthday) AS day, MONTH(birthday) AS month, YEAR(birthday) AS year FROM {dob} WHERE uid > :lastuid ORDER BY uid', 0, 10, array(':lastuid' => $sandbox['last_uid_processed']));
+  $i = 0;
+  foreach ($query as $row) {
+    $data = array(
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'deleted' => 0,
+      'entity_id' => $row->uid,
+      'revision_id' => NULL,
+      'language' => LANGUAGE_NONE,
+      'delta' => 0,
+      'birthdays_day' => $row->day,
+      'birthdays_month' => $row->month,
+      'birthdays_year' => $row->year,
+      'birthdays_triggers' => 1,
+    );
+
+    $account = user_load($row->uid);
+
+    if ($instance['settings']['triggers']['user']) {
+      $data['birthdays_triggers'] = !empty($account->birthdays_user_send_mail);
+    }
+    unset($account->birthdays_user_send_mail);
+
+    if ($instance['settings']['hide_year'] == BIRTHDAYS_HIDE_YEAR_USER) {
+      if ($account->birthdays_user_hide_year) {
+        $data['birthdays_year'] = 0;
+      }
+    }
+    unset($account->birthdays_user_hide_year);
+
+    user_save($account);
+
+    db_insert('field_data_birthdays')
+      ->fields($data)
+      ->execute();
+
+    $i++;
+    $sandbox['progress']++;
+    $sandbox['last_uid_processed'] = $row->uid;
+  }
+
+  if (empty($sandbox['max']) || $i < 20) {
+    db_drop_table('dob');
+    return t('Birthdays field data has been migrated.');
+  }
+  else {
+    $sandbox['#finished'] = $sandbox['progress'] / $sandbox['max'];
+  }
 }
 
 /**

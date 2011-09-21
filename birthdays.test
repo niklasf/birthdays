@@ -151,7 +151,7 @@ class BirthdaysUtilityTestCase extends DrupalUnitTestCase {
    * Test _birthdays_upgrade_tokens().
    */
   public function testUpgradeTokens() {
-    $this->assertEqual(_birthdays_upgrade_tokens('Happy birthday !name!'), 'Happy birthday [user:name]!');
+    $this->assertEqual(_birthdays_upgrade_tokens('Happy birthday !username!'), 'Happy birthday [user:name]!');
     $this->assertEqual(_birthdays_upgrade_tokens('[site:name] !password'), '[site:name] !password');
     $this->assertEqual(_birthdays_upgrade_tokens('!date !uri !mailto'), '[date:medium] [site:url] [user:mail]');
   }

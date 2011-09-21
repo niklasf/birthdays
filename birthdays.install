@@ -77,6 +77,35 @@ function birthdays_update_6000() {
 }
 
 /**
+ * Upgrade to Drupal 7.
+ *
+ * Implements hook_update_N().
+ */
+function birthdays_update_7000() {
+  // Delete the D7 default action.
+  if ($default_action = actions_load(variable_get('birthdays_defaults_action', 0))) {
+    actions_delete($default_action->aid);
+  }
+
+  // Create a new email action, based on the old settings.
+  module_load_include('install', 'birthdays', 'defaults/birthdays_defaults');
+  $params = array();
+  if ($user_message = variable_get('birthdays_send_user_message')) {
+    $params['message'] = $user_message;
+  }
+  if ($user_subject = variable_get('birthdays_send_user_subject')) {
+    $params['subject'] = $user_subject;
+  }
+  $aid = actions_save(
+    'system_send_email_action',
+    'system',
+    $params + _birthdays_defaults_action_parameters(),
+    t('Happy birthday mail')
+  );
+  variable_set('birthdays_defaults_action', $aid);
+}
+
+/**
  * Implements hook_uninstall().
  */
 function birthdays_uninstall() {

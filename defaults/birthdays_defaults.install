@@ -43,20 +43,22 @@ function birthdays_defaults_install() {
   drupal_set_message(t('A default field has been attached to the user profiles.') . ' ' . $field_ui);
 
   // Create a default birthday mail action.
-  $aid = actions_save(
-    'system_send_email_action', // Send a mail.
-    'system', // Action is defined by system module.
-    _birthdays_defaults_action_parameters(),
-    t('Happy birthday mail')
-  );
-  variable_set('birthdays_defaults_action', $aid);
+  if (!variable_get('birthdays_defaults_action')) {
+    $aid = actions_save(
+      'system_send_email_action', // Send a mail.
+      'system', // Action is defined by system module.
+      _birthdays_defaults_action_parameters(),
+      t('Happy birthday mail')
+    );
+    variable_set('birthdays_defaults_action', $aid);
 
-  // Explain that.
-  if (module_exists('trigger')) {
-    drupal_set_message(t('A <em>Happy birthday mail</em> action has been created. You can !assign that action so that users recieve an email on their birthday.', array('!assign' => l('assign', 'admin/structure/trigger/birthdays'))));
-  }
-  else {
-    drupal_set_message(t('Enable the Trigger module and assign the newly created <em>Happy birthday mail</em> action to send users emails on their birthdays.'));
+    // Explain that.
+    if (module_exists('trigger')) {
+      drupal_set_message(t('A <em>Happy birthday mail</em> action has been created. You can !assign that action so that users recieve an email on their birthday.', array('!assign' => l('assign', 'admin/structure/trigger/birthdays'))));
+    }
+    else {
+      drupal_set_message(t('Enable the Trigger module and assign the newly created <em>Happy birthday mail</em> action to send users emails on their birthdays.'));
+    }
   }
 
   // Explain views support.

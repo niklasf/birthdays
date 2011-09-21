@@ -232,6 +232,13 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
     ),
   );
 
+  // Datepicker popup.
+  drupal_add_library('system', 'ui.datepicker');
+  $element['value']['#attributes']['class'] = array('birthdays-datepicker');
+  $element['value']['#attached'] = array(
+    'js' => array(drupal_get_path('module', 'birthdays') . '/birthdays.js'),
+  );
+
   // The default value.
   if (isset($items[$delta])) {
     $element['value']['#default_value'] = BirthdaysBirthday::fromArray($items[$delta])->toString();

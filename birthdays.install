@@ -91,10 +91,10 @@ function birthdays_update_7000() {
   module_load_include('install', 'birthdays', 'defaults/birthdays_defaults');
   $params = array();
   if ($user_message = variable_get('birthdays_send_user_message')) {
-    $params['message'] = $user_message;
+    $params['message'] = _birthdays_upgrade_tokens($user_message);
   }
   if ($user_subject = variable_get('birthdays_send_user_subject')) {
-    $params['subject'] = $user_subject;
+    $params['subject'] = _birthdays_upgrade_tokens($user_subject);
   }
   $aid = actions_save(
     'system_send_email_action',
@@ -103,6 +103,36 @@ function birthdays_update_7000() {
     t('Happy birthday mail')
   );
   variable_set('birthdays_defaults_action', $aid);
+  variable_del('birthdays_send_user_message');
+  variable_del('birthdays_send_user_subject');
+}
+
+/**
+ * Upgrades D6 user tokens to new D7 tokens.
+ *
+ * @param $text
+ *   The old template.
+ *
+ * @return
+ *   The new template with upgraded tokens.
+ */
+function _birthdays_upgrade_tokens($text) {
+  // The replacements as in user_update_7017(). !password is left unchanged,
+  // because it wasn't available in birthday mails anyway.
+  $replacements = array(
+    '!username' => '[user:name]',
+    '!site' => '[site:name]',
+    '!login_url' => '[user:one-time-login-url]',
+    '!uri' => '[site:url]',
+    '!uri_brief' => '[site:url-brief]',
+    '!mailto' => '[user:mail]',
+    '!date' => '[date:medium]',
+    '!login_uri' => '[site:login-url]',
+    '!edit_uri' => '[user:edit-url]',
+  );
+
+  // Do the replacement.
+  return str_replace(array_keys($replacements), $replacements, $text);
 }
 
 /**

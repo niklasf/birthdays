@@ -122,3 +122,37 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
     }
   }
 }
+
+/**
+ * Test utility functions.
+ */
+class BirthdaysUtilityTestCase extends DrupalUnitTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Birthdays utility tests'),
+      'description' => t('Unit tests for various utility functions.'),
+      'group' => t('Birthdays'),
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp() {
+    parent::setUp();
+    module_load_include('install', 'birthdays', 'birthdays');
+  }
+
+  /**
+   * Test _birthdays_upgrade_tokens().
+   */
+  public function testUpgradeTokens() {
+    $this->assertEqual(_birthdays_upgrade_tokens('Happy birthday !name!'), 'Happy birthday [user:name]!');
+    $this->assertEqual(_birthdays_upgrade_tokens('[site:name] !password'), '[site:name] !password');
+    $this->assertEqual(_birthdays_upgrade_tokens('!date !uri !mailto'), '[date:medium] [site:url] [user:mail]');
+  }
+}

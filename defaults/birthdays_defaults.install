@@ -13,21 +13,25 @@ function birthdays_defaults_install() {
   field_cache_clear();
 
   // Create the default field.
-  field_create_field(array(
-    'field_name' => 'birthdays',
-    'type' => 'birthdays_date',
-    'cardinality' => 1,
-    'translatable' => FALSE,
-    'entity_types' => array('user'),
-  ));
+  if (!field_info_field('birthdays')) {
+    field_create_field(array(
+      'field_name' => 'birthdays',
+      'type' => 'birthdays_date',
+      'cardinality' => 1,
+     'translatable' => FALSE,
+      'entity_types' => array('user'),
+    ));
+  }
 
   // Create the deault field instance.
-  field_create_instance(array(
-    'field_name' => 'birthdays',
-    'entity_type' => 'user',
-    'bundle' => 'user',
-    'label' => t('Birthday'),
-  ));
+  if (!field_info_instance('user', 'birthdays', 'user')) {
+    field_create_instance(array(
+      'field_name' => 'birthdays',
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => t('Birthday'),
+    ));
+  }
 
   // Explain that.
   if (module_exists('field_ui')) {

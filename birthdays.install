@@ -105,6 +105,77 @@ function birthdays_update_7000() {
   variable_set('birthdays_defaults_action', $aid);
   variable_del('birthdays_send_user_message');
   variable_del('birthdays_send_user_subject');
+
+  // Create a birthdays field on the user entity type.
+  if (!field_info_field('birthdays')) {
+    field_create_field(array(
+      'field_name' => 'birthdays',
+      'type' => 'birthdays_date',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+      'entity_types' => array('user'),
+    ));
+  }
+
+  // The field instance settings with admin_mail and hide_year setting.
+  $instance = array(
+    'field_name' => 'birthdays',
+    'entity_type' => 'user',
+    'bundle' => 'user',
+    'label' => t('Birthday'),
+    'settings' => array(
+      'admin_mail' => variable_get('birthdays_remind', BIRTHDAYS_ADMIN_MAIL_DISABLED),
+      'hide_year' => variable_get('birthdays_hide_year', BIRTHDAYS_HIDE_YEAR_NO),
+    ),
+  );
+  variable_del('birthdays_remind');
+  variable_del('birthdays_hide_year');
+
+  // Upgrade user mail settings.
+  // 0 was BIRTHDAYS_USER_MAIL_NO.
+  // 1 was BIRTHDAYS_USER_MAIL_YES
+  // 2 was BIRTHDAYS_USER_MAIL_USER.
+  if (variable_get('birthdays_send_user', 0) == 2) {
+    // Use the same texts that were in the user form.
+    $instance['settings']['triggers'] = array(
+      'user' => TRUE,
+      'title' => t('Do not send birthday mail'),
+      'description' => t('Do not send me an e-mail or e-card when it\'s my birthday.'),
+    );
+  }
+  if (variable_get('birthdays_send_user', 0) != 0) {
+    if (db_table_exists('trigger_assignments')) {
+      db_insert('trigger_assignments')
+        ->fields(array(
+          'hook' => _birthdays_instance_hook($instance),
+          'aid' => variable_get('birthdays_defaults_action'),
+          'weight' => 0,
+        ))
+        ->execute();
+    }
+  }
+  variable_del('birthdays_send_user');
+
+  // Save the field instance settings.
+  if (field_info_instance('user', 'birthdays', 'user')) {
+    field_update_instance($instance);
+  }
+  else {
+    field_create_instance($instance);
+  }
+
+  // TODO: Move data
+  variable_del('birthdays_field_id');
+
+  // Block, page and viewmode aren't upgraded automatically. Delete the
+  // remaining variables and leave a message.
+  variable_del('birthdays_show_starsign');
+  variable_del('birthdays_page_settings');
+  variable_del('birthdays_page_list_number');
+  variable_del('birthdays_page_show_filters');
+  variable_del('birthdays_block_number_by_days');
+  variable_del('birthdays_block_number_by_birthdays');
+  return t('Birthday block and page are now a view provided by the Birthdays defaults module and birthdays are in their own field type. Check you view and view mode settings, to make sure they are correct, because they are not upgraded automatically.');
 }
 
 /**

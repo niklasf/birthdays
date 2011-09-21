@@ -358,4 +358,125 @@ class BirthdaysBirthday {
         return $day < 22 ? 'sagittarius' : 'capricorn';
     }
   }
+
+  /**
+   * Reduces a date format string i.e. "dd.mm.YYY H:i:s" to a date format
+   * string that has no unavailable tokens. That is "dd.mm.YYY", because we are
+   * dealing with pure date and have no hours, minutes and secounds.
+   *
+   * @param $year
+   *   Defaults to TRUE. Whether tokens that need a year are aloud.
+   *
+   * @return
+   *   The new date format string.
+   */
+  public static function reduceDateFormat($format, $allow_year = TRUE) {
+    // An array of all the available tokens of the date() function. TRUE means
+    // available, FALSE means not available.
+    $tokens = array(
+      'd' => TRUE,
+      'D' => TRUE, // needs year
+      'j' => TRUE,
+      'l' => TRUE, // needs year
+      'N' => TRUE, // needs year
+      'S' => TRUE,
+      'w' => TRUE, // needs year
+      'z' => TRUE, // needs year
+      'W' => TRUE, // needs year
+      'F' => TRUE,
+      'm' => TRUE,
+      'M' => TRUE,
+      'n' => TRUE,
+      't' => TRUE, // needs year
+      'L' => TRUE, // needs year
+      'o' => TRUE, // needs year
+      'Y' => TRUE, // needs year
+      'y' => TRUE, // needs year
+      'a' => FALSE,
+      'A' => FALSE,
+      'B' => FALSE,
+      'g' => FALSE,
+      'G' => FALSE,
+      'h' => FALSE,
+      'H' => FALSE,
+      'i' => FALSE,
+      's' => FALSE,
+      'u' => FALSE,
+      'e' => TRUE,
+      'I' => TRUE,
+      'O' => TRUE,
+      'P' => TRUE,
+      'T' => TRUE,
+      'Z' => TRUE,
+      'c' => TRUE, // needs year
+      'r' => TRUE, // needs year
+      'U' => TRUE, // needs year
+    );
+
+    // If no year is present, more tokens are not aloud.
+    if (!$allow_year) {
+      $tokens = array(
+        'D' => FALSE,
+        'l' => FALSE,
+        'N' => FALSE,
+        'w' => FALSE,
+        'z' => FALSE,
+        'W' => FALSE,
+        't' => FALSE,
+        'L' => FALSE,
+        'o' => FALSE,
+        'Y' => FALSE,
+        'y' => FALSE,
+        'c' => FALSE,
+        'r' => FALSE,
+        'U' => FALSE,
+      ) + $tokens;
+    }
+
+    // Split the date format into parts.
+    $parts = preg_split('/\s+/', $format);
+    $new_parts = array();
+
+    // One time pass parsing the parts.
+    foreach ($parts as $part) {
+      $escape = FALSE;
+      $remove = FALSE;
+      $new_part =  '';
+
+      for ($i = 0; $i < strlen($part); $i++) {
+        if ($escape) {
+          if (!$remove) {
+            $new_part .= $part[$i];
+          }
+        }
+        else {
+          if ($part[$i] == '\\') {
+            $escape = TRUE;
+            if (!$remove) {
+              $new_part .= '\\';
+            }
+          }
+          elseif (!isset($tokens[$part[$i]])) {
+            if (!$remove) {
+              $new_part .= $part[$i];
+            }
+          }
+          elseif ($tokens[$part[$i]]) {
+            $remove = FALSE;
+            $new_part .= $part[$i];
+          }
+          else {
+            $remove = TRUE;
+          }
+        }
+      }
+
+      if ($new_part !== '') {
+        $new_parts[] = $new_part;
+      }
+    }
+
+    // Implode the result.
+    return implode(' ', $new_parts);
+  }
 }

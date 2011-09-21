@@ -431,7 +431,7 @@ class BirthdaysBirthday {
     $parts = preg_split('/\s+/', $format);
     $new_parts = array();
 
-    // One time pass parsing the parts.
+    // One time pass parsing the parts, removing invalid tokens.
     foreach ($parts as $part) {
       $escape = FALSE;
       $remove = FALSE;
@@ -465,12 +465,49 @@ class BirthdaysBirthday {
         }
       }
 
-      if ($new_part !== '') {
-        $new_parts[] = $new_part;
+      $new_parts[] = $new_part;
+    }
+
+    // Left trim the array, removing - and / if after whitespace.
+    $left_trimmed = array();
+    $remove = FALSE;
+    foreach ($new_parts as $part) {
+      if ($part === '') {
+        $left_trimmed[] = $part;
+        $remove = TRUE;
+      }
+      elseif (preg_match('/^(-+|\/)$/', $part)) {
+        if (!$remove) {
+          $left_trimmed[] = $part;
+        }
+      }
+      else {
+        $remove = FALSE;
+        $left_trimmed[] = $part;
+      }
+    }
+
+    // Right trim the array, removing - and / if after whitespace and
+    // whitespace itself.
+    $right_trimmed = array();
+    $remove = FALSE;
+    for ($i = count($left_trimmed) - 1; $i >= 0; $i--) {
+      $part = $left_trimmed[$i];
+      if ($part === '') {
+        $remove = TRUE;
+      }
+      elseif (preg_match('/^(-+|\/)$/', $part)) {
+        if (!$remove) {
+          array_unshift($right_trimmed, $part);
+        }
+      }
+      else {
+        $remove = FALSE;
+        array_unshift($right_trimmed, $part);
       }
     }
 
     // Implode the result.
-    return implode(' ', $new_parts);
+    return implode(' ', $right_trimmed);
   }
 }

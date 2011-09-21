@@ -190,9 +190,6 @@ class BirthdaysBirthday {
   /**
    * Converts the value to a string.
    *
-   * @todo
-   *   Use proper Drupal date formatting instead of dd.mm(.YYYY).
-   *
    * @returns A string representation of the value.
    */
   public function toString() {
@@ -200,12 +197,9 @@ class BirthdaysBirthday {
       return '';
     }
 
-    if ($this->value['year']) {
-      return date('d.m.Y', $this->toUnixtime());
-    }
-    else {
-      return date('d.m.', $this->toUnixtime());
-    }
+    $format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
+    $format = self::reduceDateFormat($format, $this->value['year'] != 0);
+    return format_date($this->toUnixtime(), 'custom', $format);
   }
 
   /**

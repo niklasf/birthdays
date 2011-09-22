@@ -114,6 +114,7 @@ function birthdays_field_info() {
           'title' => t('Fire triggers on birthdays'),
           'description' => '',
         ),
+        'datepicker' => FALSE,
       ),
     ),
   );
@@ -233,16 +234,18 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
   );
 
   // Datepicker popup.
-  drupal_add_library('system', 'ui.datepicker');
-  if ($instance['settings']['hide_year'] == BIRTHDAYS_HIDE_YEAR_YES) {
-    $element['value']['#attributes']['class'] = array('birthdays-datepicker-noyear');
+  if ($instance['settings']['datepicker']) {
+    drupal_add_library('system', 'ui.datepicker');
+    if ($instance['settings']['hide_year'] == BIRTHDAYS_HIDE_YEAR_YES) {
+      $element['value']['#attributes']['class'] = array('birthdays-datepicker-noyear');
+    }
+    else {
+      $element['value']['#attributes']['class'] = array('birthdays-datepicker');
+    }
+    $element['value']['#attached'] = array(
+      'js' => array(drupal_get_path('module', 'birthdays') . '/birthdays.js'),
+    );
   }
-  else {
-    $element['value']['#attributes']['class'] = array('birthdays-datepicker');
-  }
-  $element['value']['#attached'] = array(
-    'js' => array(drupal_get_path('module', 'birthdays') . '/birthdays.js'),
-  );
 
   // The default value.
   if (isset($items[$delta])) {
@@ -316,6 +319,14 @@ function birthdays_field_widget_error($element, $error) {
  */
 function birthdays_field_instance_settings_form($field, $instance) {
   $settings = $instance['settings'];
+
+  // Datepicker option.
+  $form['datepicker'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use a datepicker'),
+    '#description' => t('Select to optionally use a datepicker popup to select dates.'),
+    '#default_value' => $settings['datepicker'],
+  );
 
   // Year settings.
   $form['hide_year'] = array(

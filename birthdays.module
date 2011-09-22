@@ -234,7 +234,12 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
 
   // Datepicker popup.
   drupal_add_library('system', 'ui.datepicker');
-  $element['value']['#attributes']['class'] = array('birthdays-datepicker');
+  if ($instance['settings']['hide_year'] == BIRTHDAYS_HIDE_YEAR_YES) {
+    $element['value']['#attributes']['class'] = array('birthdays-datepicker-noyear');
+  }
+  else {
+    $element['value']['#attributes']['class'] = array('birthdays-datepicker');
+  }
   $element['value']['#attached'] = array(
     'js' => array(drupal_get_path('module', 'birthdays') . '/birthdays.js'),
   );

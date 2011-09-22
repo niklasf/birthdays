@@ -336,7 +336,7 @@ function birthdays_field_instance_settings_form($field, $instance) {
     '#description' => t('Make entering a year optional, required or forbidden.'),
     '#options' => array(
       BIRTHDAYS_HIDE_YEAR_NO => t('Require the user to enter a year'),
-      BIRTHDAYS_HIDE_YEAR_USER => t('Let the user decide, if he wants to enter a year'),
+      BIRTHDAYS_HIDE_YEAR_USER => t('Let the user decide, if they want to enter a year'),
       BIRTHDAYS_HIDE_YEAR_YES => t('Don\'t allow the user to enter a year'),
     ),
   );

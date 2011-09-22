@@ -7,7 +7,6 @@ CONTENTS OF THIS FILE
  * Requirements
  * Installation & Upgrading
  * Settings
- * Synchronizing
  * Customizing the module
  * Maintainers
 
@@ -153,28 +152,6 @@ Setting the module is done on a number of pages.
   ?q=admin/settings/date-time. The Birthdays module uses the short date format
   as basis for displaying days and months in the blocks and the medium date
   format is used in the profile and on the Birthdays page.
-
-
-SYNCHRONIZING
--------------
-
-A special page is located at ?q=admin/settings/birthdays/sync. The birthdays
-are saved to two different database tables. This is because the profile module
-saves the dates in a format which limit the ability to perform calculations on
-the dates. These two tables need to be in sync with each other, which will be
-most of the time.
-
-Sometimes this is not the case. For example when you already collected
-birthdays with the Profile module, but later decided to switch to the birthdays
-module. Or when you accidentally (on intentionally) completely uninstalled the
-profile module, but left birthdays module merely disabled.
-
-In the first case you need to copy the Profile data to the (most likely empty)
-Birthdays table, which is done with the top button. In the latter you need the
-copy the birthdays in the Birthdays table back to the Profile module with the
-bottom button.
-
-Please note that with large amounts of users this might take some time.
 
 
 CUSTOMIZING THE MODULE

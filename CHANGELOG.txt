@@ -1,6 +1,11 @@
 
 Birthdays 7.x-1.0, not yet released
 -----------------------------------
+- Ported to 7.x.
+- Created a birthday field type, that can be used standalone - or, by default,
+  on user profiles.
+- Added trigger support and use triggers and actions for user mails.
+- Added Views support and replaced custom page and block with a view.
 
 Birthdays 6.x-1.0, 2009-02-09
 -----------------------------

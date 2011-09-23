@@ -6,6 +6,7 @@ CONTENTS OF THIS FILE
  * Features
  * Requirements
  * Installation & Upgrading
+ * Using Birthdays
  * Maintainers
 
 
@@ -60,6 +61,52 @@ See http://drupal.org/documentation/install/modules-themes/modules-7
 for instrunctions on installing contrib modules.
 
 Make sure you read UPGRADE.txt before upgrading from Drupal 6.
+
+
+USING BIRTHDAYS
+---------------
+
+  The birthday field type
+  -----------------------
+
+  Birthdays module provides a field type for birthdays. You can use birthday
+  fields for all entity types. Use the "Manage fields" page of your content
+  type / entity type / bundle to add the field. You can also go there to change
+  configuration options later.
+  These field instance settings are available:
+
+   * Display during registration (if on user entity)
+   * Allow the user to hide the year of birth / always hide the year of birth /
+     require a year of birth
+   * Send regular emails reminding of upcoming birthdays
+   * Allow the user to opt-out trigger integration
+
+  Birthdays defaults
+  ------------------
+
+  Adds a birthday field to the user entity type, provides a default view and a
+  default "Happy birthday mail" action.
+
+  Triggers & Actions
+  ------------------
+
+  Triggers module allows you to execute actions on birthdays. Birthdays module
+  has a tab on the Triggers configuration page, where you can assign actions to
+  execute for each field instance.
+  The assigned actions are fired during cron runs.
+  Note that the birthday field type has also a setting, to allow the user to
+  opt-out of triggers.
+
+  Views
+  -----
+
+  Birthdays defaults provides a default page and block, but you can create more
+  custom views.
+  You can use birthday fields as fields, for sorting and for filtering. The
+  field has clicksort support. You can sort by absolute time stamp, time to
+  next birthday or day of the year. You can filter by absolute values or
+  offsets in days. Also day, month and year column are available as seperate
+  integer columns.
 
 
 MAINTAINERS

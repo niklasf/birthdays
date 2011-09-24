@@ -78,7 +78,7 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
 
     // Date in the future.
     try {
-      BirthdaysBirthday::fromString(date('d.m.Y', time() + 1000000));
+      BirthdaysBirthday::fromString(date('d.m.Y', REQUEST_TIME + 1000000));
       $this->fail(t('Exception expected.'));
     }
     catch (InvalidArgumentException $e) {

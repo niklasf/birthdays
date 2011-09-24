@@ -193,7 +193,7 @@ function birthdays_update_7001(&$sandbox) {
   if (!isset($sandbox['progress'])) {
     $sandbox['progress'] = 0;
     $sandbox['last_uid_processed'] = -1;
-    $sandbox['max'] = db_query('SELECT COUNT(*) FROM {dob}');
+    $sandbox['max'] = db_query('SELECT COUNT(*) FROM {dob}')->fetchField();
   }
 
   $instance = field_info_instance('user', 'birthdays', 'user');

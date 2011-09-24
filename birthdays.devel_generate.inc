@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Provides Devel generate integration for the birthday field type.
+ */
+
+/**
  * Implements hook_devel_generate().
  */
 function birthdays_devel_generate($object, $field, $instance, $bundle) {

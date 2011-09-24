@@ -18,7 +18,7 @@ function birthdays_defaults_install() {
       'field_name' => 'birthdays',
       'type' => 'birthdays_date',
       'cardinality' => 1,
-     'translatable' => FALSE,
+      'translatable' => FALSE,
       'entity_types' => array('user'),
     ));
   }
@@ -29,22 +29,22 @@ function birthdays_defaults_install() {
       'field_name' => 'birthdays',
       'entity_type' => 'user',
       'bundle' => 'user',
-      'label' => t('Birthday'),
+      'label' => st('Birthday'),
     ));
   }
 
   // Explain that.
   if (module_exists('field_ui')) {
-    $field_ui = t('You can adjust the birthday !field_settings, !manage_account_fields or !manage_the_display under Administration &raquo; Configuration &raquo; People.', array(
-      '!field_settings' => l('field settings', 'admin/config/people/accounts/fields/birthdays'),
-      '!manage_account_fields' => l('manage account fields', 'admin/config/people/accounts/fields'),
-      '!manage_the_display' => l('manage the display', 'admin/config/people/accounts/display')
+    $field_ui = st('You can adjust the birthday !field_settings, !manage_account_fields or !manage_the_display under Administration &raquo; Configuration &raquo; People.', array(
+      '!field_settings' => l(st('field settings'), 'admin/config/people/accounts/fields/birthdays'),
+      '!manage_account_fields' => l(st('manage account fields'), 'admin/config/people/accounts/fields'),
+      '!manage_the_display' => l(st('manage the display'), 'admin/config/people/accounts/display'),
     ));
   }
   else {
-    $field_ui = t('Enable the Field UI module to adjust the birthday field settings, manage account fields or manage the display under Administration &raquo; Configuration &raquo; People.');
+    $field_ui = st('Enable the Field UI module to adjust the birthday field settings, manage account fields or manage the display under Administration &raquo; Configuration &raquo; People.');
   }
-  drupal_set_message(t('A default field has been attached to the user profiles.') . ' ' . $field_ui);
+  drupal_set_message(st('A default field has been attached to the user profiles.') . ' ' . $field_ui);
 
   // Create a default birthday mail action.
   if (!variable_get('birthdays_defaults_action')) {
@@ -52,25 +52,25 @@ function birthdays_defaults_install() {
       'system_send_email_action', // Send a mail.
       'system', // Action is defined by system module.
       _birthdays_defaults_action_parameters(),
-      t('Happy birthday mail')
+      st('Happy birthday mail')
     );
     variable_set('birthdays_defaults_action', $aid);
 
     // Explain that.
     if (module_exists('trigger')) {
-      drupal_set_message(t('A <em>Happy birthday mail</em> action has been created. You can !assign that action so that users recieve an email on their birthday.', array('!assign' => l('assign', 'admin/structure/trigger/birthdays'))));
+      drupal_set_message(st('A <em>Happy birthday mail</em> action has been created. You can !assign that action so that users recieve an email on their birthday.', array('!assign' => l(st('assign'), 'admin/structure/trigger/birthdays'))));
     }
     else {
-      drupal_set_message(t('Enable the Trigger module and assign the newly created <em>Happy birthday mail</em> action to send users emails on their birthdays.'));
+      drupal_set_message(st('Enable the Trigger module and assign the newly created <em>Happy birthday mail</em> action to send users emails on their birthdays.'));
     }
   }
 
   // Explain views support.
   if (module_exists('views_ui')) {
-    drupal_set_message(t('Birthdays defaults provides a default page and block with birthdays. You can !use_the_views_module to enable or customize them.', array('!use_the_views_module' => l('use the views module', 'admin/structure/views'))));
+    drupal_set_message(st('Birthdays defaults provides a default page and block with birthdays. You can !use_the_views_module to enable or customize them.', array('!use_the_views_module' => l(st('use the views module'), 'admin/structure/views'))));
   }
   else {
-    drupal_set_message(t('You can use the the Views module to lists of birthdays as blocks or pages.'));
+    drupal_set_message(st('You can use the the Views module to lists of birthdays as blocks or pages.'));
   }
 }
 

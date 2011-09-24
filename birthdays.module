@@ -46,7 +46,7 @@ define('BIRTHDAYS_HIDE_YEAR_YES', '1');
 define('BIRTHDAYS_HIDE_YEAR_USER', '2');
 
 /**
- * Implementation of hook_help().
+ * Implements of hook_help().
  *
  * @todo  Rewrite.
  */
@@ -227,10 +227,7 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       '#type' => 'textfield',
       '#langcode' => $langcode,
       '#size' => 10,
-      '#title' => $element['#title'],
-      '#description' => $element['#description'],
-      '#required' => $element['#required'],
-    ),
+    ) + array_intersect_key($element, array_flip(array('#title', '#description', '#required'))),
   );
 
   // Datepicker popup.
@@ -504,7 +501,7 @@ function _birthdays_instance_description($instance) {
  */
 function _birthdays_instance_hook($i) {
   $hook = 'birthdays_' . sha1($i['entity_type'] . '|' . $i['bundle'] . '|' . $i['field_name']);
-  return substr($hook, 0, 32);
+  return drupal_substr($hook, 0, 32);
 }
 
 /**
@@ -555,7 +552,7 @@ function _birthdays_field_instances() {
  * Comparison callback to sort an array of field instances by entity type,
  * bundle name and field name as humans would do.
  *
- * @see strnatcmp
+ * @see strnatcmp()
  */
 function _birthdays_field_instances_compare($a, $b) {
   // Entity types have first priority.
@@ -626,9 +623,8 @@ function birthdays_cron() {
   $instances = _birthdays_field_instances();
 
   // The the cronjob run at most once a day.
-  $time = time();
   $day = 24 * 60 * 60;
-  $last_cron = variable_get('birthdays_last_cron', $time - $day);
+  $last_cron = variable_get('birthdays_last_cron', REQUEST_TIME - $day);
   if ($last_cron > $time - $day) {
     return;
   }
@@ -665,7 +661,7 @@ function birthdays_cron() {
     // Add an entry to the mail.
     $entities = entity_load($instance['entity_type'], $birthdays);
     if (!empty($entities)) {
-      $admin_mail[_birthdays_instance_description($instance) . ' ('. $period . ')'] = array(
+      $admin_mail[_birthdays_instance_description($instance) . ' (' . $period . ')'] = array(
         'instance' => $instance,
         'entities' => $entities,
       );
@@ -706,7 +702,7 @@ function birthdays_mail($key, &$message, $params) {
 
         // Category header, underlined.
         $message['body'][] = $category;
-        $message['body'][] = str_repeat('-', strlen($category));
+        $message['body'][] = str_repeat('-', drupal_strlen($category));
         $message['body'][] = '';
 
         foreach ($items['entities'] as $entity) {

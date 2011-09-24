@@ -59,7 +59,7 @@ class BirthdaysBirthday {
     }
 
     // Match (yyyy-)mm-dd or (yyyy/)mm/dd.
-    foreach(array('\/', '-') as $sep) {
+    foreach (array('\/', '-') as $sep) {
       if (preg_match('/^((?P<year>\d{4}|\d{2})' . $sep . ')?(?P<month>\d{1,2})' . $sep . '(?P<day>\d{1,2})/', $text, $matches)) {
         return self::fromArray($matches, $allow_future);
       }
@@ -125,15 +125,15 @@ class BirthdaysBirthday {
       if (!($year % 400 == 0 || ($year % 4 == 0 && $year % 100 != 0))) {
         $maxdays[2] = 28;
       }
- 
+
       // Check if it's in the future.
       if (!$allow_future) {
         $unixtime = mktime(1, 0, 0, $month, $day, $year);
-        if ($unixtime >= time()) {
+        if ($unixtime >= REQUEST_TIME) {
           throw new InvalidArgumentException(t("The given date is in the future."));
         }
       }
-   }
+    }
 
     // Validate day.
     if ($day < 1 || $day > $maxdays[$month]) {
@@ -183,7 +183,7 @@ class BirthdaysBirthday {
    *   A BirthdaysBirthday instance.
    */
   public function fromOffset($offset) {
-    $time = time() + intval($offset) * 24 * 60 * 60;
+    $time = REQUEST_TIME + intval($offset) * 24 * 60 * 60;
     return self::fromDate(0, date('m', $time), date('d', $time));
   }
 
@@ -279,19 +279,18 @@ class BirthdaysBirthday {
       return t('Age unkown');
     }
 
-    $time = time();
-    $months_diff = date('m', $time) - $this->value['month'];
+    $months_diff = date('m', REQUEST_TIME) - $this->value['month'];
 
     if ($months_diff < 0) {
-      return $this->getAge(date('Y', $time)) - 1;
+      return $this->getAge(date('Y', REQUEST_TIME)) - 1;
     }
     elseif ($months_diff == 0) {
       if ($this->value['day'] < date('d')) {
-        return $this->getAge(date('Y', $time)) - 1;
+        return $this->getAge(date('Y', REQUEST_TIME)) - 1;
       }
     }
 
-    return $this->getAge(date('Y', $time));
+    return $this->getAge(date('Y', REQUEST_TIME));
   }
 
   /**
@@ -437,7 +436,7 @@ class BirthdaysBirthday {
       $remove = FALSE;
       $new_part =  '';
 
-      for ($i = 0; $i < strlen($part); $i++) {
+      for ($i = 0; $i < drupal_strlen($part); $i++) {
         if ($escape) {
           if (!$remove) {
             $new_part .= $part[$i];

@@ -16,7 +16,6 @@
  * @param $entity
  *   The entity the birthday field is attached to. For example the user
  *   object.
- *
  * @param $instance
  *   The field instance.
  */

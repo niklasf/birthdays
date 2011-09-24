@@ -73,7 +73,7 @@ class birthdays_field_views_handler_field extends views_handler_field_field {
       $this->query->add_orderby(NULL, NULL, $order, $columns['day']);
     }
     else {
-      birthdays_field_views_handler_sort::addOrderBy($this->query, $order, $columns, $this->definition['field_name'] . '_sort', time());
+      birthdays_field_views_handler_sort::addOrderBy($this->query, $order, $columns, $this->definition['field_name'] . '_sort');
     }
   }
 }

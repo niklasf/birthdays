@@ -25,8 +25,7 @@ class birthdays_field_views_handler_sort extends views_handler_sort {
         'month' => $this->field . '_month',
         'year' => $this->field . '_year',
       ),
-      $this->field . '_sort_column',
-      time()
+      $this->field . '_sort_column'
     );
   }
 
@@ -42,12 +41,10 @@ class birthdays_field_views_handler_sort extends views_handler_sort {
    *   column names in the query.
    * @param $fieldname
    *   The name for the sorting column.
-   * @param $time
-   *   The current time as a unix timestamp.
    */
-  public static function addOrderBy($query, $order, $columns, $fieldname, $time) {
+  public static function addOrderBy($query, $order, $columns, $fieldname) {
     // Use the formula to calculate a value for the current time.
-    $now = date('m', $time) * 32 + date('d', $time);
+    $now = date('m', REQUEST_TIME) * 32 + date('d', REQUEST_TIME);
 
     // Get the formula for the current database type.
     switch (Database::getConnection()->databaseType()) {

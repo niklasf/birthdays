@@ -1,6 +1,6 @@
 
-Birthdays 7.x-1.0, not yet released
------------------------------------
+Birthdays 7.x-1.0-alpha1, 2011-09-25
+------------------------------------
 - Ported to 7.x.
 - Created a birthday field type, that can be used standalone - or, by default,
   on user profiles.

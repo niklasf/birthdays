@@ -36,6 +36,12 @@ Drupal 7. As always: Do backups to avoid data loss!
     (http://drupal.org/project/issues/birthdays) as detailed as you can. Once
     they are fixed you can go back using your backups and try again.
 
+ 6. Remove the duplicate profile field
+
+    Your user entity type now has a birthdays field but it should still have
+    the old profile field. Go to Configuration > People > Profiles if you want
+    to delete that duplicate field.
+
  6. Manually deal with page / block settings and permissions
 
     Page / block settings as well as permissions aren't upgraded automatically.

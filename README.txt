@@ -18,7 +18,7 @@ their profile the date of birth can be shown, as well as their age and their
 star sign. This is all configurable.
 
 You can also list the birthdays on blocks and pages using Views. You can filter
-by day. month and year, display only N upcoming birthdays and so on.
+by day, month and year, display only N upcoming birthdays and so on.
 
 It is optional to send users an email or execute another action on their
 birthday, and the administrator can receive periodic reminders of who are having
@@ -103,10 +103,10 @@ USING BIRTHDAYS
   Birthdays defaults provides a default page and block, but you can create more
   custom views.
   You can use birthday fields as fields, for sorting and for filtering. The
-  field has clicksort support. You can sort by absolute time stamp, time to
-  next birthday or day of the year. You can filter by absolute values or
-  offsets in days. Also day, month and year column are available as seperate
-  integer columns.
+  field has clicksort support. You can sort by absolute timestamp, time to next
+  birthday or day of the year. You can filter by absolute values or offsets in
+  days. Also day, month and year column are available as seperate integer
+  columns.
 
 
 MAINTAINERS

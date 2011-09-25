@@ -46,53 +46,37 @@ define('BIRTHDAYS_HIDE_YEAR_YES', '1');
 define('BIRTHDAYS_HIDE_YEAR_USER', '2');
 
 /**
- * Implements of hook_help().
- *
- * @todo  Rewrite.
+ * Implements hook_help().
  */
 function birthdays_help($path, $arg) {
-  global $_birthdays_field;
   switch ($path) {
     case 'admin/help#birthdays':
-      $output = '<p>' . t("The Birthdays module allows a user to put in their birthday and display it in their profile, on a separate Birthdays page and in a block. It also has the option to send out e-mails on users's birthdays, and to notify the administrator periodically about upcoming birthdays via e-mail.") . '</p>';
-      $output .= '<p>' . t('Some basic information about this module can be found below. For more information, support questions, feature requests and bug reports please visit the <a href="@project_url">Birthdays project page</a> and the <a href="@documentation_url">online documentation</a>.', array('@project_url' => 'http://drupal.org/project/birthdays', '@documentation_url' => 'http://drupal.org/node/315658')) . '</p>';
-      $output .= '<h2>' . t('Configuring the module') . '</h2>';
-      $output .= '<p>' . t('Configuring the module is done on a number of pages.') . '</p>';
-      $output .= '<h3>' . t('Birthdays administration pages') . '</h3>';
-      $output .= '<p>' . t('The <a href="@birthdays_admin">Birthdays administration pages</a> are where the actual features of the birthdays module are set. Some of the options are described below.', array('@birthdays_admin' => url('admin/settings/birthdays'))) . '</p>';
-      $output .= '<ul><li><strong>' . t('Profile field') . '</strong>: ' . t('here you set which "date" field of the Profile module you want the Birthdays module to use.') . '</li>';
-      $output .= '<li><strong>' . t('Show star signs') . '</strong>: ' . t('select whether you want to display the star sign icons on the profile and on the Birthdays page, and, if so, whether it should link to Yahoo Horoscopes.') . '</li>';
-      $output .= '<li><strong>' . t('Hide year and age') . '</strong>: ' . t("some sites might want to protect the user's privacy by hiding their age and year of birth. The options are 'No', 'Yes' and 'User optional, defaults to No', where the latter gives the user the option to  select whether he or she wants this information to be hidden. If enabled it still requires them to put the full date of birth in, but only the day and month will be displayed.") . '</li>';
-      $output .= '<li><strong>' . t('Set Birthdays page settings') . '</strong>: ' . t('this influences how the listing of the Birthdays page is shown. Sorted by user name of date of birth (year not included) and users without a birthday shown or not.') . '</li>';
-      $output .= '<li><strong>' . t('Show filter options') . '</strong>: ' . t("determine whether the buttons to filter by specific month and/or year should be displayed. When 'Hide year and age' is set to 'Yes', filtering by year is not possible.") . '</li>';
-      $output .= '<li><strong>' . t('Send upcoming birthdays to admin') . '</strong>: ' . t("this one has 4 values 'Disabled', 'Dayly', 'Weekly, on the first day of the week' and 'Monthly'. This will send an e-mail to your site e-mail address at the given intervals, listing users that will have their birthday in that period. The first day of the week is controlled by the <a href=\"@date_settings\">date and time settings</a>.", array('@date_settings' => url('admin/settings/date-time'))) . '</li>';
-      $output .= '<li><strong>' . t('Send user e-mail on day of birth') . '</strong>: ' . t("set whether users should receive an e-mail when they are having the birthday. Either 'No', 'Yes' or 'User optional, 'Yes' by default', where the latter leaves the decision up to the user.") . '</li></ul>';
+      $output = '<h3>' . t('Introduction') . '</h3>';
+      $output .= '<p>' . t('The Birthdays module allows users to add their birthday to their profile. In their profile the date of birth can be shown, as well as their age and their star sign. This is all configurable.') . '</p>';
+      $output .= '<p>' . t('You can also list the birthdays an blocks and pages using Views. You can filter by day, month and year, display only N upcoming birthdays and so on.') . '</p>';
+      $output .= '<p>' . t('It is optional to send users an email or execute another action on their birthday, and the administrator can recieve periodic reminders of who are having their birthday next day, week or month.') . '</p>';
 
-      $output .= '<h3>' . t('Permissions') . '</h3>';
-      $output .= '<p>' . t('To allow users to view birthdays of other people, the "access birthdays" <a href="@permissions_page">permissions</a> needs to be set for the appropriate role. This allows them to access the <a href="@birthdays_page">Birthdays page</a>, see activated blocks with birthdays and view the birthdays of users in the profiles.', array('@birthdays_page' => url('birthdays'), '@permissions_page' => url('admin/user/permissions', array('fragment' => 'module-birthdays')))) . '</p>';
+      $output .= '<h3>' . t('The birthday field type') . '</h3>';
+      $output .= '<p>' . t('Birthdays module provides a field type for birthdays. You can use birthday fields for all entity types. Use the "Manage fields" page of your content type / entity type / bundle to add the field. You can also go thee to change the field instance settings later. These are available:') . '<p>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('Display during registration (if on user entity)') . '</li>';
+      $output .= '<li>' . t('Allow the user to hide the year of birth or decide to always or never hide the year of birth.') . '</li>';
+      $output .= '<li>' . t('Send regular emails reminding of upcoming birthdays.') . '</li>';
+      $output .= '</ul>';
 
-      $output .= '<h3>' . t('Profile field settings') . '</h3>';
+      $output .= '<h3>' . t('Birthdays defaults') . '</h3>';
+      $output .= '<p>' . t('Adds a birthday field to the user entity type, provides a default view and a default "Happy birthday mail" action.') . '</p>';
 
-      $output .= '<p>' . t("Several things can be adjusted to the assigned profile field. To do so please visit the !profile_admin, and edit the field in question or add one if you haven't done so already. The following settings require extra attention.", array('!profile_admin' => l('Profile settings', 'admin/user/profile'))) . '</p>';
+      $output .= '<h3>' . t('Triggers and Actions') . '</h3>';
+      $output .= '<p>' . t('Triggers module allows you to execute actions on birthdays. Birthday module has a tab on the Triggers configuration page, where you can assign actions to execute for each field instance.') . '</p>';
+      $output .= '<p>' . t('The assigned actions are fired during cron runs.') . '</p>';
+      $output .= '<p>' . t('Note that the birthday field type has also a setting, to allow the user to opt-out of triggers.') . '</p>';
 
-      $output .= '<ul><li><strong>' . t('The user must enter a value') . '</strong>: ' . t('force the user to fill in their date of  birth. A once set birthday can not be deleted.') . '</li>';
-      $output .= '<li><strong>' . t('Visible in user registration form') . '</strong>: ' . t('give new users the option to add their date of birth when registering to your website. If combined with the option above, they can not register without putting their date of birth.') . '</li>';
-      $output .= '<li><strong>' . t('Visibility') . '</strong>: ' . t("this will influence the visibility of the field as described there, but the behavior might become erratic if not set to 'Public field, content shown on profile page but not used on member list pages'. So it is recommended to leave this as is.") . '</li></ul>';
-      $output .= '<p>' . t('The other options on this page behave as described on the settings page.') . '</p>';
-
-      $output .= '<h3>' . t('Date format') . '</h3>';
-      $output .= '<p>' . t('The way the birthdays are formatted (e.g. <em>11 may 1934</em> or <em>5/11/1934</em>) is controlled by the <a href="@date_settings_page">date and time settings</a>. The Birthdays module uses the short date format as basis for displaying days and months in the blocks and the medium date format is used in the profile and on the Birthdays page.', array('!date_settings_page' => url('admin/settings/date-time'))) . '</p>';
-
-      $output .= '<h2>' . t('Synchronizing') . '</h2>';
-
-      $output .= '<p>' . t('The birthdays are saved to two different database tables. This is because the profile module saves the dates in a format which limits the ability to perform calculations on the dates. These two tables need to be in sync with each other.') . '</p>';
-      $output .= '<p>' . t('Normally this is the case, but sometimes not. For example when you already collected birthdays with the Profile module, but later decided to switch to the birthdays module. Or when you accidentally (on intentionally) completely uninstalled the profile module, but left birthdays module merely disabled. To perform the synchronization you can use the <a href="@sync_pages">synchronization form</a>.', array('@sync_page' => url('admin/settings/birthdays/sync'))) . '</p>';
-      $output .= '<p>' . t('In the first case you need to copy the Profile data to the (most likely empty) Birthdays table, which is done with the top button. In the latter you need the copy the birthdays in the Birthdays table back to the Profile module with the bottom button.') . '</p>';
-      $output .= '<p>' . t('Please note that with a large amount of users this might take some time.') . '</p>';
+      $output .= '<h3>' . t('Views') . '</h3>';
+      $output .= '<p>' . t('Birthdays defaults provides a default page and block, but you can create more custom views.') . '</p>';
+      $output .= '<p>' . t('You can use birthday fields as fields, for sorting and for filtering. The field has clicksort support. You can sort by absolute timestamp, time to next birthday or day of the year. You can filter by absolute values or offsets in days. Also day, month and year column are available as seperate integer columns.') . '</p>';
 
       return $output;
-    case 'admin/settings/birthdays':
-      return t('Use this page to alter the settings of the Birthdays module.');
   }
 }
 

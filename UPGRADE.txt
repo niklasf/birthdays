@@ -36,4 +36,11 @@ Drupal 7. As always: Do backups to avoid data loss!
     (http://drupal.org/project/issues/birthdays) as detailed as you can. Once
     they are fixed you can go back using your backups and try again.
 
+ 6. Manually deal with page / block settings and permissions
+
+    Page / block settings as well as permissions aren't upgraded automatically.
+    Configure your views manually and use the Field Permissions
+    (http://drupal.org/project/field_permissions) if you need field level
+    permissions for your birthday fields.
+
  6. Congrats, you're done.

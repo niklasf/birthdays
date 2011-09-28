@@ -609,7 +609,7 @@ function birthdays_cron() {
   // The the cronjob run at most once a day.
   $day = 24 * 60 * 60;
   $last_cron = variable_get('birthdays_last_cron', REQUEST_TIME - $day);
-  if ($last_cron > $time - $day) {
+  if ($last_cron > REQUEST_TIME - $day) {
     return;
   }
 

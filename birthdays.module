@@ -620,14 +620,14 @@ function birthdays_cron() {
     $birthdays = array();
     switch ($instance['settings']['admin_mail']) {
       case BIRTHDAYS_ADMIN_MAIL_DAILY:
-        $birthdays = _birthdays_get(FALSE, $instance, date('d', $time), date('m', $time), date('Y', $time));
+        $birthdays = _birthdays_get(FALSE, $instance, date('d', REQUEST_TIME), date('m', REQUEST_TIME), date('Y', REQUEST_TIME));
         $period = t('Today');
         break;
 
       case BIRTHDAYS_ADMIN_MAIL_WEEKLY:
-        if (variable_get('date_first_day', 0) == date('w', $time)) {
+        if (variable_get('date_first_day', 0) == date('w', REQUEST_TIME)) {
           for ($i = 0; $i++; $i < 7) {
-            $qtime = $time + $i * $day;
+            $qtime = REQUEST_TIME + $i * $day;
             $birthdays += _birthdays_get(FALSE, $instance, date('d', $qtime), date('m', $qtime), date('Y', $qtime));
           }
           $period = t('This week');
@@ -635,8 +635,8 @@ function birthdays_cron() {
         break;
 
       case BIRTHDAYS_ADMIN_MAIL_MONTHLY:
-        if (date('d', $time) == 1) {
-          $birthdays = _birthdays_get(FALSE, $instance, 0, date('m', $time), date('Y', $time));
+        if (date('d', REQUEST_TIME) == 1) {
+          $birthdays = _birthdays_get(FALSE, $instance, 0, date('m', REQUEST_TIME), date('Y', REQUEST_TIME));
           $period = t('This month');
         }
         break;
@@ -659,7 +659,7 @@ function birthdays_cron() {
   }
 
   // Iterate over all the days that passed since the last cron run.
-  while ($last_cron <= $time - $day) {
+  while ($last_cron <= REQUEST_TIME - $day) {
     $last_cron += $day;
 
     // Find the birthdays.

@@ -662,13 +662,15 @@ function birthdays_cron() {
   while ($last_cron <= REQUEST_TIME - $day) {
     $last_cron += $day;
 
-    // Find the birthdays.
-    $birthdays = _birthdays_get(TRUE, $instance, date('d', $last_cron), date('m', $last_cron), date('Y', $last_cron));
-    $entities = entity_load($instance['entity_type'], $birthdays);
+    foreach ($instances as $instance) {
+      // Find the birthdays.
+      $birthdays = _birthdays_get(TRUE, $instance, date('d', $last_cron), date('m', $last_cron), date('Y', $last_cron));
+      $entities = entity_load($instance['entity_type'], $birthdays);
 
-    // Invoke hook_birthdays().
-    foreach ($entities as $entity) {
-      module_invoke_all('birthdays', $entity, $instance);
+      // Invoke hook_birthdays().
+      foreach ($entities as $entity) {
+        module_invoke_all('birthdays', $entity, $instance);
+      }
     }
   }
   variable_set('birthdays_last_cron', $last_cron);

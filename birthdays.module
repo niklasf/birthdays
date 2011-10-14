@@ -606,7 +606,7 @@ function _birthdays_get($trigger, $instance, $day, $month, $year = NULL) {
 function birthdays_cron() {
   $instances = _birthdays_field_instances();
 
-  // Run the cron at most once a day.
+  // Run cron at most once a day.
   $day = 24 * 60 * 60;
   $last_cron = variable_get('birthdays_last_cron', REQUEST_TIME - $day);
   if ($last_cron > REQUEST_TIME - $day) {

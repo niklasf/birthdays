@@ -223,8 +223,14 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
     else {
       $element['value']['#attributes']['class'] = array('birthdays-datepicker');
     }
-    $element['value']['#attached'] = array(
-      'js' => array(drupal_get_path('module', 'birthdays') . '/birthdays.js'),
+    $element['value']['#attached']['js'][] = drupal_get_path('module', 'birthdays') . '/birthdays.js';
+    $element['value']['#attached']['js'][] = array(
+      'data' => array(
+        'birthdays' => array(
+          'firstDay' => variable_get('date_first_day', 0),
+        ),
+      ),
+      'type' => 'setting',
     );
   }
 

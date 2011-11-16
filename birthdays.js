@@ -10,7 +10,8 @@ Drupal.behaviors.birthdays = {
       maxDate: '+0',
       minDate: '-115y',
       yearRange: '-115:+0',
-      constrainInput: false
+      constrainInput: false,
+      firstDay: Drupal.settings.birthdays.firstDay
     };
 
     var noYearSettings = jQuery.extend({}, settings);

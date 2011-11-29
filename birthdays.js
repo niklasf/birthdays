@@ -3,7 +3,7 @@
 Drupal.behaviors.birthdays = {
   attach: function (context) {
     var settings = {
-      dateFormat: 'yy/mm/dd',
+      dateFormat: Drupal.settings.birthdays.dateformat,
       autoSize: true,
       changeMonth: true,
       changeYear: true,
@@ -15,7 +15,7 @@ Drupal.behaviors.birthdays = {
     };
 
     var noYearSettings = jQuery.extend({}, settings);
-    noYearSettings.dateFormat = 'mm/dd';
+    noYearSettings.dateFormat = Drupal.settings.birthdays.dateformat_noyear;
 
     $('.birthdays-datepicker', context).datepicker(settings);
     $('.birthdays-datepicker-noyear', context).datepicker(noYearSettings);

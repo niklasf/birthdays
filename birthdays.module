@@ -99,6 +99,7 @@ function birthdays_field_info() {
           'description' => '',
         ),
         'datepicker' => FALSE,
+        'dateformat' => 'yy/mm/dd',
       ),
     ),
   );
@@ -161,7 +162,7 @@ function birthdays_field_formatter_view($entity_type, $entity, $field, $instance
 
     switch ($display['type']) {
       case 'birthdays_plaintext':
-        $element[$delta] = array('#markup' => check_plain($birthday->toString()));
+        $element[$delta] = array('#markup' => check_plain($birthday->toString($instance['settings']['dateformat'])));
         break;
 
       case 'birthdays_starsign':
@@ -228,6 +229,8 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       'data' => array(
         'birthdays' => array(
           'firstDay' => variable_get('date_first_day', 0),
+          'dateformat' => $instance['settings']['dateformat'],
+          'dateformat_noyear' => str_ireplace(array('/yy', '-yy', '.yy', 'yy-', 'yy/', 'yy.'), '', $instance['settings']['dateformat']),
         ),
       ),
       'type' => 'setting',
@@ -236,7 +239,7 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
 
   // The default value.
   if (isset($items[$delta])) {
-    $element['value']['#default_value'] = BirthdaysBirthday::fromArray($items[$delta])->toString();
+    $element['value']['#default_value'] = BirthdaysBirthday::fromArray($items[$delta])->toString($instance['settings']['dateformat']);
   }
 
   // The trigger checkbox.
@@ -267,7 +270,7 @@ function birthdays_field_textfield_validate($element, &$form_state) {
     }
 
     // Parse the string.
-    $birthday = BirthdaysBirthday::fromString($element['value']['#value']);
+    $birthday = BirthdaysBirthday::fromString($element['value']['#value'], FALSE, $instance['settings']['dateformat']);
 
     // Validate against the hide_year setting.
     if (!$birthday->isEmpty()) {
@@ -313,6 +316,15 @@ function birthdays_field_instance_settings_form($field, $instance) {
     '#title' => t('Use a datepicker'),
     '#description' => t('Select to optionally use a datepicker popup to select dates.'),
     '#default_value' => $settings['datepicker'],
+  );
+
+  // Datepicker date format.
+  $masks = array('dd/mm/yy', 'mm/dd/yy', 'yy/mm/dd');
+  $form['dateformat'] = array(
+    '#type' => 'select',
+    '#title' => t('Choose the date format'),
+    '#options' => drupal_map_assoc($masks),
+    '#default_value' => $settings['dateformat'],
   );
 
   // Year settings.
@@ -612,7 +624,7 @@ function _birthdays_get($trigger, $instance, $day, $month, $year = NULL) {
 function birthdays_cron() {
   $instances = _birthdays_field_instances();
 
-  // Run cron at most once a day.
+  // The cronjob run at most once a day.
   $day = 24 * 60 * 60;
   $last_cron = variable_get('birthdays_last_cron', REQUEST_TIME - $day);
   if ($last_cron > REQUEST_TIME - $day) {

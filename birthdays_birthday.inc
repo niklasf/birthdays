@@ -67,9 +67,7 @@ class BirthdaysBirthday {
         return self::fromDate(isset($date[2]) ? $date[2] : 0, $date[0], $date[1], $allow_future);
       case "yy{$sep}mm{$sep}dd":
         $date = explode($sep, $text);
-        dsm($date, $mask);
         return self::fromDate($date[0], $date[1], isset($date[2]) ? $date[2] : 0, $allow_future);
-        //return self::fromArray($date, $allow_future);
     }
 
     // Match dd.mm(.yyyy).

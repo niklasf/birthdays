@@ -1039,6 +1039,7 @@ function _birthdays_show_date_2($day, $month, $year, $account, $type = 'small') 
     'm' => sprintf('%02d', $month),
     'M' => map_month($month),
     'Y' => $year,
+    'y' => $year,
     'H:i' => NULL,
     'G:i' => NULL,
     'g:ia' => NULL,

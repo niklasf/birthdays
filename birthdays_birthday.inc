@@ -254,7 +254,7 @@ class BirthdaysBirthday {
       0, // secound
       $this->value['month'],
       $this->value['day'],
-      $this->value['year'] ? $this->value['year'] : 2000,
+      $this->value['year'] ? $this->value['year'] : 2000
     );
   }
 

@@ -239,7 +239,9 @@ class BirthdaysBirthday {
    * that this depends on the timezone.
    *
    * @return
-   *   A unix timestamp where the year 1800 means no year. Or NULL.
+   *   A unix timestamp where the year 2000 means no year, but could very
+   *   well mean 2000 itself. So be careful or only use it to format dates
+   *   with day and month. Or NULL.
    */
   public function toUnixtime() {
     if ($this->isEmpty()) {
@@ -252,7 +254,7 @@ class BirthdaysBirthday {
       0, // secound
       $this->value['month'],
       $this->value['day'],
-      $this->value['year'] ? $this->value['year'] : 1800
+      $this->value['year'] ? $this->value['year'] : 2000,
     );
   }
 

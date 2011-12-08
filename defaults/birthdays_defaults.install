@@ -75,6 +75,24 @@ function birthdays_defaults_install() {
 }
 
 /**
+ * Replaces the non existing token [site:uri-brief] with [site:url-brief] in the
+ * default happy birthday message.
+ *
+ * Implements hook_update_N().
+ */
+function birthdays_defaults_update_7003() {
+  $aid = variable_get('birthdays_defaults_action');
+  if ($aid && $action = actions_load($aid)) {
+    $params = unserialize($action->parameters);
+    $params['message'] = str_replace('[site:uri-brief]', '[site:url-brief]', $params['message'], $count);
+    if ($count) {
+      actions_save($action->callback, $action->type, $params, $action->label, $aid);
+      return t('[site:uri-brief] has been replaced with [site:url-brief] in the default happy birthday mail action.');
+    }
+  }
+}
+
+/**
  * Get the default action settings.
  *
  * @return
@@ -84,7 +102,7 @@ function _birthdays_defaults_action_parameters() {
   return array(
     'recipient' => "[user:name] <[user:mail]>",
     'subject' => t("Happy Birthday, [user:name]!"),
-    'message' => t("Hey [user:name],\n\nHappy birthday!\nWe hope you have a great day.\n\nThe [site:name]-team\n[site:uri-brief]"),
+    'message' => t("Hey [user:name],\n\nHappy birthday!\nWe hope you have a great day.\n\nThe [site:name]-team\n[site:url-brief]"),
   );
 }
 

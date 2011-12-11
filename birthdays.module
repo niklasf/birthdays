@@ -804,6 +804,9 @@ function expand_birthdays_date($element) {
  * Validate the birthday field.
  */
 function birthdays_date_validate($element) {
+  if (empty($element['#value'])) {
+    return;
+  }
   extract($element['#value']);
   if (empty($month) || empty($year) || empty($day)) {
     if ($element['#required']) {

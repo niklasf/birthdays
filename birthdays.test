@@ -129,17 +129,6 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
       $this->pass($e->getMessage());
     }
   }
-
-  /**
-   * Test reduceDateFormat().
-   */
-  public function testReduceDateFormat() {
-    $this->assertIdentical(BirthdaysBirthday::reduceDateFormat('d.m.Y', FALSE), 'd.m.');
-    $this->assertIdentical(BirthdaysBirthday::reduceDateFormat('y-m-d  h:i:s', FALSE), 'm-d');
-    $this->assertIdentical(BirthdaysBirthday::reduceDateFormat('y/m/d H:i'), 'y/m/d');
-    $this->assertIdentical(BirthdaysBirthday::reduceDateFormat('D, d.m - H'), 'D, d.m');
-    $this->assertIdentical(BirthdaysBirthday::reduceDateFormat('Y - d / y', FALSE), 'd');
-  }
 }
 
 /**

@@ -42,11 +42,11 @@ Drupal 7. As always: Do backups to avoid data loss!
     the old profile field. Go to Configuration > People > Profiles if you want
     to delete that duplicate field.
 
- 6. Manually deal with page / block settings and permissions
+ 7. Manually deal with page / block settings and permissions
 
     Page / block settings as well as permissions aren't upgraded automatically.
     Configure your views manually and use the Field Permissions
     (http://drupal.org/project/field_permissions) if you need field level
     permissions for your birthday fields.
 
- 6. Congrats, you're done.
+ 8. Congrats, you're done.

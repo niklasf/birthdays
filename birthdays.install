@@ -240,7 +240,7 @@ function birthdays_update_7001(&$sandbox) {
     $sandbox['last_uid_processed'] = $row->uid;
   }
 
-  if (empty($sandbox['max']) || $i < 20) {
+  if (empty($sandbox['max']) || $i < 10) {
     db_drop_table('dob');
     return t('Birthdays field data has been migrated.');
   }

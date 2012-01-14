@@ -47,38 +47,18 @@ class BirthdaysBirthday {
    *
    * @return A BirthdaysBirthday instance.
    */
-  public static function fromString($text, $allow_future = FALSE, $mask = 'yy/mm/dd') {
+  public static function fromString($text, $allow_future, $mask) {
     $text = trim($text);
     if ($text === '') {
       return self::fromEmpty();
     }
 
-    // Find out which separator we are using.
-    foreach(array('/', '-', '.') as $sep) {
-      if (strpos($mask, $sep)) break;
+    $result = date_parse_from_format($mask, $text);
+    if (!empty($result['errors']) && empty($result['day']) && empty($result['month'])) {
+      throw new InvalidArgumentException(t("That is not a valid birthday."));
     }
 
-    switch ($mask) {
-      case "dd{$sep}mm{$sep}yy":
-        $date = explode($sep, $text);
-        return self::fromDate(isset($date[2]) ? $date[2] : 0, $date[1], $date[0], $allow_future);
-      case "mm{$sep}dd{$sep}yy":
-        $date = explode($sep, $text);
-        return self::fromDate(isset($date[2]) ? $date[2] : 0, $date[0], $date[1], $allow_future);
-      case "yy{$sep}mm{$sep}dd":
-        $date = explode($sep, $text);
-        return self::fromDate($date[0], $date[1], isset($date[2]) ? $date[2] : 0, $allow_future);
-    }
-
-    // Match dd.mm(.yyyy).
-    if (preg_match('/^(\d{1,2})\.(\d{1,2})\.?(\d{4}|\d{2})?$/', $text, $matches)) {
-      return self::fromDate(isset($matches[3]) ? $matches[3] : 0, $matches[2], $matches[1], $allow_future);
-    }
-
-    if (preg_match('/^((?P<year>\d{4}|\d{2})' . $sep . ')?(?P<month>\d{1,2})' . $sep . '(?P<day>\d{1,2})/', $text, $matches)) {
-      return self::fromArray($matches, $allow_future);
-    }
-    throw new InvalidArgumentException(t("The given argument is not a valid birthday."));
+    return self::fromDate($result['year'], $result['month'], $result['day'], $allow_future);
   }
 
   /**
@@ -213,10 +193,13 @@ class BirthdaysBirthday {
     if (!$format) {
       // If no format informed, get the medium one from the core.
       $format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
-    } else {
-      // Convert the format to the PHP date() format.
-      $format = str_replace(array('yyyy', 'yy', 'mm', 'dd'), array('Y', 'y', 'm', 'd'), $format);
     }
+
+    // Remove the year from the format, if none is given.
+    if (empty($this->value['year'])) {
+      $format = str_ireplace(array('/y', '-y', 'y-', 'y/', 'y.', 'y'), '', $format);
+    }
+
     // $format = self::reduceDateFormat($format, $this->value['year'] != 0);
     return format_date($this->toUnixtime(), 'custom', $format);
   }

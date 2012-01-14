@@ -7,4 +7,5 @@ files[] = views/birthdays_field_views_handler_field.inc
 files[] = views/birthdays_field_views_handler_sort.inc
 files[] = views/birthdays_field_views_handler_filter.inc
 core = 7.x
+php = 5.3.0
 package = Fields

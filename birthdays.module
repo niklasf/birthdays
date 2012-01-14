@@ -99,7 +99,7 @@ function birthdays_field_info() {
           'description' => '',
         ),
         'datepicker' => FALSE,
-        'dateformat' => 'yy/mm/dd',
+        'dateformat' => 'y/m/d',
       ),
     ),
   );
@@ -230,7 +230,7 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
         'birthdays' => array(
           'firstDay' => variable_get('date_first_day', 0),
           'dateformat' => $instance['settings']['dateformat'],
-          'dateformat_noyear' => str_ireplace(array('/yy', '-yy', '.yy', 'yy-', 'yy/', 'yy.'), '', $instance['settings']['dateformat']),
+          'dateformat_noyear' => str_ireplace(array('/y', '-y', 'y-', 'y/', 'y.', 'y'), '', $instance['settings']['dateformat']),
         ),
       ),
       'type' => 'setting',
@@ -293,7 +293,7 @@ function birthdays_field_textfield_validate($element, &$form_state) {
     form_set_value($element, $birthday->toArray() + array('triggers' => $triggers), $form_state);
   }
   catch (InvalidArgumentException $e) {
-    form_error($element, t('That is not a valid birthday. Enter the date as <em>day.month.year</em>, <em>year/month/day</em> or <em>year-month-day</em>. You can skip the year.'));
+    form_error($element, t('That is not a valid birthday.'));
   }
 }
 
@@ -319,7 +319,7 @@ function birthdays_field_instance_settings_form($field, $instance) {
   );
 
   // Datepicker date format.
-  $masks = array('dd/mm/yy', 'mm/dd/yy', 'yy/mm/dd');
+  $masks = array('d/m/Y', 'm/d/Y', 'Y/m/d', 'd.m.Y');
   $form['dateformat'] = array(
     '#type' => 'select',
     '#title' => t('Choose the date format'),
@@ -721,7 +721,7 @@ function birthdays_mail($key, &$message, $params) {
           // Actual birthday and age.
           $date = reset(field_get_items($type, $entity, $items['instance']['field_name']));
           $birthday = BirthdaysBirthday::fromArray($date);
-          $item[] = $birthday->toString() . ' (' . $birthday->getAge() . ')';
+          $item[] = $birthday->toString($items['instance']['settings']['dateformat']) . ' (' . $birthday->getAge() . ')';
 
           // Entity URL.
           $uri = entity_uri($type, $entity);

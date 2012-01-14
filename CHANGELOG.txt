@@ -1,4 +1,25 @@
 
+Birthdays 7.x-1.0-beta1, 2011-01-14
+-----------------------------------
+- #1370074, #1355810: Fixed Regression: Entering a year is no longer optional.
+- #1397648: Fixed only 10 birthdays ported to D7.
+- Fixed several typos.
+- #1370074: Remove BirthdaysBirthday::fromString() tests, because the API needs
+  refactoring.
+- #1370074: Remove BirthdaysBirthday::reduceDateFormat().
+- #1364420: Default happy birthday mail uses non-existing token
+  [site:uri-brief], should use [site:url-brief].
+- #1363718 by douglaspilar: Timestamp creation error when the year is not
+  mandatory.
+- #1362948: Fixed Fatal error: Call to undefined function dsm() in
+  ../sites/all/modules/birthdays/birthdays_birthday.inc on line X.
+- #1306432 by afeijo: Fixed Datepicker widget should respect drupal date mask.
+- #1306272 by afeijo: Fixed Datepicker widget ignores first week day setting of
+  Drupal core.
+- #1301804: Fix undefined variable $instance in hook_cron().
+- #1293378: More occurences of $time instead of REQUEST_TIME.
+- #1293378: Undefined variable $time, use REQUEST_TIME.
+
 Birthdays 7.x-1.0-alpha1, 2011-09-25
 ------------------------------------
 - Ported to 7.x.

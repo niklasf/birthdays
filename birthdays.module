@@ -229,7 +229,7 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       'data' => array(
         'birthdays' => array(
           'firstDay' => variable_get('date_first_day', 0),
-          'dateformat' => $instance['settings']['dateformat'],
+          'dateformat' => str_replace('Y', 'yy', $instance['settings']['dateformat']),
           'dateformat_noyear' => str_ireplace(array('/y', '-y', 'y-', 'y/', 'y.', 'y'), '', $instance['settings']['dateformat']),
         ),
       ),

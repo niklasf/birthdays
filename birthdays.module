@@ -326,8 +326,8 @@ function birthdays_field_formatter_view($entity_type, $entity, $field, $instance
  */
 function birthdays_field_widget_info() {
   return array(
-    'birthdays_textfield' => array(
-      'label' => t('Textfield'),
+    'birthdays_date' => array(
+      'label' => t('Select boxes'),
       'field types' => array('birthdays_date'),
     ),
   );
@@ -337,42 +337,18 @@ function birthdays_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  // The widget.
+  dpm($instance);
+
   $element += array(
     '#element_validate' => array('birthdays_field_textfield_validate'),
     'value' => array(
-      '#type' => 'textfield',
+      '#type' => 'birthdays_date',
       '#langcode' => $langcode,
       '#size' => 10,
+      '#default_value' => $items[$delta],
+      '#year' => $instance['settings']['hide_year'],
     ) + array_intersect_key($element, array_flip(array('#title', '#description', '#required'))),
   );
-
-  // Datepicker popup.
-  if ($instance['settings']['datepicker']) {
-    drupal_add_library('system', 'ui.datepicker');
-    if ($instance['settings']['hide_year'] == BIRTHDAYS_HIDE_YEAR_YES) {
-      $element['value']['#attributes']['class'] = array('birthdays-datepicker-noyear');
-    }
-    else {
-      $element['value']['#attributes']['class'] = array('birthdays-datepicker');
-    }
-    $element['value']['#attached']['js'][] = drupal_get_path('module', 'birthdays') . '/birthdays.js';
-    $element['value']['#attached']['js'][] = array(
-      'data' => array(
-        'birthdays' => array(
-          'firstDay' => variable_get('date_first_day', 0),
-          'dateformat' => str_replace('Y', 'yy', $instance['settings']['dateformat']),
-          'dateformat_noyear' => str_ireplace(array('/y', '-y', 'y-', 'y/', 'y.', 'y'), '', $instance['settings']['dateformat']),
-        ),
-      ),
-      'type' => 'setting',
-    );
-  }
-
-  // The default value.
-  if (isset($items[$delta])) {
-    $element['value']['#default_value'] = BirthdaysBirthday::fromArray($items[$delta])->toString($instance['settings']['dateformat']);
-  }
 
   // The trigger checkbox.
   if (!empty($instance['settings']['triggers']['user'])) {
@@ -391,42 +367,17 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
  * FAPI validation callback for the birthdays_field_widget_form element.
  */
 function birthdays_field_textfield_validate($element, &$form_state) {
-  try {
-    // If user input for triggers is aloud, get the checkbox value.
-    $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
-    if ($instance['settings']['triggers']['user']) {
-      $triggers = $element['triggers']['#value'];
-    }
-    else {
-      $triggers = TRUE;
-    }
-
-    // Parse the string.
-    $birthday = BirthdaysBirthday::fromString($element['value']['#value'], FALSE, $instance['settings']['dateformat']);
-
-    // Validate against the hide_year setting.
-    if (!$birthday->isEmpty()) {
-      switch ($instance['settings']['hide_year']) {
-        case BIRTHDAYS_HIDE_YEAR_NO:
-          if (!$birthday->getYear()) {
-            form_error($element, t('Please also enter a year.'));
-          }
-          break;
-
-        case BIRTHDAYS_HIDE_YEAR_YES:
-          if ($birthday->getYear()) {
-            form_error($element, t('Please don\'t enter a year.'));
-          }
-          break;
-      }
-    }
-
-    // Make the values ready to save.
-    form_set_value($element, $birthday->toArray() + array('triggers' => $triggers), $form_state);
+  // If user input for triggers is aloud, get the checkbox value.
+  $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+  if ($instance['settings']['triggers']['user']) {
+    $triggers = $element['triggers']['#value'];
   }
-  catch (InvalidArgumentException $e) {
-    form_error($element, t('That is not a valid birthday.'));
+  else {
+    $triggers = TRUE;
   }
+
+  // Save the values.
+  form_set_value($element, $element['value']['#value'] + array('triggers' => $triggers), $form_state);
 }
 
 /**

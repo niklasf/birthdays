@@ -81,6 +81,155 @@ function birthdays_help($path, $arg) {
 }
 
 /**
+ * Implements hook_element_info().
+ */
+function birthdays_element_info() {
+  $types['birthdays_date'] = array(
+    '#input' => TRUE,
+    '#element_validate' => array('birthdays_validate_date', 'birthdays_validate_date_complete'),
+    '#process' => array('birthdays_process_date'),
+    '#theme' => 'birthdays_date',
+    '#theme_wrappers' => array('form_element'),
+  );
+  return $types;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function birthdays_theme() {
+  return array(
+    'birthdays_date' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function birthdays_menu() {
+  $menu['birthdays-date'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('birthdays_date_test'),
+    'access arguments' => array('access content'),
+  );
+  return $menu;
+}
+
+/**
+ * #process callback for the birthdays_date element.
+ */
+function birthdays_process_date($element) {
+  $element['#tree'] = TRUE;
+
+  // Default value for the #year property.
+  if (!isset($element['#year'])) {
+    $element['#year'] = BIRTHDAYS_HIDE_YEAR_NO;
+  }
+
+  // There is a select box for month, day and maybe for year.
+  $types = array('month', 'day');
+  if ($element['#year'] != BIRTHDAYS_HIDE_YEAR_YES) {
+    $types[] = 'year';
+  }
+
+  foreach ($types as $type) {
+    $element[$type] = array(
+      '#type' => 'select',
+      '#title_display' => 'invisible',
+      '#options' => array('' => ''),
+    );
+
+    if (isset($element['#value'][$type])) {
+      $element[$type]['#value'] = $element['#value'][$type];
+    }
+
+    switch ($type) {
+      case 'month':
+        $element[$type]['#title'] = t('Month');
+        $element[$type]['#options'] += drupal_map_assoc(range(1, 12), 'map_month');
+        break;
+
+      case 'day':
+        $element[$type]['#title'] = t('Day');
+        $element[$type]['#options'] += drupal_map_assoc(range(1, 31));
+        break;
+
+      case 'year':
+        $element[$type]['#title'] = t('Year');
+        $element[$type]['#options'] += drupal_map_assoc(range(1900, date('Y', REQUEST_TIME)));
+        if ($element['#year'] == BIRTHDAYS_HIDE_YEAR_USER) {
+          $element[$type]['#options'][''] = t('optional');
+        }
+        break;
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * #element_validate callback for the birthdays_date element.
+ */
+function birthdays_validate_date($element, &$form_state) {
+  if ($element['#value']['month'] != '' && $element['#value']['day'] != '') {
+    if ($element['#value']['year'] == '') {
+      if ($element['#year'] == BIRTHDAYS_HIDE_YEAR_NO) {
+        form_error($element['year'], t('The year is required.'));
+      }
+
+      $element['#value']['year'] = 2000;
+    }
+
+    if (!checkdate($element['#value']['month'], $element['#value']['day'], $element['#value']['year'])) {
+      form_error($element['day'], t('The specified date is invalid.'));
+    }
+
+  }
+  else {
+    if (!empty($element['#required'])) {
+      form_error($element, t('The birthday field is required.'));
+    }
+  }
+}
+
+/**
+ * #element_validate callback for the birthdays_date element, that ensures the
+ * date is complete, if given.
+ */
+function birthdays_validate_date_complete($element, &$form_state) {
+  $has_year = !empty($element['#value']['year']);
+  $has_month = !empty($element['#value']['month']);
+  $has_day = !empty($element['#value']['day']);
+
+  // If something is given, then all has to be given.
+  if ($has_year || $has_month || $has_day) {
+    if (!(($has_year || $element['#value']['year'] != BIRTHDAYS_HIDE_YEAR_NO) && $has_month && $has_day)) {
+      form_error($element, t('The date is not complete.'));
+    }
+  }
+}
+
+/**
+ * Theme function for the birthdays_date form element.
+ */
+function theme_birthdays_date($variables) {
+  $element = $variables['element'];
+
+  $attributes = array();
+  if (isset($element['#id'])) {
+    $attributes['id'] = $element['#id'];
+  }
+  if (!empty($element['#attributes']['class'])) {
+    $attributes['class'] = (array) $element['#attributes']['class'];
+  }
+  $attributes['class'][] = 'container-inline';
+
+  return '<div' . drupal_attributes($attributes) . '>' . drupal_render_children($element) . '</div>';
+}
+
+/**
  * Implements hook_field_info().
  */
 function birthdays_field_info() {

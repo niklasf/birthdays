@@ -237,7 +237,7 @@ function birthdays_field_info() {
     'birthdays_date' => array(
       'label' => t('Birthday'),
       'description' => t('This field stores a birthday in the database.'),
-      'default_widget' => 'birthdays_selects',
+      'default_widget' => 'birthdays_date',
       'default_formatter' => 'birthdays_plaintext',
       'instance_settings' => array(
         'admin_mail' => BIRTHDAYS_ADMIN_MAIL_DISABLED,

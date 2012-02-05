@@ -255,23 +255,6 @@ function birthdays_field_info() {
 }
 
 /**
- * Implements hook_field_validate().
- */
-function birthdays_field_validate($entity_type, $entity, $field, $instance, $langcode, &$items, &$errors) {
-  foreach ($items as $delta => $item) {
-    try {
-      BirthdaysBirthday::fromArray($item);
-    }
-    catch (InvalidArgumentException $e) {
-      $errors[$field['field_name']][$langcode][$delta][] = array(
-        'error' => 'birthdays_invalid',
-        'message' => t("That is not a valid birthday."),
-      );
-    }
-  }
-}
-
-/**
  * Implements hook_field_is_empty().
  */
 function birthdays_field_is_empty($item, $field) {

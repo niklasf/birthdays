@@ -133,6 +133,12 @@ function birthdays_process_date($element) {
   if ($element['#year'] != BIRTHDAYS_HIDE_YEAR_YES) {
     $types[] = 'year';
   }
+  else {
+    $element['year'] = array(
+      '#type' => 'hidden',
+      '#value' => 0,
+    );
+  }
 
   foreach ($types as $type) {
     $element[$type] = array(

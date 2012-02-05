@@ -33,35 +33,6 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Create a birthday from text.
-   *
-   * @todo
-   *   Parse dates with different formats in a generic way.
-   *
-   * @param $text
-   *   The text representation of a birthday.
-   * @param $allow_future
-   *   Allow valeus in the future. Default is FALSE.
-   *
-   * @throws InvalidArgumentException when the given text is invalid.
-   *
-   * @return A BirthdaysBirthday instance.
-   */
-  public static function fromString($text, $allow_future, $mask) {
-    $text = trim($text);
-    if ($text === '') {
-      return self::fromEmpty();
-    }
-
-    $result = date_parse_from_format($mask, $text);
-    if (!empty($result['errors']) && empty($result['day']) && empty($result['month'])) {
-      throw new InvalidArgumentException(t("That is not a valid birthday."));
-    }
-
-    return self::fromDate($result['year'], $result['month'], $result['day'], $allow_future);
-  }
-
-  /**
    * Create a birthday from values.
    *
    * @param $year

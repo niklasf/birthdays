@@ -379,13 +379,6 @@ function birthdays_field_textfield_validate($element, &$form_state) {
 }
 
 /**
- * Implements hook_field_widget_error().
- */
-function birthdays_field_widget_error($element, $error) {
-  form_error($element, $error['message']);
-}
-
-/**
  * Implements hook_field_instance_settings_form().
  */
 function birthdays_field_instance_settings_form($field, $instance) {

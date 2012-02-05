@@ -237,7 +237,7 @@ function birthdays_field_info() {
     'birthdays_date' => array(
       'label' => t('Birthday'),
       'description' => t('This field stores a birthday in the database.'),
-      'default_widget' => 'birthdays_textfield',
+      'default_widget' => 'birthdays_selects',
       'default_formatter' => 'birthdays_plaintext',
       'instance_settings' => array(
         'admin_mail' => BIRTHDAYS_ADMIN_MAIL_DISABLED,
@@ -247,8 +247,6 @@ function birthdays_field_info() {
           'title' => t('Fire triggers on birthdays'),
           'description' => '',
         ),
-        'datepicker' => FALSE,
-        'dateformat' => 'y/m/d',
       ),
     ),
   );
@@ -383,23 +381,6 @@ function birthdays_field_textfield_validate($element, &$form_state) {
  */
 function birthdays_field_instance_settings_form($field, $instance) {
   $settings = $instance['settings'];
-
-  // Datepicker option.
-  $form['datepicker'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use a datepicker'),
-    '#description' => t('Select to optionally use a datepicker popup to select dates.'),
-    '#default_value' => $settings['datepicker'],
-  );
-
-  // Datepicker date format.
-  $masks = array('d/m/Y', 'm/d/Y', 'Y/m/d', 'd.m.Y');
-  $form['dateformat'] = array(
-    '#type' => 'select',
-    '#title' => t('Choose the date format'),
-    '#options' => drupal_map_assoc($masks),
-    '#default_value' => $settings['dateformat'],
-  );
 
   // Year settings.
   $form['hide_year'] = array(

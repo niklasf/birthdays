@@ -138,7 +138,7 @@ function birthdays_process_date($element) {
     $element[$type] = array(
       '#type' => 'select',
       '#title_display' => 'invisible',
-      '#options' => array('' => ''),
+      '#options' => array(0 => ''),
     );
 
     if (isset($element['#value'][$type])) {
@@ -160,7 +160,7 @@ function birthdays_process_date($element) {
         $element[$type]['#title'] = t('Year');
         $element[$type]['#options'] += drupal_map_assoc(range(1900, date('Y', REQUEST_TIME)));
         if ($element['#year'] == BIRTHDAYS_HIDE_YEAR_USER) {
-          $element[$type]['#options'][''] = t('optional');
+          $element[$type]['#options'][0] = t('optional');
         }
         break;
     }
@@ -173,8 +173,8 @@ function birthdays_process_date($element) {
  * #element_validate callback for the birthdays_date element.
  */
 function birthdays_validate_date($element, &$form_state) {
-  if ($element['#value']['month'] != '' && $element['#value']['day'] != '') {
-    if ($element['#value']['year'] == '') {
+  if (!empty($element['#value']['month']) && !empty($element['#value']['day'])) {
+    if (empty($element['#value']['year'])) {
       if ($element['#year'] == BIRTHDAYS_HIDE_YEAR_NO) {
         form_error($element['year'], t('The year is required.'));
       }
@@ -205,7 +205,7 @@ function birthdays_validate_date_complete($element, &$form_state) {
 
   // If something is given, then all has to be given.
   if ($has_year || $has_month || $has_day) {
-    if (!(($has_year || $element['#value']['year'] != BIRTHDAYS_HIDE_YEAR_NO) && $has_month && $has_day)) {
+    if (!(($has_year || $element['#year'] != BIRTHDAYS_HIDE_YEAR_NO) && $has_month && $has_day)) {
       form_error($element, t('The date is not complete.'));
     }
   }
@@ -337,8 +337,6 @@ function birthdays_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  dpm($instance);
-
   $element += array(
     '#element_validate' => array('birthdays_field_textfield_validate'),
     'value' => array(

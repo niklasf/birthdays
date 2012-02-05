@@ -157,13 +157,9 @@ class BirthdaysBirthday {
    *
    * @returns A string representation of the value.
    */
-  public function toString($format = NULL) {
+  public function toString($format = 'm/d/Y') {
     if ($this->isEmpty()) {
       return '';
-    }
-    if (!$format) {
-      // If no format informed, get the medium one from the core.
-      $format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
     }
 
     // Remove the year from the format, if none is given.

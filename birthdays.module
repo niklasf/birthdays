@@ -109,12 +109,36 @@ function birthdays_theme() {
  * Implements hook_menu().
  */
 function birthdays_menu() {
-  $menu['birthdays-date'] = array(
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('birthdays_date_test'),
-    'access arguments' => array('access content'),
+  $items['admin/config/birthdays/lookup'] = array(
+    'title' => 'Birthday formatting lookup',
+    'page callback' => 'birthdays_lookup',
+    'page arguments' => array(TRUE),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
   );
-  return $menu;
+  $items['admin/config/birthdays/lookup-noyear'] = array(
+    'title' => 'Birthday formatting lookup',
+    'page callback' => 'birthdays_lookup',
+    'page arguments' => array(FALSE),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Menu callback for admin/config/birthdays/lookup.
+ */
+function birthdays_lookup($year) {
+  if ($year) {
+    $birthday = BirthdaysBirthday::fromDate(date('Y', REQUEST_TIME), date('m', REQUEST_TIME), date('d', REQUEST_TIME));
+  }
+  else {
+    $birthday = BirthdaysBirthday::fromDate(0, date('m', REQUEST_TIME), date('d', REQUEST_TIME));
+  }
+
+  $format = isset($_GET['format']) ? $_GET['format'] : '';
+  drupal_json_output($birthday->toString($format, $format));
 }
 
 /**
@@ -297,12 +321,35 @@ function birthdays_field_formatter_info() {
 function birthdays_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
   $settings = $instance['display'][$view_mode]['settings'];
 
+  $element['#attached'] = array(
+    'js' => array(
+      drupal_get_path('module', 'birthdays') . '/birthdays.js',
+      array(
+        'type' => 'setting',
+        'data' => array(
+          'birthdays' => array(
+            'birthdays-dateformat' => array(
+              'text' => t('Displayed as'),
+              'lookup' => url('admin/config/birthdays/lookup'),
+            ),
+            'birthdays-dateformat-noyear' => array(
+              'text' => t('Displayed as'),
+              'lookup' => url('admin/config/birthdays/lookup-noyear'),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
   $element['dateformat'] = array(
     '#type' => 'textfield',
     '#title' => t('Dateformat with year'),
     '#required' => TRUE,
     '#size' => 10,
     '#default_value' => $settings['dateformat'],
+    '#suffix' => ' <small id="edit-birthdays-dateformat-suffix"></small>',
+    '#id' => 'edit-birthdays-dateformat',
   );
 
   if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO) {
@@ -312,6 +359,8 @@ function birthdays_field_formatter_settings_form($field, $instance, $view_mode, 
       '#required' => TRUE,
       '#size' => 10,
       '#default_value' => $settings['dateformat_noyear'],
+      '#id' => 'edit-birthdays-dateformat-noyear',
+      '#suffix' => ' <small id="edit-birthdays-dateformat-noyear-suffix"></small>',
     );
   }
 

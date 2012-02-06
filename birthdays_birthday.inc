@@ -157,18 +157,28 @@ class BirthdaysBirthday {
    *
    * @returns A string representation of the value.
    */
-  public function toString($format = 'm/d/Y') {
+  public function toString($format = 'm/d/Y', $format_noyear = 'M d') {
     if ($this->isEmpty()) {
       return '';
     }
 
     // Remove the year from the format, if none is given.
     if (empty($this->value['year'])) {
-      $format = str_ireplace(array('/y', '-y', 'y-', 'y/', 'y.', 'y'), '', $format);
+      $format_noyear = preg_replace_callback('/([^djSFmMnt])/', 'self::escapeCallback', $format_noyear);
+      return format_date($this->toUnixtime(), 'custom', $format_noyear);
     }
+    else {
+      $format = preg_replace_callback('/([^dDjlNSwzWFmMntLoYy])/', 'self::escapeCallback', $format);
+      return format_date($this->toUnixtime(), 'custom', $format);
+    }
+  }
 
-    // $format = self::reduceDateFormat($format, $this->value['year'] != 0);
-    return format_date($this->toUnixtime(), 'custom', $format);
+  /**
+   * Callback that can be used with preg_replace_callback to escape
+   * a dateformat.
+   */
+  public static function escapeCallback($match) {
+    return '\\' . $match[1];
   }
 
   /**

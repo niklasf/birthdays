@@ -277,6 +277,7 @@ function birthdays_field_formatter_info() {
       'field types' => array('birthdays_date'),
       'settings' => array(
         'dateformat' => 'm/d/Y',
+        'dateformat_noyear' => 'M d',
       ),
     ),
     'birthdays_starsign' => array(
@@ -294,11 +295,25 @@ function birthdays_field_formatter_info() {
  * Implements hook_field_formatter_settings_form().
  */
 function birthdays_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $settings = $instance['display'][$view_mode]['settings'];
+
   $element['dateformat'] = array(
-    '#type' => 'select',
-    '#title' => t('Choose the date format'),
-    '#options' => drupal_map_assoc(array('d/m/Y', 'm/d/Y', 'Y/m/d', 'd.m.Y')),
+    '#type' => 'textfield',
+    '#title' => t('Dateformat with year'),
+    '#required' => TRUE,
+    '#size' => 10,
+    '#default_value' => $settings['dateformat'],
   );
+
+  if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO) {
+    $element['dateformat_noyear'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Dateformat without year'),
+      '#required' => TRUE,
+      '#size' => 10,
+      '#default_value' => $settings['dateformat_noyear'],
+    );
+  }
 
   return $element;
 }
@@ -311,7 +326,16 @@ function birthdays_field_formatter_settings_summary($field, $instance, $view_mod
 
   switch ($display['type']) {
     case 'birthdays_plaintext':
-      return t('Date format: @format', array('@format' => $display['settings']['dateformat']));
+      $vars = array(
+        '@format' => $display['settings']['dateformat'],
+        '@noyear' => $display['settings']['dateformat_noyear'],
+      );
+      if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO) {
+        return t('Date format: <strong>@format</strong> respectively <strong>@noyear</strong>', $vars);
+      }
+      else {
+        return t('Date format: <strong>@format</strong>', $vars);
+      }
   }
 }
 
@@ -326,7 +350,7 @@ function birthdays_field_formatter_view($entity_type, $entity, $field, $instance
 
     switch ($display['type']) {
       case 'birthdays_plaintext':
-        $element[$delta] = array('#markup' => check_plain($birthday->toString($display['settings']['dateformat'])));
+        $element[$delta] = array('#markup' => check_plain($birthday->toString($display['settings']['dateformat'], $display['settings']['dateformat_noyear'])));
         break;
 
       case 'birthdays_starsign':
@@ -810,7 +834,7 @@ function birthdays_mail($key, &$message, $params) {
           // Actual birthday and age.
           $date = reset(field_get_items($type, $entity, $items['instance']['field_name']));
           $birthday = BirthdaysBirthday::fromArray($date);
-          $item[] = $birthday->toString('m/d/Y') . ' (' . $birthday->getAge() . ')';
+          $item[] = $birthday->toString('m/d/Y', 'M d') . ' (' . $birthday->getAge() . ')';
 
           // Entity URL.
           $uri = entity_uri($type, $entity);

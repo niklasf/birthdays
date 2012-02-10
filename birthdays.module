@@ -448,10 +448,14 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       '#type' => 'birthdays_date',
       '#langcode' => $langcode,
       '#size' => 10,
-      '#default_value' => $items[$delta],
       '#year' => $instance['settings']['hide_year'],
     ) + array_intersect_key($element, array_flip(array('#title', '#description', '#required'))),
   );
+
+  // Default value.
+  if (!empty($items[$delta])) {
+    $element['value']['#default_value'] = $items[$delta];
+  }
 
   // The trigger checkbox.
   if (!empty($instance['settings']['triggers']['user'])) {

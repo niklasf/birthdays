@@ -321,52 +321,55 @@ function birthdays_field_formatter_info() {
 function birthdays_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
   $settings = $instance['display'][$view_mode]['settings'];
 
-  $element['#attached'] = array(
-    'js' => array(
-      drupal_get_path('module', 'birthdays') . '/birthdays.js',
-      array(
-        'type' => 'setting',
-        'data' => array(
-          'birthdays' => array(
-            'birthdays-dateformat' => array(
-              'text' => t('Displayed as'),
-              'lookup' => url('admin/config/birthdays/lookup'),
-            ),
-            'birthdays-dateformat-noyear' => array(
-              'text' => t('Displayed as'),
-              'lookup' => url('admin/config/birthdays/lookup-noyear'),
+  switch ($instance['display'][$view_mode]['type']) {
+    case 'birthdays_plaintext':
+      $element['#attached'] = array(
+        'js' => array(
+          drupal_get_path('module', 'birthdays') . '/birthdays.js',
+          array(
+            'type' => 'setting',
+            'data' => array(
+              'birthdays' => array(
+                'birthdays-dateformat' => array(
+                  'text' => t('Displayed as'),
+                  'lookup' => url('admin/config/birthdays/lookup'),
+                ),
+                'birthdays-dateformat-noyear' => array(
+                  'text' => t('Displayed as'),
+                  'lookup' => url('admin/config/birthdays/lookup-noyear'),
+                ),
+              ),
             ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 
-  $element['dateformat'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Dateformat with year'),
-    '#required' => TRUE,
-    '#size' => 10,
-    '#default_value' => $settings['dateformat'],
-    '#suffix' => ' <small id="edit-birthdays-dateformat-suffix"></small>',
-    '#id' => 'edit-birthdays-dateformat',
-  );
+      $element['dateformat'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Dateformat with year'),
+        '#required' => TRUE,
+        '#size' => 10,
+        '#default_value' => $settings['dateformat'],
+        '#suffix' => ' <small id="edit-birthdays-dateformat-suffix"></small>',
+        '#id' => 'edit-birthdays-dateformat',
+      );
 
-  // Display the no year format only when having no year is possible. If using
-  // Views we can not know for sure.
-  if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO || $view_mode = '_dummy') {
-    $element['dateformat_noyear'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Dateformat without year'),
-      '#required' => TRUE,
-      '#size' => 10,
-      '#default_value' => $settings['dateformat_noyear'],
-      '#id' => 'edit-birthdays-dateformat-noyear',
-      '#suffix' => ' <small id="edit-birthdays-dateformat-noyear-suffix"></small>',
-    );
+      // Display the no year format only when having no year is possible. If using
+      // Views we can not know for sure.
+      if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO || $view_mode = '_dummy') {
+        $element['dateformat_noyear'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Dateformat without year'),
+          '#required' => TRUE,
+          '#size' => 10,
+          '#default_value' => $settings['dateformat_noyear'],
+          '#id' => 'edit-birthdays-dateformat-noyear',
+          '#suffix' => ' <small id="edit-birthdays-dateformat-noyear-suffix"></small>',
+        );
+      }
+
+      return $element;
   }
-
-  return $element;
 }
 
 /**

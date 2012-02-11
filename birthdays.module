@@ -397,6 +397,10 @@ function birthdays_field_formatter_view($entity_type, $entity, $field, $instance
   foreach ($items as $delta => $item) {
     $birthday = BirthdaysBirthday::fromArray($item);
 
+    if ($birthday->isEmpty()) {
+      continue;
+    }
+
     switch ($display['type']) {
       case 'birthdays_plaintext':
         $element[$delta] = array('#markup' => check_plain($birthday->toString($display['settings']['dateformat'], $display['settings']['dateformat_noyear'])));

@@ -152,19 +152,33 @@ function birthdays_process_date($element) {
     $element['#year'] = BIRTHDAYS_HIDE_YEAR_NO;
   }
 
-  // There is a select box for month, day and maybe for year.
-  $types = array('month', 'day');
-  if ($element['#year'] != BIRTHDAYS_HIDE_YEAR_YES) {
-    $types[] = 'year';
+  // Default value for the #display property.
+  if (!isset($element['#display']['dateformat'])) {
+    $element['#display']['dateformat'] = 'm/d/Y';
   }
-  else {
+  if (!isset($element['#display']['dateformat_noyear'])) {
+    $element['#display']['dateformat_noyear'] = 'M d';
+  }
+
+  // There is a select box for month, day and maybe for year. Determine which to
+  // display and the order.
+  $types = array();
+  if ($element['#year'] == BIRTHDAYS_HIDE_YEAR_YES) {
     $element['year'] = array(
       '#type' => 'hidden',
       '#value' => 0,
     );
+    $format = $element['#display']['dateformat_noyear'];
   }
+  else {
+    $format = $element['#display']['dateformat'];
+    $types['year'] = max(strpos($format, 'Y'), strpos($format, 'y'));
+  }
+  $types['month'] = max(strpos($format, 'M'), strpos($format, 'm'));
+  $types['day'] = max(strpos($format, 'd'), strpos($format, 'j'));
+  asort($types);
 
-  foreach ($types as $type) {
+  foreach ($types as $type => $pos) {
     $element[$type] = array(
       '#type' => 'select',
       '#title_display' => 'invisible',
@@ -460,6 +474,15 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       '#year' => $instance['settings']['hide_year'],
     ) + array_intersect_key($element, array_flip(array('#title', '#description', '#required'))),
   );
+
+  // Provide the default date format settings.
+  if (isset($instance['display']['default'])) {
+    $default_display = $instance['display']['default'];
+  }
+  else {
+    $default_display = reset($instance['display']);
+  }
+  $element['value']['#display'] = $default_display['settings'];
 
   // Default value.
   if (!empty($items[$delta])) {

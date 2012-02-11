@@ -164,21 +164,13 @@ class BirthdaysBirthday {
 
     // Remove the year from the format, if none is given.
     if (empty($this->value['year'])) {
-      $format_noyear = preg_replace_callback('/([^djSFmMnt])/', 'self::escapeCallback', $format_noyear);
+      $format_noyear = preg_replace('/([^djSFmMnt])/', '\\\${1}', $format_noyear);
       return format_date($this->toUnixtime(), 'custom', $format_noyear);
     }
     else {
-      $format = preg_replace_callback('/([^dDjlNSwzWFmMntLoYy])/', 'self::escapeCallback', $format);
+      $format = preg_replace('/([^dDjlNSwzWFmMntLoYy])/', '\\\${1}', $format);
       return format_date($this->toUnixtime(), 'custom', $format);
     }
-  }
-
-  /**
-   * Callback that can be used with preg_replace_callback to escape
-   * a dateformat.
-   */
-  public static function escapeCallback($match) {
-    return '\\' . $match[1];
   }
 
   /**

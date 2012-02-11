@@ -352,7 +352,9 @@ function birthdays_field_formatter_settings_form($field, $instance, $view_mode, 
     '#id' => 'edit-birthdays-dateformat',
   );
 
-  if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO) {
+  // Display the no year format only when having no year is possible. If using
+  // Views we can not know for sure.
+  if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO || $view_mode = '_dummy') {
     $element['dateformat_noyear'] = array(
       '#type' => 'textfield',
       '#title' => t('Dateformat without year'),

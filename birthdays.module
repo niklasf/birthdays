@@ -358,19 +358,23 @@ function birthdays_field_formatter_settings_form($field, $instance, $view_mode, 
         ),
       );
 
-      $element['dateformat'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Dateformat with year'),
-        '#required' => TRUE,
-        '#size' => 10,
-        '#default_value' => $settings['dateformat'],
-        '#suffix' => ' <small id="edit-birthdays-dateformat-suffix"></small>',
-        '#id' => 'edit-birthdays-dateformat',
-      );
+      // Only display the with-year format when years are not disabled or when
+      // using a dummy view mode from the Views module.
+      if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_YES || $view_mode == '_dummy') {
+        $element['dateformat'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Dateformat with year'),
+          '#required' => TRUE,
+          '#size' => 10,
+          '#default_value' => $settings['dateformat'],
+          '#suffix' => ' <small id="edit-birthdays-dateformat-suffix"></small>',
+          '#id' => 'edit-birthdays-dateformat',
+        );
+      }
 
-      // Display the no year format only when having no year is possible. If using
-      // Views we can not know for sure.
-      if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO || $view_mode = '_dummy') {
+      // Display the no-year format only when having no year is possible. If
+      // using Views we can not know for sure.
+      if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO || $view_mode == '_dummy') {
         $element['dateformat_noyear'] = array(
           '#type' => 'textfield',
           '#title' => t('Dateformat without year'),
@@ -398,12 +402,19 @@ function birthdays_field_formatter_settings_summary($field, $instance, $view_mod
         '@format' => $display['settings']['dateformat'],
         '@noyear' => $display['settings']['dateformat_noyear'],
       );
-      if ($instance['settings']['hide_year'] != BIRTHDAYS_HIDE_YEAR_NO) {
-        return t('Date format: <strong>@format</strong> respectively <strong>@noyear</strong>', $vars);
+
+      switch ($instance['settings']['hide_year']) {
+        case BIRTHDAYS_HIDE_YEAR_USER:
+          return t('Date format: <strong>@format</strong> respectively <strong>@noyear</strong>', $vars);
+
+        case BIRTHDAYS_HIDE_YEAR_NO:
+          return t('Date format: <strong>@format</strong>', $vars);
+
+        case BIRTHDAYS_HIDE_YEAR_YES:
+          return t('Date format: <strong>@noyear</strong>', $vars);
       }
-      else {
-        return t('Date format: <strong>@format</strong>', $vars);
-      }
+
+      break;
   }
 }
 

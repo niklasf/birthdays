@@ -10,9 +10,6 @@
  */
 class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
 
-  /**
-   * Implements getInfo().
-   */
   public static function getInfo() {
     return array(
       'name' => t('BirthdaysBirthday unit tests'),
@@ -21,16 +18,13 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
     );
   }
 
-  /**
-   * Implements setUp().
-   */
   public function setUp() {
     parent::setUp();
     module_load_include('inc', 'birthdays', 'birthdays_birthday');
   }
 
   /**
-   * Test empty values.
+   * Tests empty values.
    */
   public function testFromEmpty() {
     $this->assertEqual(BirthdaysBirthday::fromEmpty()->toArray(), array('year' => 0, 'month' => 0, 'day' => 0));
@@ -54,7 +48,7 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
   }
 
   /**
-   * Test conversion from array.
+   * Tests conversion from array.
    */
   public function testFromArray() {
     $this->assertIdentical(BirthdaysBirthday::fromArray(array('month' => 0, 'day' => 0))->toString(), '');
@@ -82,7 +76,7 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
   }
 
   /**
-   * Test conversion directily given values.
+   * Tests conversion directily given values.
    */
   public function testFromDate() {
     $this->assertIdentical(BirthdaysBirthday::fromDate(0, 0, 0)->isEmpty(), TRUE);
@@ -99,13 +93,10 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
 }
 
 /**
- * Test utility functions.
+ * Tests utility functions.
  */
 class BirthdaysUtilityTestCase extends DrupalUnitTestCase {
 
-  /**
-   * Implements getInfo().
-   */
   public static function getInfo() {
     return array(
       'name' => t('Birthdays utility tests'),
@@ -114,16 +105,13 @@ class BirthdaysUtilityTestCase extends DrupalUnitTestCase {
     );
   }
 
-  /**
-   * Implements setUp().
-   */
   public function setUp() {
     parent::setUp();
     module_load_include('install', 'birthdays', 'birthdays');
   }
 
   /**
-   * Test _birthdays_upgrade_tokens().
+   * Tests _birthdays_upgrade_tokens().
    */
   public function testUpgradeTokens() {
     $this->assertEqual(_birthdays_upgrade_tokens('Happy birthday !username!'), 'Happy birthday [user:name]!');

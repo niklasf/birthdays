@@ -6,7 +6,7 @@
  */
 
 /**
- * Convert between different data representations and do calculations on a
+ * Converts between different data representations and do calculations on a
  * birthday.
  */
 class BirthdaysBirthday {
@@ -24,7 +24,7 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Create an empty birthday value.
+   * Creates an empty birthday value.
    *
    * @return A BirthdaysBirthday instance.
    */
@@ -33,7 +33,7 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Create a birthday from values.
+   * Creates a birthday from values.
    *
    * @param $year
    *   The year or empty for no year.
@@ -109,7 +109,7 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Create a birthday from a database value.
+   * Creates a birthday from a database value.
    *
    * @param $value
    *   An associative array with year, month and day set.
@@ -137,7 +137,7 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Create a BirthdaysBirthday instance from an offset of dates from the
+   * Creates a BirthdaysBirthday instance from an offset of dates from the
    * current time.
    * That does not include a year.
    *
@@ -221,7 +221,7 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Calculate the age for a specific year.
+   * Calculates the age for a specific year.
    *
    * @param $year
    *   Optionally give a year other than the current.
@@ -242,7 +242,7 @@ class BirthdaysBirthday {
   }
 
   /**
-   * Calculate the current age.
+   * Calculates the current age.
    *
    * @return
    *   The current age.

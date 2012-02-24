@@ -127,7 +127,12 @@ function birthdays_menu() {
 }
 
 /**
- * Menu callback for admin/config/birthdays/lookup.
+ * Page callback: Evaluates a date format for live display.
+ *
+ * @param $year
+ *   Whether the year should be displayed or not.
+ *
+ * @see birthdays_menu()
  */
 function birthdays_lookup($year) {
   if ($year) {
@@ -142,7 +147,9 @@ function birthdays_lookup($year) {
 }
 
 /**
- * #process callback for the birthdays_date element.
+ * Render API callback: Expands the birthdays_date element.
+ *
+ * This function is assigned as a #process callback in birthdays_element_info().
  */
 function birthdays_process_date($element) {
   $element['#tree'] = TRUE;
@@ -214,7 +221,12 @@ function birthdays_process_date($element) {
 }
 
 /**
- * #element_validate callback for the birthdays_date element.
+ * Render API callback: Validates birthdays_date elements.
+ *
+ * Ensures that the supplied date is valid and confirms to the #year setting.
+ *
+ * This function is assigned as an #element_validate callback in
+ * birthdays_element_info().
  */
 function birthdays_validate_date($element, &$form_state) {
   if (!empty($element['#value']['month']) && !empty($element['#value']['day'])) {
@@ -239,8 +251,12 @@ function birthdays_validate_date($element, &$form_state) {
 }
 
 /**
- * #element_validate callback for the birthdays_date element, that ensures the
- * date is complete, if given.
+ * Render API callback: Ensures that a given birthdays_date is complete.
+ *
+ * If year, month or day are given, everything has to be entered.
+ *
+ * This functions is assigned as an #element_validate callback in
+ * birthdays_element_info().
  */
 function birthdays_validate_date_complete($element, &$form_state) {
   $has_year = !empty($element['#value']['year']);
@@ -256,7 +272,13 @@ function birthdays_validate_date_complete($element, &$form_state) {
 }
 
 /**
- * Theme function for the birthdays_date form element.
+ * Returns HTML for a birthdays_date element.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - element: The element to be themed.
+ *
+ * @ingroup themable
  */
 function theme_birthdays_date($variables) {
   $element = $variables['element'];
@@ -477,7 +499,7 @@ function birthdays_field_widget_info() {
  */
 function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   $element += array(
-    '#element_validate' => array('birthdays_field_textfield_validate'),
+    '#element_validate' => array('birthdays_field_widget_validate'),
     'value' => array(
       '#type' => 'birthdays_date',
       '#langcode' => $langcode,
@@ -514,9 +536,12 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
 }
 
 /**
- * FAPI validation callback for the birthdays_field_widget_form element.
+ * Render API callback: Sets the field value for a birthdays_date field.
+ *
+ * This function is assigned as an #element_validate callback in
+ * birthdays_field_widget_form().
  */
-function birthdays_field_textfield_validate($element, &$form_state) {
+function birthdays_field_widget_validate($element, &$form_state) {
   // If user input for triggers is aloud, get the checkbox value.
   $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
   if ($instance['settings']['triggers']['user']) {
@@ -619,8 +644,11 @@ function birthdays_field_instance_settings_form($field, $instance) {
 }
 
 /**
- * FAPI validation for the checkbox title field, that is required, if the
- * opt-out trigger checkbox is checked.
+ * Render API callback: Validates that a field value is given, if the opt-out
+ * trigger checkbox is checked.
+ *
+ * This function is assigned as an #element_validate callback in
+ * birthdays_field_instance_settings_form().
  */
 function _birthdays_required_if_user_checked($element, &$form_state, $form) {
   if (trim($element['#value']) === '') {
@@ -676,7 +704,7 @@ function birthdays_trigger_info() {
 }
 
 /**
- * Get a human readable description of a field instance.
+ * Gets a human readable description of a field instance.
  *
  * @param $instance
  *   The field instance.
@@ -702,7 +730,7 @@ function _birthdays_instance_description($instance) {
 }
 
 /**
- * Get a hook name that is unique for a field instance.
+ * Gets a hook name that is unique for a field instance.
  *
  * @param $i
  *   The field instance.
@@ -737,7 +765,7 @@ function birthdays_birthdays($entity, $instance) {
 }
 
 /**
- * Get all instances of birthday fields that are around.
+ * Gets all instances of birthday fields that are around.
  */
 function _birthdays_field_instances() {
   $result = array();
@@ -760,8 +788,10 @@ function _birthdays_field_instances() {
 }
 
 /**
- * Comparison callback to sort an array of field instances by entity type,
- * bundle name and field name as humans would do.
+ * Callback for usort() within _birthdays_field_instances().
+ *
+ * Used to sort an array of field instances by entity type, bundle name and
+ * field name as humans would do.
  *
  * @see strnatcmp()
  */
@@ -781,7 +811,7 @@ function _birthdays_field_instances_compare($a, $b) {
 }
 
 /**
- * Query the database for birthdays.
+ * Queries the database for birthdays.
  *
  * @param $trigger
  *   TRUE, if only birthdays should be returned, that are not opted out of

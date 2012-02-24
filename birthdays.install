@@ -49,8 +49,6 @@ function birthdays_field_schema($field) {
 
 /**
  * Remove the variable 'birthdays_field_name'.
- *
- * Implements hook_update_N().
  */
 function birthdays_update_5003() {
   $ret[] = array('success' => TRUE, 'query' => 'Variable "birthdays_field_name" has been deleted successfully');
@@ -62,8 +60,6 @@ function birthdays_update_5003() {
 /**
  * The placeholder @name in the user birthday message has been replaced by
  * !username, because we now can use user_mail_tokens().
- *
- * Implements hook_update_N().
  */
 function birthdays_update_6000() {
   $ret = array();
@@ -79,8 +75,6 @@ function birthdays_update_6000() {
 /**
  * Upgrade the data structure to Drupal 7, creating actions, triggers and
  * fields.
- *
- * Implements hook_update_N().
  */
 function birthdays_update_7000() {
   // Delete the D7 default action.
@@ -182,8 +176,6 @@ function birthdays_update_7000() {
 
 /**
  * Upgrade the field data to Drupal 7.
- *
- * Implements hook_update_N().
  */
 function birthdays_update_7001(&$sandbox) {
   if (!db_table_exists('dob')) {

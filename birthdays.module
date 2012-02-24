@@ -367,11 +367,11 @@ function birthdays_field_formatter_settings_form($field, $instance, $view_mode, 
     case 'birthdays_plaintext':
       $element['#attached'] = array(
         'js' => array(
-          drupal_get_path('module', 'birthdays') . '/birthdays.js',
+          drupal_get_path('module', 'system') . '/system.js',
           array(
             'type' => 'setting',
             'data' => array(
-              'birthdays' => array(
+              'dateTime' => array(
                 'birthdays-dateformat' => array(
                   'text' => t('Displayed as'),
                   'lookup' => url('admin/config/birthdays/lookup'),

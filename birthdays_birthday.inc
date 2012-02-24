@@ -247,23 +247,23 @@ class BirthdaysBirthday {
    * @return
    *   The current age.
    */
-  public function getCurrentAge() {
+  public function getCurrentAge($now = REQUEST_TIME) {
     if ($this->value['year'] == 0) {
       return t('Age unkown');
     }
 
-    $months_diff = date('m', REQUEST_TIME) - $this->value['month'];
+    $months_diff = date('m', $now) - $this->value['month'];
 
     if ($months_diff < 0) {
-      return $this->getAge(date('Y', REQUEST_TIME)) - 1;
+      return $this->getAge(date('Y', $now)) - 1;
     }
     elseif ($months_diff == 0) {
-      if ($this->value['day'] < date('d')) {
-        return $this->getAge(date('Y', REQUEST_TIME)) - 1;
+      if ($this->value['day'] > date('d')) {
+        return $this->getAge(date('Y', $now)) - 1;
       }
     }
 
-    return $this->getAge(date('Y', REQUEST_TIME));
+    return $this->getAge(date('Y', $now));
   }
 
   /**

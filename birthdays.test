@@ -40,6 +40,20 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
   }
 
   /**
+   * Tests age calculation.
+   */
+  public function testAgeCalculation() {
+    // Assume it's 02/24/2012.
+    $now = mktime(3, 54, 23, 2, 24, 2012);
+    $this->assertEqual(date('m/d/Y', $now), '02/24/2012');
+
+    // Test age calculation.
+    $this->assertEqual(BirthdaysBirthday::fromArray(array('month' => 2, 'day' => 25, 'year' => 1985))->getCurrentAge($now), 26);
+    $this->assertEqual(BirthdaysBirthday::fromArray(array('month' => 2, 'day' => 16, 'year' => 1985))->getCurrentAge($now), 27);
+    $this->assertEqual(BirthdaysBirthday::fromArray(array('month' => 7, 'day' => 3, 'year' => 1993))->getCurrentAge($now), 18);
+  }
+
+  /**
    * Test conversion from array.
    */
   public function testFromArray() {

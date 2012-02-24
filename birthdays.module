@@ -292,7 +292,13 @@ function theme_birthdays_date($variables) {
   }
   $attributes['class'][] = 'container-inline';
 
-  return '<div' . drupal_attributes($attributes) . '>' . drupal_render_children($element) . '</div>';
+  $triggers = array();
+  if (isset($element['triggers'])) {
+    $triggers = $element['triggers'];
+    unset($element['triggers']);
+  }
+
+  return '<div' . drupal_attributes($attributes) . '>' . drupal_render_children($element) . '</div>' . drupal_render($triggers);
 }
 
 /**
@@ -499,13 +505,11 @@ function birthdays_field_widget_info() {
  */
 function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   $element += array(
-    '#element_validate' => array('birthdays_field_widget_validate'),
-    'value' => array(
-      '#type' => 'birthdays_date',
-      '#langcode' => $langcode,
-      '#size' => 10,
-      '#year' => $instance['settings']['hide_year'],
-    ) + array_intersect_key($element, array_flip(array('#title', '#description', '#required'))),
+    '#tree' => TRUE,
+    '#type' => 'birthdays_date',
+    '#langcode' => $langcode,
+    '#size' => 10,
+    '#year' => $instance['settings']['hide_year'],
   );
 
   // Provide the default date format settings.
@@ -515,11 +519,11 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
   else {
     $default_display = reset($instance['display']);
   }
-  $element['value']['#display'] = $default_display['settings'];
+  $element['#display'] = $default_display['settings'];
 
   // Default value.
   if (!empty($items[$delta])) {
-    $element['value']['#default_value'] = $items[$delta];
+    $element['#default_value'] = $items[$delta];
   }
 
   // The trigger checkbox.
@@ -529,30 +533,17 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       '#title' => check_plain($instance['settings']['triggers']['title']),
       '#description' => check_plain($instance['settings']['triggers']['description']),
       '#default_value' => isset($items[$delta]) ? $items[$delta]['triggers'] : TRUE,
+      '#weight' => 3,
+    );
+  }
+  else {
+    $element['triggers'] = array(
+      '#type' => 'value',
+      '#value' => TRUE,
     );
   }
 
   return $element;
-}
-
-/**
- * Render API callback: Sets the field value for a birthdays_date field.
- *
- * This function is assigned as an #element_validate callback in
- * birthdays_field_widget_form().
- */
-function birthdays_field_widget_validate($element, &$form_state) {
-  // If user input for triggers is aloud, get the checkbox value.
-  $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
-  if ($instance['settings']['triggers']['user']) {
-    $triggers = $element['triggers']['#value'];
-  }
-  else {
-    $triggers = TRUE;
-  }
-
-  // Save the values.
-  form_set_value($element, $element['value']['#value'] + array('triggers' => $triggers), $form_state);
 }
 
 /**

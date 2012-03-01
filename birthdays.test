@@ -90,6 +90,15 @@ class BirthdaysBirthdayTestCase extends DrupalUnitTestCase {
       $this->pass($e->getMessage());
     }
   }
+
+  /**
+   * Tests BirthdaysBirthday::isLeapYear().
+   */
+  function testLeapYear() {
+    $this->assertTrue(BirthdaysBirthday::isLeapYear(2012));
+    $this->assertTrue(BirthdaysBirthday::isLeapYear(2000));
+    $this->assertFalse(BirthdaysBirthday::isLeapYear(2001));
+  }
 }
 
 /**

@@ -324,4 +324,17 @@ class BirthdaysBirthday {
         return $day < 22 ? 'sagittarius' : 'capricorn';
     }
   }
+
+  /**
+   * Checks if a given year is a leap year.
+   *
+   * @param $year
+   *   The year.
+   *
+   * @return
+   *   TRUE if it is a leap year.
+   */
+  public function isLeapYear($year) {
+    return (bool) date('L', strtotime($year . '-1-1'));
+  }
 }

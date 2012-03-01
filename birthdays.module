@@ -328,9 +328,7 @@ function birthdays_field_info() {
  * Implements hook_field_is_empty().
  */
 function birthdays_field_is_empty($item, $field) {
-  // There is always something about the triggers, so a birthday field is never
-  // empty.
-  return FALSE;
+  return empty($item['month']) && empty($item['day']) && empty($item['year']);
 }
 
 /**

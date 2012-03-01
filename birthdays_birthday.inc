@@ -258,7 +258,7 @@ class BirthdaysBirthday {
       return $this->getAge(date('Y', $now)) - 1;
     }
     elseif ($months_diff == 0) {
-      if ($this->value['day'] > date('d')) {
+      if ($this->value['day'] > date('d', $now)) {
         return $this->getAge(date('Y', $now)) - 1;
       }
     }

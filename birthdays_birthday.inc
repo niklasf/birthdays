@@ -164,13 +164,18 @@ class BirthdaysBirthday {
 
     // Remove the year from the format, if none is given.
     if (empty($this->value['year'])) {
-      $format_noyear = preg_replace('/([^djSFmMnt])/', '\\\${1}', $format_noyear);
-      return format_date($this->toUnixtime(), 'custom', $format_noyear);
+      $format_noyear = str_replace('[starsign]', '[s\tarsig\n]', $format_noyear);
+      $format_noyear = preg_replace('/([^djSFmMnt\\\])/', '\\\${1}', $format_noyear);
+      $result = format_date($this->toUnixtime(), 'custom', $format_noyear);
     }
     else {
-      $format = preg_replace('/([^dDjlNSwzWFmMntLoYy])/', '\\\${1}', $format);
-      return format_date($this->toUnixtime(), 'custom', $format);
+      $format = str_replace('[starsign]', '[s\tarsig\n]', $format);
+      $format = str_replace('[age]', $this->getCurrentAge(), $format);
+      $format = preg_replace('/([^dDjlNSwzWFmMntLoYy\\\])/', '\\\${1}', $format);
+      $result = format_date($this->toUnixtime(), 'custom', $format);
     }
+
+    return str_replace('[starsign]', t(ucfirst($this->getStarsign())), $result);
   }
 
   /**
@@ -323,6 +328,14 @@ class BirthdaysBirthday {
       case 12:
         return $day < 22 ? 'sagittarius' : 'capricorn';
     }
+  }
+
+  /**
+   * @return
+   *   A list with starsign encapsulated in t(), so that they can be translated.
+   */
+  private function humanReadableStarsigns() {
+    return array(t('Capricorn'), t('Aquarius'), t('Pisces'), t('Aries'), t('Taurus'), t('Gemini'), t('Cancer'), t('Leo'), t('Virgo'), t('Libra'), t('Scorpio'), t('Sagittarius'));
   }
 
   /**

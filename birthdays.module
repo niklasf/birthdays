@@ -136,7 +136,7 @@ function birthdays_menu() {
  */
 function birthdays_lookup($year) {
   if ($year) {
-    $birthday = BirthdaysBirthday::fromDate(date('Y', REQUEST_TIME), date('m', REQUEST_TIME), date('d', REQUEST_TIME));
+    $birthday = BirthdaysBirthday::fromDate(date('Y', REQUEST_TIME) - 20, date('m', REQUEST_TIME), date('d', REQUEST_TIME));
   }
   else {
     $birthday = BirthdaysBirthday::fromDate(0, date('m', REQUEST_TIME), date('d', REQUEST_TIME));
@@ -390,10 +390,11 @@ function birthdays_field_formatter_settings_form($field, $instance, $view_mode, 
         $element['dateformat'] = array(
           '#type' => 'textfield',
           '#title' => t('Dateformat with year'),
+          '#description' => t('You can use options available from the <a href="http://php.net/manual/en/function.date.php">PHP manual</a>, [starsign] and [age].'),
           '#required' => TRUE,
           '#size' => 10,
           '#default_value' => $settings['dateformat'],
-          '#suffix' => ' <small id="edit-birthdays-dateformat-suffix"></small>',
+          '#field_suffix' => ' <small id="edit-birthdays-dateformat-suffix"></small>',
           '#id' => 'edit-birthdays-dateformat',
         );
       }
@@ -404,11 +405,12 @@ function birthdays_field_formatter_settings_form($field, $instance, $view_mode, 
         $element['dateformat_noyear'] = array(
           '#type' => 'textfield',
           '#title' => t('Dateformat without year'),
+          '#description' => t('You can use options available form the <a href="http://php.net/manual/en/function.date.php">PHP manual</a> and [starsign].'),
           '#required' => TRUE,
           '#size' => 10,
           '#default_value' => $settings['dateformat_noyear'],
           '#id' => 'edit-birthdays-dateformat-noyear',
-          '#suffix' => ' <small id="edit-birthdays-dateformat-noyear-suffix"></small>',
+          '#field_suffix' => ' <small id="edit-birthdays-dateformat-noyear-suffix"></small>',
         );
       }
 
@@ -469,8 +471,8 @@ function birthdays_field_formatter_view($entity_type, $entity, $field, $instance
             '#path' => url(drupal_get_path('module', 'birthdays') . '/starsigns/' . $birthday->getStarsign() . '.gif'),
             '#height' => '35',
             '#width' => '35',
-            '#alt' => $birthday->getStarsign(),
-            '#title' => $birthday->getStarsign(),
+            '#alt' => t(ucfirst($birthday->getStarsign())),
+            '#title' => t(ucfirst($birthday->getStarsign())),
           );
         }
         break;

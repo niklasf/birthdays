@@ -162,4 +162,22 @@ class BirthdaysDefaultsTestCase extends DrupalWebTestCase {
     $this->assertText('birthdays');
     $this->assertText(t('Select boxes'));
   }
+
+  /**
+   * Ensure users can edit their birthdays.
+   */
+  public function testUserProfile() {
+    $this->drupalLogin($this->web_user);
+    $this->drupalGet('user/' . $this->web_user->uid . '/edit');
+    $this->assertText(t('Birthday'));
+
+    $edit['birthdays[und][0][year]'] = 1955;
+    $edit['birthdays[und][0][month]'] = 4;
+    $edit['birthdays[und][0][day]'] = 22;
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->assertText(t('The changes have been saved.'));
+
+    $this->drupalGet('user/' . $this->web_user->uid);
+    $this->assertText('1955/04/22');
+  }
 }

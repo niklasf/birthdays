@@ -232,14 +232,14 @@ function birthdays_validate_date($element, &$form_state) {
   if (!empty($element['#value']['month']) && !empty($element['#value']['day'])) {
     if (empty($element['#value']['year'])) {
       if ($element['#year'] == BIRTHDAYS_HIDE_YEAR_NO) {
-        form_error($element['year'], t('The year is required.'));
+        form_error($element, t('The year is required.'));
       }
 
       $element['#value']['year'] = 2000;
     }
 
     if (!checkdate($element['#value']['month'], $element['#value']['day'], $element['#value']['year'])) {
-      form_error($element['day'], t('The specified date is invalid.'));
+      form_error($element, t('The specified date is invalid.'));
     }
 
   }
@@ -661,7 +661,7 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
  * This function is assigned as an #element_validate callback in
  * birthdays_field_widget_form().
  */
-function _birthdays_field_widget_textfield_validate($element, &$form_state, $form) {
+function _birthdays_field_widget_textfield_validate(&$element, &$form_state, $form) {
   if (trim($element['value']['#value']) !== '') {
     // Parse the string.
     switch ($element['#year']) {
@@ -683,17 +683,12 @@ function _birthdays_field_widget_textfield_validate($element, &$form_state, $for
       $parsed['year'] = 0;
     }
 
-    if (empty($parsed['month']) || empty($parsed['day'])) {
-      form_error($element['value'], t('Enter a valid date.'));
-    }
-    else
-    {
-      // Get the trigger settings.
-      $parsed['triggers'] = $element['triggers']['#value'];
+    // Get the trigger settings.
+    $parsed['triggers'] = $element['triggers']['#value'];
 
-      // Set the value on the container element.
-      form_set_value($element, $parsed, $form_state);
-    }
+    // Set the value on the container element.
+    $element['#value'] = $parsed;
+    form_set_value($element, $parsed, $form_state);
   }
 }
 

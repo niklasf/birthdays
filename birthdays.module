@@ -496,14 +496,16 @@ function birthdays_field_widget_info() {
     'label' => t('Select boxes'),
     'field types' => array('birthdays_date'),
   );
-  $widgets['birthdays_textfield'] = array(
-    'label' => t('Textfield'),
-    'field types' => array('birthdays_date'),
-    'settings' => array(
-      'dateformat' => 'Y/m/d',
-      'datepicker' => FALSE,
-    ),
-  );
+  if (function_exists('date_parse_from_format')) {
+    $widgets['birthdays_textfield'] = array(
+      'label' => t('Textfield'),
+      'field types' => array('birthdays_date'),
+      'settings' => array(
+        'dateformat' => 'Y/m/d',
+        'datepicker' => FALSE,
+      ),
+    );
+  }
   return $widgets;
 }
 

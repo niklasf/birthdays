@@ -499,6 +499,10 @@ function birthdays_field_widget_info() {
   $widgets['birthdays_textfield'] = array(
     'label' => t('Textfield'),
     'field types' => array('birthdays_date'),
+    'settings' => array(
+      'dateformat' => 'Y/m/d',
+      'datepicker' => FALSE,
+    ),
   );
   return $widgets;
 }
@@ -533,10 +537,39 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       break;
 
     case 'birthdays_textfield':
+      // Setup the container.
       $element['#type'] = 'fieldset';
+      $element['#dateformat'] = $instance['widget']['settings']['dateformat'];
+      $element['#dateformat_noyear'] = str_ireplace(array('y-', '-y', 'y/', '/y', 'y'), '', $instance['widget']['settings']['dateformat']);
+
+      // Add a child textfield.
       $element['value'] = array(
         '#type' => 'textfield',
-        '#size' => 20,
+        '#size' => 15,
+        '#required' => $element['#required'],
+      );
+
+      // Set the default value.
+      if (!empty($items[$delta])) {
+        $element['value']['#default_value'] = BirthdaysBirthday::fromArray($items[$delta])->toString($element['#dateformat'], $element['#dateformat_noyear']);
+      }
+
+      // Set the placeholder attribute.
+      switch ($element['#year']) {
+        case BIRTHDAYS_HIDE_YEAR_NO:
+          $element['value']['#attributes']['placeholder'] = $element['#dateformat'];
+          break;
+        case BIRTHDAYS_HIDE_YEAR_YES:
+          $element['value']['#attributes']['placeholder'] = $element['#dateformat_noyear'];
+          break;
+        case BIRTHDAYS_HIDE_YEAR_USER:
+          $element['value']['#attributes']['placeholder'] = t('@dateformat or @dateformat_noyear', array('@dateformat' => $element['#dateformat'], '@dateformat_noyear' => $element['#dateformat_noyear']));
+          break;
+      }
+
+      // Add validation callbacks.
+      $element += array(
+        '#element_validate' => array('_birthdays_field_widget_textfield_validate', 'birthdays_validate_date', 'birthdays_validate_date_complete'),
       );
 
       // No need to use a fieldset when there is no trigger checkbox.
@@ -565,6 +598,48 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
   }
 
   return $element;
+}
+
+/**
+ * Render API callback: Parses a birthday textfield widget value.
+ *
+ * This function is assigned as an #element_validate callback in
+ * birthdays_field_widget_form().
+ */
+function _birthdays_field_widget_textfield_validate($element, &$form_state, $form) {
+  if (trim($element['value']['#value']) !== '') {
+    // Parse the string.
+    switch ($element['#year']) {
+      case BIRTHDAYS_HIDE_YEAR_NO:
+        $parsed = date_parse_from_format($element['#dateformat'], $element['value']['#value']);
+        break;
+      case BIRTHDAYS_HIDE_YEAR_YES:
+        $parsed = date_parse_from_format($element['#dateformat_noyear'], $element['value']['#value']);
+        break;
+      case BIRTHDAYS_HIDE_YEAR_USER:
+        $parsed = date_parse_from_format($element['#dateformat'], $element['value']['#value']);
+        if (empty($parsed['year']) || empty($parsed['month']) || empty($parsed['day'])) {
+          $parsed = date_parse_from_format($element['#dateformat_noyear'], $element['value']['#value']);
+        }
+        break;
+    }
+
+    if (empty($parsed['year'])) {
+      $parsed['year'] = 0;
+    }
+
+    if (empty($parsed['month']) || empty($parsed['day'])) {
+      form_error($element['value'], t('Enter a valid date.'));
+    }
+    else
+    {
+      // Get the trigger settings.
+      $parsed['triggers'] = $element['triggers']['#value'];
+
+      // Set the value on the container element.
+      form_set_value($element, $parsed, $form_state);
+    }
+  }
 }
 
 /**

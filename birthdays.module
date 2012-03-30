@@ -489,7 +489,7 @@ function birthdays_field_formatter_view($entity_type, $entity, $field, $instance
 }
 
 /**
- * Implements hoook_field_widget_info().
+ * Implements hook_field_widget_info().
  */
 function birthdays_field_widget_info() {
   $widgets['birthdays_date'] = array(
@@ -505,6 +505,31 @@ function birthdays_field_widget_info() {
     ),
   );
   return $widgets;
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function birthdays_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+
+  switch ($widget['type']) {
+    case 'birthdays_textfield':
+      $form['dateformat'] = array(
+        '#type' => 'select',
+        '#title' => t('Date format'),
+        '#required' => TRUE,
+        '#description' => t('Dates the user enters must have this format.'),
+        '#options' => drupal_map_assoc(array(
+          'Y/m/d',
+          'd/m/Y',
+          'd.m.Y',
+        )),
+        '#default_value' => $settings['dateformat'],
+      );
+      return $form;
+  }
 }
 
 /**

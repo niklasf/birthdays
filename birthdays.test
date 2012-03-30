@@ -128,3 +128,38 @@ class BirthdaysUtilityTestCase extends DrupalUnitTestCase {
     $this->assertEqual(_birthdays_upgrade_tokens('!date !uri !mailto'), '[date:medium] [site:url] [user:mail]');
   }
 }
+
+/**
+ * Tests birthdays default functionaly.
+ */
+class BirthdaysDefaultsTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Birthdays defaults tests',
+      'description' => 'Tests birthdays with the default configuration.',
+      'group' => 'Birthdays',
+    );
+  }
+
+  private $admin_user;
+
+  private $web_user;
+
+  public function setUp() {
+    parent::setUp(array('field_ui', 'birthdays_defaults'));
+    $this->admin_user = $this->drupalCreateUser(array('administer site configuration', 'administer users'));
+    $this->web_user = $this->drupalCreateUser(array('access user profiles', 'access content'));
+  }
+
+  /**
+   * Ensure the field is visible on the configuration page.
+   */
+  public function testAdminPage() {
+    $this->drupalLogin($this->admin_user);
+    $this->drupalGet('admin/config/people/accounts/fields');
+    $this->assertText(t('Birthday'));
+    $this->assertText('birthdays');
+    $this->assertText(t('Select boxes'));
+  }
+}

@@ -161,7 +161,7 @@ function birthdays_process_date($element) {
 
   // Default value for the #display property.
   if (!isset($element['#display']['dateformat'])) {
-    $element['#display']['dateformat'] = 'm/d/Y';
+    $element['#display']['dateformat'] = 'Y/m/d';
   }
   if (!isset($element['#display']['dateformat_noyear'])) {
     $element['#display']['dateformat_noyear'] = 'M d';
@@ -340,7 +340,7 @@ function birthdays_field_formatter_info() {
       'label' => t('Plaintext'),
       'field types' => array('birthdays_date'),
       'settings' => array(
-        'dateformat' => 'm/d/Y',
+        'dateformat' => 'Y/m/d',
         'dateformat_noyear' => 'M d',
       ),
     ),
@@ -972,7 +972,7 @@ function birthdays_mail($key, &$message, $params) {
           // Actual birthday and age.
           $date = reset(field_get_items($type, $entity, $items['instance']['field_name']));
           $birthday = BirthdaysBirthday::fromArray($date);
-          $item[] = $birthday->toString('m/d/Y', 'M d') . ' (' . $birthday->getAge() . ')';
+          $item[] = $birthday->toString('Y/m/d', 'M d') . ' (' . $birthday->getAge() . ')';
 
           // Entity URL.
           $uri = entity_uri($type, $entity);

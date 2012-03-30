@@ -157,7 +157,7 @@ class BirthdaysBirthday {
    *
    * @returns A string representation of the value.
    */
-  public function toString($format = 'm/d/Y', $format_noyear = 'M d') {
+  public function toString($format = 'Y/m/d', $format_noyear = 'M d') {
     if ($this->isEmpty()) {
       return '';
     }

@@ -530,6 +530,12 @@ function birthdays_field_widget_settings_form($field, $instance) {
         )),
         '#default_value' => $settings['dateformat'],
       );
+      $form['datepicker'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Use a datepicker'),
+        '#description' => t('Show a datepicker when the user clicks on the field.'),
+        '#default_value' => $settings['datepicker'],
+      );
       return $form;
   }
 }
@@ -603,6 +609,28 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
       if (empty($instance['settings']['triggers']['user'])) {
         $element['#type'] = 'container';
         $element['value']['#title'] = $element['#title'];
+      }
+
+      // Datepicker poup.
+      if ($instance['widget']['settings']['datepicker']) {
+        drupal_add_library('system', 'ui.datepicker');
+        if ($instance['settings']['hide_year'] == BIRTHDAYS_HIDE_YEAR_YES) {
+          $element['value']['#attributes']['class'] = array('birthdays-datepicker-noyear');
+        }
+        else {
+          $element['value']['#attributes']['class'] = array('birthdays-datepicker');
+        }
+        $element['value']['#attached']['js'][] = drupal_get_path('module', 'birthdays') . '/birthdays.js';
+        $element['value']['#attached']['js'][] = array(
+          'data' => array(
+            'birthdays' => array(
+              'firstDay' => variable_get('date_firstday', 0),
+              'dateformat' => str_replace('Y', 'yy', $element['#dateformat']),
+              'dateformat_noyear' => $element['#dateformat_noyear'],
+            ),
+          ),
+          'type' => 'setting',
+        );
       }
       break;
   }

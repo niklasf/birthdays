@@ -492,12 +492,15 @@ function birthdays_field_formatter_view($entity_type, $entity, $field, $instance
  * Implements hoook_field_widget_info().
  */
 function birthdays_field_widget_info() {
-  return array(
-    'birthdays_date' => array(
-      'label' => t('Select boxes'),
-      'field types' => array('birthdays_date'),
-    ),
+  $widgets['birthdays_date'] = array(
+    'label' => t('Select boxes'),
+    'field types' => array('birthdays_date'),
   );
+  $widgets['birthdays_textfield'] = array(
+    'label' => t('Textfield'),
+    'field types' => array('birthdays_date'),
+  );
+  return $widgets;
 }
 
 /**
@@ -512,18 +515,36 @@ function birthdays_field_widget_form(&$form, &$form_state, $field, $instance, $l
     '#year' => $instance['settings']['hide_year'],
   );
 
-  // Provide the default date format settings.
-  if (isset($instance['display']['default'])) {
-    $default_display = $instance['display']['default'];
-  }
-  else {
-    $default_display = reset($instance['display']);
-  }
-  $element['#display'] = $default_display['settings'];
+  switch ($instance['widget']['type']) {
+    case 'birthdays_date':
+      // Provide the default date format settings.
+      if (isset($instance['display']['default'])) {
+        $default_display = $instance['display']['default'];
+      }
+      else {
+        $default_display = reset($instance['display']);
+      }
+      $element['#display'] = $default_display['settings'];
 
-  // Default value.
-  if (!empty($items[$delta])) {
-    $element['#default_value'] = $items[$delta];
+      // Default value.
+      if (!empty($items[$delta])) {
+        $element['#default_value'] = $items[$delta];
+      }
+      break;
+
+    case 'birthdays_textfield':
+      $element['#type'] = 'fieldset';
+      $element['value'] = array(
+        '#type' => 'textfield',
+        '#size' => 20,
+      );
+
+      // No need to use a fieldset when there is no trigger checkbox.
+      if (empty($instance['settings']['triggers']['user'])) {
+        $element['#type'] = 'container';
+        $element['value']['#title'] = $element['#title'];
+      }
+      break;
   }
 
   // The trigger checkbox.

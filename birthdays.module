@@ -524,6 +524,8 @@ function birthdays_field_widget_settings_form($field, $instance) {
         '#options' => drupal_map_assoc(array(
           'Y/m/d',
           'd/m/Y',
+          'Y-m-d',
+          'd-m-Y',
           'd.m.Y',
         )),
         '#default_value' => $settings['dateformat'],

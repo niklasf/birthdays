@@ -147,7 +147,7 @@ class BirthdaysBirthday {
    * @return
    *   A BirthdaysBirthday instance.
    */
-  public function fromOffset($offset) {
+  public static function fromOffset($offset) {
     $time = REQUEST_TIME + intval($offset) * 24 * 60 * 60;
     return self::fromDate(0, date('m', $time), date('d', $time));
   }

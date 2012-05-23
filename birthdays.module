@@ -352,6 +352,10 @@ function birthdays_field_formatter_info() {
       'label' => t('Age'),
       'field types' => array('birthdays_date'),
     ),
+    'birthdays_age_upcoming' => array(
+      'label' => t('Age +1'),
+      'field types' => array('birthdays_date'),
+    ),
   );
 }
 
@@ -480,6 +484,12 @@ function birthdays_field_formatter_view($entity_type, $entity, $field, $instance
       case 'birthdays_age':
         if ($birthday->getYear()) {
           $element[$delta] = array('#markup' => check_plain($birthday->getCurrentAge()));
+        }
+        break;
+
+      case 'birthdays_age_upcoming':
+        if ($birthday->getYear()) {
+          $element[$delta] = array('#markup' => check_plain($birthday->getCurrentAge() + 1));
         }
         break;
     }

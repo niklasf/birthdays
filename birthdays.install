@@ -103,13 +103,15 @@ function birthdays_update_7000() {
 
   // Create a birthdays field on the user entity type.
   if (!field_info_field('birthdays')) {
-    field_create_field(array(
+    $field = array(
       'field_name' => 'birthdays',
       'type' => 'birthdays_date',
+      'module' => 'birthdays',
       'cardinality' => 1,
       'translatable' => FALSE,
       'entity_types' => array('user'),
-    ));
+    );
+    _update_7000_field_create_field($field);
   }
 
   // The field instance settings with admin_mail and hide_year setting.
